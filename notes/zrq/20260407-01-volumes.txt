@@ -56,51 +56,141 @@
         location.startsWith("https://")
         => DockerHttpResourceValidator
 
-    DockerFileResourceValidator
+
+    DockerFileResourceValidatorImpl
+    extends
+    SimpleDataResourceValidatorImpl
+
+        Matches kind for IvoaSimpleDataResource
+        Added to the validator list in DockerPlatform
+        Entity factory creates DockerFileDataResource
+
+        validate(....)
+
+            if (location.startsWith("file://")
+
+                super.validate(....)
+
+            else
+
+                return ResultEnum.CONTINUE;
+
+
+        validateLocation(....)
+            // Validate the local path
+            check file/path/mode
+
+        getPrepareDuration(....)
+            // Duration based on size and location.
+            ....
+
+        getReleaseDuration(....)
+            // Duration based on size and location.
+            ....
+
+
     DockerHttpResourceValidator
+    extends
+    SimpleDataResourceValidatorImpl
 
-        validate()
+        Matches kind for IvoaSimpleDataResource
+        Added to the validator list in DockerPlatform
+        Entity factory creates DockerHttpDataResource
 
-            // DockerHttpResourceValidator
-            // Validate the remote data
+        validate(....)
+
+            if ((location.startsWith("http://") || (location.startsWith("https://"))
+
+                super.validate(....)
+
+            else
+
+                return ResultEnum.CONTINUE;
+
+        validateLocation(....)
             http head
                 check exists
                 check access
                 get size
-            estimate transfer time
 
-            // DockerFileResourceValidator
-            // Validate the local data
-            check file/path/mode
+        getPrepareDuration(....)
+            // Duration based on size and location.
+            ....
 
-            // DockerSimpleDataResource
-            // Call platform to get factory to create storage
-            platform.getDataStorageLinker().linkStorage(
-                IvoaAbstractDataResource requested
-                IvoaAbstractDataResource validated
-                ){
-                switch(requested.getClass())
-                    IvoaSimpleDataResource
-                        location.startsWith("http://")
-                        location.startsWith("https://")
-                            => validator/builder for DockerVolumeMountStorage
-
-                        location.startsWith("file://")
-                            => validator/builder for DockerBindMountStorage
+        getReleaseDuration(....)
+            // Duration based on size and location.
+            ....
 
 
+    DockerSimpleDataResourceStop
+    extends
+    SimpleDataResourceValidatorImpl
+
+        Matches kind for IvoaSimpleDataResource
+        Added to the end of the validator list in DockerPlatform
+        Entity factory is null
+
+        validate(....)
+
+            context.addWarning(
+                "uri:unknown-type",
+                "Unknown data access protocol [${protocol}] for [${kind}][${name}][${uuid}]",
+                Map.of(
+                    uuid.toString().
+                    "protocol",
+                    "kind",
+                    kind.toString(),
+                    "name",
+                    name,
+                    "uuid"
+                    )
+                );
+            context.valid(false);
 
 
-    Validate compute
-    DockerSimpleCompute
 
-        foreach volume
-            validate volume
+    DockerDataStorageLinker
+    extends
+    AbstractDataStorageLinker
+
+        linkStorage(
+            IvoaAbstractDataResource requested
+            IvoaAbstractDataResource validated
+            OfferSetRequestParserContext context
+            )
+
+            switch(requested.getClass())
+
+                IvoaSimpleDataResource
+                    linkSimple(....)
+
+
+        linkSimple(....)
+
+            if ((location.startsWith("http://")) || (location.startsWith("https://"))
+
+                linkVolumeMount(....)
+
+            if (location.startsWith("file://")
+
+                linkBindMount(....)
+
+        linkVolumeMount(....)
+
+                validator/builder for DockerVolumeMountStorage
+
+        linkBindMount(....)
+
+                validator/builder for DockerBindMountStorage
+
+
 
     DockerVolumeMountStorage
+
         validate()
-            check space from volume pool
-            later - booking space from the pool
+            // later - check space from volume pool
+            // later - booking space from the pool
+            --
 
         prepare()
             create docker-volume
@@ -108,7 +198,9 @@
         release()
             delete docker-volume
 
+
     DockerBindMountStorage
+
         validate()
             check path is accessible
             if endsWith("/")
@@ -134,36 +226,42 @@
             --
 
 
-    DockerHttpDataResource
-    extends DockerRemoteDataResource
-    extends DockerSimpleDataResource
+    extends  DockerRemoteDataResource
+    replaces DockerSimpleDataResource
 
-        // DockerRemoteDataResource
+        release()
+            --
+
+
+
+    DockerHttpDataResource
+    extends  DockerRemoteDataResource
+    replaces DockerSimpleDataResource
+
         prepare()
             Download data into volume
                 Using curl/wget container
                     from url
                     to volume/path
 
-        // DockerSimpleDataResource
-        release()
-            --
 
 
     DockerFileDataResource
-    extends DockerLocalDataResource
-    extends DockerSimpleDataResource
+    extends  DockerLocalDataResource
+    replaces DockerSimpleDataResource
 
-        // DockerLocalDataResource
         prepare()
             Create parent directory.
 
-        // DockerSimpleDataResource
-        release()
-            --
 
 
-    DockerSimpleCompute
+
+    DockerSimpleComputeResource
+
+        validate()
+            foreach volume
+                validate volume
+
 
         prepare()
             for each volume
