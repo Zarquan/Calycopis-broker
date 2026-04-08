@@ -45,8 +45,8 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
  */
 @Component
 public class AbstractDataResourceValidatorFactoryImpl
-    extends ValidatorFactoryImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
-    implements AbstractDataResourceValidatorFactory
+extends ValidatorFactoryImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
+implements AbstractDataResourceValidatorFactory
     {
 
     /**
@@ -67,8 +67,7 @@ public class AbstractDataResourceValidatorFactoryImpl
         unknown(
             context,
             resource.getKind(),
-            resource.getClass().getName()
+            resource.getMeta()
             );
         }
-
     }

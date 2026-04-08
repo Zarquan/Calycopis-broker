@@ -53,8 +53,7 @@ implements AbstractVolumeMountValidatorFactory
         unknown(
             context,
             resource.getKind(),
-            resource.getClass().getName()
+            resource.getMeta()
             );
         }
     }
-
