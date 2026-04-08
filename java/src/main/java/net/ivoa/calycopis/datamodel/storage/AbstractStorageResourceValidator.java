@@ -82,7 +82,8 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
 
     /**
      * Validate a component.
-     *
+     * TODO Return a Result object instead of just a ResultEnum.
+     * 
      */
     public ResultEnum validate(
         final IvoaAbstractStorageResource requested,
@@ -94,7 +95,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
      * 
      */
     @Slf4j
-    public abstract static class ResultBean
+    public static class ResultBean
     extends Validator.ResultBean<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     implements Result
         {
@@ -111,6 +112,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          * Public constructor.
          * 
          */
+        @Deprecated
         public ResultBean(
             final ResultEnum result,
             final IvoaAbstractStorageResource object
@@ -158,6 +160,18 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
         public AbstractStorageResourceEntity build(final SimpleExecutionSessionEntity session)
             {
             return null ;
+            }
+
+        @Override
+        public Long getPrepareDuration()
+            {
+            return 0L;
+            }
+
+        @Override
+        public Long getReleaseDuration()
+            {
+            return 0L;
             }
         }   
     }

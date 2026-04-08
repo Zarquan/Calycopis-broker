@@ -56,13 +56,13 @@ package net.ivoa.calycopis.datamodel.data.simple;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaSimpleDataResource;
@@ -81,14 +81,14 @@ implements SimpleDataResourceValidator
      * Factory for creating Entities.
      * 
      */
-    final SimpleDataResourceEntityFactory entityFactory;
+    final AbstractDataResourceEntityFactory entityFactory;
 
     /**
      * Public constructor.
      * 
      */
     public SimpleDataResourceValidatorImpl(
-        final SimpleDataResourceEntityFactory entityFactory,
+        final AbstractDataResourceEntityFactory entityFactory,
         final AbstractDataStorageLinker storageLinker
         ){
         super(storageLinker);
@@ -123,6 +123,11 @@ implements SimpleDataResourceValidator
         log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
+
+        success &= duplicateCheck(
+            requested,
+            context
+            );
         
         IvoaSimpleDataResource validated = new IvoaSimpleDataResource()
             .kind(SimpleDataResource.TYPE_DISCRIMINATOR)
@@ -132,24 +137,19 @@ implements SimpleDataResourceValidator
                     context
                     )
                 );
-        
-        success &= duplicateCheck(
-            requested,
-            context
-            );
+
+        success &= validateLocation(
+                requested,
+                validated,
+                context
+                );
 
         AbstractStorageResourceValidator.Result storage = linkStorage(
             requested,
             validated,
             context
             );
-        success &= (storage != null) && ResultEnum.ACCEPTED.equals(storage.getEnum());
-
-        success &= validateLocation(
-            requested.getLocation(),
-            validated,
-            context
-            );
+        success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
 
         //
         // Everything is good, create a validator Result.
@@ -203,17 +203,11 @@ implements SimpleDataResourceValidator
         }
 
     /**
-     * Apply any platform specific validation rules to the data location.
-     * 
-     */
-    protected abstract boolean validateLocation(final String location, final OfferSetRequestParserContext context);
-
-    /**
      * Validate the data resource location.
      * 
      */
     public boolean validateLocation(
-        final String requested,
+        final IvoaSimpleDataResource requested,
         final IvoaSimpleDataResource validated,
         final OfferSetRequestParserContext context
         ){
@@ -223,7 +217,7 @@ implements SimpleDataResourceValidator
         boolean success = true ;
 
         String location = trim(
-            requested
+            requested.getLocation()
             );
         if ((location == null) || (location.isEmpty()))
             {
@@ -249,15 +243,21 @@ implements SimpleDataResourceValidator
         }
 
     /**
+     * Apply platform specific validation rules to the data location.
+     * 
+     */
+    protected abstract boolean validateLocation(final String location, final OfferSetRequestParserContext context);
+    
+    /**
      * Get the prepare duration for a resource.
      * 
      */
-    protected abstract Long getPrepareDuration(final IvoaSimpleDataResource validated);
+    protected abstract Long getPrepareDuration(final IvoaSimpleDataResource resource);
 
     /**
      * Get the release duration for a resource.
      * 
      */
-    protected abstract Long getReleaseDuration(final IvoaSimpleDataResource validated);
+    protected abstract Long getReleaseDuration(final IvoaSimpleDataResource resource);
 
     }

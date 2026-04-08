@@ -59,6 +59,7 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
 
     /**
      * Public interface for a validation result.
+     * TODO Add the context identifier for the object. 
      * 
      */
     public static interface Result<ObjectType, EntityType>
@@ -115,6 +116,7 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
 
     /**
      * Validate a component.
+     * TODO Return a Result object instead of just a ResultEnum.
      *
      */
     public ResultEnum validate(
