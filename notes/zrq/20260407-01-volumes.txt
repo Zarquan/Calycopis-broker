@@ -57,9 +57,16 @@
         => DockerHttpResourceValidator
 
 
+    DockerFileResourceValidator
+    extends
+    SimpleDataResourceValidator
+
+
     DockerFileResourceValidatorImpl
     extends
     SimpleDataResourceValidatorImpl
+    implements
+    DockerFileResourceValidator
 
         Matches kind for IvoaSimpleDataResource
         Added to the validator list in DockerPlatform
@@ -81,17 +88,21 @@
             check file/path/mode
 
         getPrepareDuration(....)
-            // Duration based on size and location.
-            ....
+            return 0L;
 
         getReleaseDuration(....)
-            // Duration based on size and location.
-            ....
+            return 0L;
 
 
     DockerHttpResourceValidator
     extends
+    SimpleDataResourceValidator
+
+    DockerHttpResourceValidatorImpl
+    extends
     SimpleDataResourceValidatorImpl
+    implements
+    DockerHttpResourceValidator
 
         Matches kind for IvoaSimpleDataResource
         Added to the validator list in DockerPlatform
@@ -121,10 +132,14 @@
             // Duration based on size and location.
             ....
 
+    DockerStopResourceValidator
+    extends
+    SimpleDataResourceValidator
 
-    DockerSimpleDataResourceStop
+    DockerStopResourceValidatorImpl
     extends
     SimpleDataResourceValidatorImpl
+    implements DockerStopResourceValidator
 
         Matches kind for IvoaSimpleDataResource
         Added to the end of the validator list in DockerPlatform
@@ -186,6 +201,14 @@
 
 
     DockerVolumeMountStorage
+    extends
+    SimpleStorageResource
+
+    DockerVolumeMountStorageEntity
+    extends
+    SimpleStorageResourceEntity
+    implements
+    DockerVolumeMountStorage
 
         validate()
             // later - check space from volume pool
@@ -199,6 +222,14 @@
             delete docker-volume
 
 
+    DockerBindMountStorage
+    extends
+    SimpleStorageResource
+
+    DockerBindMountStorageEntity
+    extends
+    SimpleStorageResourceEntity
+    implements
     DockerBindMountStorage
 
         validate()
@@ -224,6 +255,14 @@
 
         release()
             --
+
+
+
+
+
+
+
+
 
 
     extends  DockerRemoteDataResource

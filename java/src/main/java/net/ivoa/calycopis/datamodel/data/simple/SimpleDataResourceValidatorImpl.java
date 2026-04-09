@@ -100,7 +100,7 @@ implements SimpleDataResourceValidator
         final IvoaAbstractDataResource requested,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validate(IvoaAbstractDataResource)");
+        log.debug("validate(IvoaAbstractDataResource, Context)");
         log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
         //
         // Use exact class matching rather than instanceof to ensure each
@@ -119,7 +119,7 @@ implements SimpleDataResourceValidator
         final IvoaSimpleDataResource requested,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validate(IvoaSimpleDataResource)");
+        log.debug("validate(IvoaSimpleDataResource, Context)");
         log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
@@ -211,8 +211,8 @@ implements SimpleDataResourceValidator
         final IvoaSimpleDataResource validated,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validateLocation(String ...)");
-        log.debug("Requested [{}]", requested);
+        log.debug("validateLocation(IvoaSimpleDataResource, IvoaSimpleDataResource, Context)");
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
 
@@ -250,12 +250,14 @@ implements SimpleDataResourceValidator
     
     /**
      * Get the prepare duration for a resource.
+     * TODO Is this get or calculate ?
      * 
      */
     protected abstract Long getPrepareDuration(final IvoaSimpleDataResource resource);
 
     /**
      * Get the release duration for a resource.
+     * TODO Is this get or calculate ?
      * 
      */
     protected abstract Long getReleaseDuration(final IvoaSimpleDataResource resource);
