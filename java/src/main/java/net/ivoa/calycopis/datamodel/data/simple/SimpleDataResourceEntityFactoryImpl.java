@@ -34,6 +34,8 @@
 
 package net.ivoa.calycopis.datamodel.data.simple;
 
+import java.net.URI;
+
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceFactoryImpl;
 
@@ -43,9 +45,14 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceFactoryImpl;
  */
 @Slf4j
 public abstract class SimpleDataResourceEntityFactoryImpl
-    extends AbstractDataResourceFactoryImpl
-    implements SimpleDataResourceEntityFactory
+extends AbstractDataResourceFactoryImpl
+implements SimpleDataResourceEntityFactory
     {
+    @Override
+    public URI getKind()
+        {
+        return SimpleDataResource.TYPE_DISCRIMINATOR;
+        }
 
     public SimpleDataResourceEntityFactoryImpl()
         {
