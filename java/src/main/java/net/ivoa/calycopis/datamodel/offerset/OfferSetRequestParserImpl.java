@@ -38,6 +38,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -144,6 +145,7 @@ public class OfferSetRequestParserImpl
                     new IvoaComponentMetadata().name(
                         "Default compute resource"
                         )
+                    .uuid(UUID.randomUUID())
                     );
             }
 

@@ -112,14 +112,14 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          * Public constructor.
          * 
          */
-        @Deprecated
         public ResultBean(
             final ResultEnum result,
             final IvoaAbstractStorageResource object
             ){
             super(
                 result,
-                object
+                object,
+                (object != null) ? object.getMeta() : null
                 );
             }
         
