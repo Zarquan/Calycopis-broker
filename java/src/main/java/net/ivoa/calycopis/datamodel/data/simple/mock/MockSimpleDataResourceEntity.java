@@ -57,8 +57,8 @@ import net.ivoa.calycopis.functional.processing.mock.MockReleaseAction;
     name = "mocksimpledataresources"
     )
 public class MockSimpleDataResourceEntity
-    extends SimpleDataResourceEntity
-    implements MockSimpleDataResource
+extends SimpleDataResourceEntity
+implements MockSimpleDataResource
     {
     /**
      * 

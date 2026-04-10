@@ -33,7 +33,6 @@
  */
 package net.ivoa.calycopis.datamodel.data.simple.mock;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,7 +42,6 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResource;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
@@ -58,12 +56,6 @@ public class MockSimpleDataResourceEntityFactoryImpl
 extends SimpleDataResourceEntityFactoryImpl
 implements MockSimpleDataResourceEntityFactory
     {
-
-    @Override
-    public URI getKind()
-        {
-        return SimpleDataResource.TYPE_DISCRIMINATOR;
-        }
 
     private final MockSimpleDataResourceEntityRepository repository;
 
