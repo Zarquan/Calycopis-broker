@@ -136,7 +136,6 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
             this(result, null, null);
             }
 
-        @Deprecated
         public ResultBean(final ResultEnum result, final ObjectType object)
             {
             this(result, object, null);
