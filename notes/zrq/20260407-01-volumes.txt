@@ -57,6 +57,34 @@
         => DockerHttpResourceValidator
 
 
+    DockerFileResource
+    extends
+    SimpleDataResource
+
+    DockerFileResourceEntity
+    extends
+    SimpleDataResourceEntity
+    implements
+    DockerFileResource
+
+    DockerFileResourceEntityFactory
+    extends
+    SimpleDataResourceEntityFactory
+
+    DockerFileResourceEntityFactoryImpl
+    extends
+    SimpleDataResourceEntityFactoryImpl
+    implements
+    DockerFileResourceEntityFactory
+
+    DockerFileDataResourceEntityRepository
+    extends
+    JpaRepository<DockerFileDataResourceEntity, UUID>
+
+
+
+
+
     DockerFileResourceValidator
     extends
     SimpleDataResourceValidator
@@ -168,6 +196,10 @@
     extends
     AbstractDataStorageLinker
 
+    DockerDataStorageLinkerImpl
+    implements
+    DockerDataStorageLinker
+
         linkStorage(
             IvoaAbstractDataResource requested
             IvoaAbstractDataResource validated
@@ -256,6 +288,23 @@
         release()
             --
 
+    DockerBindMountStorageEntityFactory
+    extends
+    SimpleStorageResourceEntityFactory
+
+    DockerBindMountStorageEntityFactoryImpl
+    extends
+    SimpleStorageResourceEntityFactoryImpl
+    implements
+    DockerBindMountStorageEntityFactory
+
+
+
+    DockerBindMountStorageEntityRepository
+    extends
+    LifecycleComponentEntityRepository<DockerBindMountStorageEntity>
+
+
 
 
 
@@ -291,6 +340,9 @@
 
         prepare()
             Create parent directory.
+
+
+
 
 
 

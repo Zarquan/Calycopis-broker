@@ -57,11 +57,16 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.amazon.mock.MockAmazonS3DataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.amazon.mock.MockAmazonS3DataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.data.docker.file.DockerFileResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.docker.file.DockerFileResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.data.docker.http.DockerHttpResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.docker.http.DockerHttpResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.data.docker.link.DockerDataStorageLinker;
+import net.ivoa.calycopis.datamodel.data.docker.stop.DockerStopResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.ivoa.mock.MockIvoaDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.ivoa.mock.MockIvoaDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.mock.MockDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.simple.mock.MockSimpleDataResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.data.simple.mock.MockSimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.skao.mock.MockSkaoDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.skao.mock.MockSkaoDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
@@ -73,9 +78,12 @@ import net.ivoa.calycopis.datamodel.executable.jupyter.mock.MockJupyterNotebookV
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.storage.docker.DockerVolumeMountStorageEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.simple.mock.MockSimpleStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.simple.mock.MockSimpleStorageResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
+import net.ivoa.calycopis.datamodel.volume.simple.docker.DockerSimpleVolumeMountEntityFactory;
+import net.ivoa.calycopis.datamodel.volume.simple.docker.DockerSimpleVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
@@ -98,12 +106,19 @@ implements DockerPlatform
 
     public void initialize()
         {
-        log.debug("initialize()");
+        //
+        // Register validators with the most specific types first.
+        // Each validator factory will iterate through it's list of
+        // validators in registration order.
+        //
+        
+        /*
         this.executableValidatorFactory.addValidator(
             new MockJupyterNotebookValidatorImpl(
                 this.jupyterNotebookEntityFactory
                 )
             );
+         */
         this.executableValidatorFactory.addValidator(
             new DockerDockerContainerValidatorImpl(
                 this
@@ -115,23 +130,15 @@ implements DockerPlatform
                 this.volumeMountValidatorFactory
                 )
             );
+        /*
         this.storageResourceValidatorFactory.addValidator(
-            new MockSimpleStorageResourceValidatorImpl(
+            new DockerVolumeMountStorageValidatorImpl(
                 this.storageResourceEntityFactory
                 )
             );
+         */
 
-        //
-        // Register data resource validators with the most specific types first.
-        // The validator factory iterates through validators in registration order
-        // and stops at the first one that returns ACCEPTED or FAILED. Although
-        // each validator now uses exact class matching (getClass() ==) rather
-        // than instanceof, registering specific subtypes before their parent
-        // types provides defence in depth against future regressions.
-        //
-        // SkaoDataResource extends IvoaDataResource in the type hierarchy,
-        // so the SKAO validator must be registered before the IVOA validator.
-        //
+        /*
         this.dataResourceValidatorFactory.addValidator(
             new MockSkaoDataResourceValidatorImpl(
                 this.jdbcTemplate,
@@ -151,17 +158,35 @@ implements DockerPlatform
                 this.dataStorageLinker
                 )
             );
+         */
         this.dataResourceValidatorFactory.addValidator(
-            new MockSimpleDataResourceValidatorImpl(
-                this.mockSimpleDataResourceEntityFactory,
+            new DockerFileResourceValidatorImpl(
+                this.dockerFileResourceEntityFactory,
                 this.dataStorageLinker
+                )
+            );
+        this.dataResourceValidatorFactory.addValidator(
+            new DockerHttpResourceValidatorImpl(
+                this.dockerHttpResourceEntityFactory,
+                this.dataStorageLinker
+                )
+            );
+        this.dataResourceValidatorFactory.addValidator(
+            new DockerStopResourceValidatorImpl()
+            );
+
+        this.volumeMountValidatorFactory.addValidator(
+            new DockerSimpleVolumeMountValidatorImpl(
+                this.volumeMountEntityFactory,
+                this.dockerHttpResourceEntityFactory,
+                this.storageResourceEntityFactory
                 )
             );
 
         this.registerFactory(this.dockerContainerEntityFactory);
         this.registerFactory(this.jupyterNotebookEntityFactory);
         this.registerFactory(this.computeResourceEntityFactory);
-        this.registerFactory(this.dataResourceEntityFactory);
+        //this.registerFactory(this.dataResourceEntityFactory);
         this.registerFactory(this.storageResourceEntityFactory);
         
         }
@@ -200,28 +225,14 @@ implements DockerPlatform
 // Data   
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private DockerFileResourceEntityFactory dockerFileResourceEntityFactory;    
 
     @Autowired
-    private MockSimpleDataResourceEntityFactory mockSimpleDataResourceEntityFactory;
+    private DockerHttpResourceEntityFactory dockerHttpResourceEntityFactory;
 
-    @Autowired
-    private MockAmazonS3DataResourceEntityFactory mockAmazonS3DataResourceEntityFactory;
+    //@Autowired
+    //private AbstractDataResourceEntityFactory dataResourceEntityFactory;
 
-    @Autowired
-    private MockIvoaDataResourceEntityFactory mockIvoaDataResourceEntityFactory;
-
-    @Autowired
-    private MockSkaoDataResourceEntityFactory mockSkaoDataResourceEntityFactory;
-
-    @Autowired
-    private AbstractDataResourceEntityFactory dataResourceEntityFactory;
-    @Override
-    public AbstractDataResourceEntityFactory getDataResourceEntityFactory()
-        {
-        return this.dataResourceEntityFactory;
-        }
-    
     @Autowired
     private AbstractDataResourceValidatorFactory dataResourceValidatorFactory;
     @Override
@@ -254,7 +265,7 @@ implements DockerPlatform
 // Storage
 
     @Autowired
-    private MockSimpleStorageResourceEntityFactory storageResourceEntityFactory;
+    private DockerVolumeMountStorageEntityFactory storageResourceEntityFactory;
 
     @Autowired
     private AbstractStorageResourceValidatorFactory storageResourceValidatorFactory;
@@ -265,7 +276,7 @@ implements DockerPlatform
         }
 
     @Autowired
-    private MockDataStorageLinker dataStorageLinker;
+    private DockerDataStorageLinker dataStorageLinker;
     @Override
     public AbstractDataStorageLinker getDataStorageLinker()
         {
@@ -273,6 +284,9 @@ implements DockerPlatform
         }
     
 // Volume
+    
+    @Autowired
+    private DockerSimpleVolumeMountEntityFactory volumeMountEntityFactory ;
     
     @Autowired
     private AbstractVolumeMountValidatorFactory volumeMountValidatorFactory;
