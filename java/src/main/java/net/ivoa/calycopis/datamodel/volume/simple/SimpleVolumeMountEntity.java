@@ -58,9 +58,6 @@ import net.ivoa.calycopis.util.URIBuilder;
 @Table(
     name = "simplevolumemounts"
     )
-@DiscriminatorValue(
-    value="uri:simple-volume-mount"
-    )
 public class SimpleVolumeMountEntity
     extends AbstractVolumeMountEntity
     implements SimpleVolumeMount

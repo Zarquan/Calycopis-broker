@@ -52,9 +52,6 @@ import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidator;
 @Table(
     name = "mocksimplevolumemounts"
     )
-@DiscriminatorValue(
-    value="uri:mock-simple-volume-mount"
-    )
 public class MockSimpleVolumeMountEntity
     extends SimpleVolumeMountEntity
     implements MockSimpleVolumeMount
@@ -91,7 +88,7 @@ public class MockSimpleVolumeMountEntity
      */
     public MockSimpleVolumeMountEntity(
         final AbstractComputeResourceEntity computeResource,
-        final AbstractStorageResourceEntity    storageResource,
+        final AbstractStorageResourceEntity storageResource,
         final SimpleVolumeMountValidator.Result result
         ){
         super(
@@ -100,7 +97,5 @@ public class MockSimpleVolumeMountEntity
             result
             );
         }
-    
-    
     }
 
