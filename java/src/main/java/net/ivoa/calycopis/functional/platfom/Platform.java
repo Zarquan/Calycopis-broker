@@ -95,8 +95,8 @@ extends FactoryBase
     /**
      * Get the DataResourceEntityFactory for this platform.
      *
-     */
     public AbstractDataResourceEntityFactory getDataResourceEntityFactory();
+     */
 
     /**
      * Get the DataResourceValidatorFactory for this platform.

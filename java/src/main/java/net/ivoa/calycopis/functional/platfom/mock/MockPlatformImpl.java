@@ -228,7 +228,7 @@ implements MockPlatform
         this.registerFactory(this.dockerContainerEntityFactory);
         this.registerFactory(this.jupyterNotebookEntityFactory);
         this.registerFactory(this.computeResourceEntityFactory);
-        this.registerFactory(this.dataResourceEntityFactory);
+        //this.registerFactory(this.dataResourceEntityFactory);
         this.registerFactory(this.storageResourceEntityFactory);
         
         }
@@ -273,11 +273,13 @@ implements MockPlatform
 
     @Autowired
     private AbstractDataResourceEntityFactory dataResourceEntityFactory;
+    /*
     @Override
     public AbstractDataResourceEntityFactory getDataResourceEntityFactory()
         {
         return this.dataResourceEntityFactory;
         }
+     */
     
     @Autowired
     private AbstractDataResourceValidatorFactory dataResourceValidatorFactory;
