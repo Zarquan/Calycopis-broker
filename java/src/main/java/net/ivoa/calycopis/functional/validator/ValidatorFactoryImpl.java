@@ -121,9 +121,9 @@ public abstract class ValidatorFactoryImpl<ObjectType, EntityType extends Compon
                 "Unknown kind [${kind}][${name}][${uuid}]",
                 Map.of(
                     "kind",
-                    kind.toString(),
+                    (kind != null) ? kind.toString() : "null",
                     "name",
-                    meta.getName(),
+                    (meta.getName() != null) ? meta.getName() : "null",
                     "uuid",
                     (meta.getUuid() != null) ? meta.getUuid().toString() : "null"
                     )
