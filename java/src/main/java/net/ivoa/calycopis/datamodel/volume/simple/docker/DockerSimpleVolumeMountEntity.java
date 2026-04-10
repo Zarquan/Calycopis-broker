@@ -35,7 +35,6 @@
 
 package net.ivoa.calycopis.datamodel.volume.simple.docker;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;

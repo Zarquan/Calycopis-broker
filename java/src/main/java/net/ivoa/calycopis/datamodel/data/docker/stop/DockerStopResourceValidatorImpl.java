@@ -26,8 +26,6 @@ package net.ivoa.calycopis.datamodel.data.docker.stop;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.spring.model.IvoaSimpleDataResource;

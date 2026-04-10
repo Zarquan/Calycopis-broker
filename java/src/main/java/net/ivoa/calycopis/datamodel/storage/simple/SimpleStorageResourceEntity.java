@@ -36,7 +36,6 @@ package net.ivoa.calycopis.datamodel.storage.simple;
 
 import java.net.URI;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;

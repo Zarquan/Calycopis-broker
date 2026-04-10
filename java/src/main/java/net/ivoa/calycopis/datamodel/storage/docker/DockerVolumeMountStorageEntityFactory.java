@@ -23,9 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.storage.docker;
 
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntityFactory;
 

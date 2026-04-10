@@ -37,7 +37,6 @@ package net.ivoa.calycopis.datamodel.volume.simple;
 
 import java.net.URI;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
