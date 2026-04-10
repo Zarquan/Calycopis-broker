@@ -28,6 +28,7 @@ import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceValidator;
 /**
  * 
  */
-public interface DockerStopResourceValidator extends SimpleDataResourceValidator
+public interface DockerStopResourceValidator
+extends SimpleDataResourceValidator
     {
     }

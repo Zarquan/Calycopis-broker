@@ -30,28 +30,23 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.validator.Validator.ResultEnum;
 import net.ivoa.calycopis.spring.model.IvoaSimpleDataResource;
 
 /**
  * 
  */
 @Slf4j
-public class DockerStopResourceValidatorImpl extends SimpleDataResourceValidatorImpl
-        implements DockerStopResourceValidator
+public class DockerStopResourceValidatorImpl
+extends SimpleDataResourceValidatorImpl
+implements DockerStopResourceValidator
     {
 
     /**
      * 
      */
-    public DockerStopResourceValidatorImpl(
-        final AbstractDataResourceEntityFactory entityFactory,
-        final AbstractDataStorageLinker storageLinker
-        ){
-        super(
-            entityFactory,
-            storageLinker
-            );
+    public DockerStopResourceValidatorImpl()
+        {
+        super(null, null);
         }
 
     @Override
@@ -78,19 +73,19 @@ public class DockerStopResourceValidatorImpl extends SimpleDataResourceValidator
         }
     
     @Override
-    protected boolean validateLocation(String location, OfferSetRequestParserContext context)
+    protected boolean validateLocation(final String location, final OfferSetRequestParserContext context)
         {
         return false;
         }
 
     @Override
-    protected Long getPrepareDuration(IvoaSimpleDataResource resource)
+    protected Long getPrepareDuration(final IvoaSimpleDataResource resource)
         {
         return 0L;
         }
 
     @Override
-    protected Long getReleaseDuration(IvoaSimpleDataResource resource)
+    protected Long getReleaseDuration(final IvoaSimpleDataResource resource)
         {
         return 0L;
         }
