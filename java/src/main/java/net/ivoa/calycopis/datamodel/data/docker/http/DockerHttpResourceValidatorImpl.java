@@ -28,7 +28,6 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.validator.Validator.ResultEnum;
 import net.ivoa.calycopis.spring.model.IvoaSimpleDataResource;
 
 /**
