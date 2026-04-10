@@ -169,10 +169,12 @@ implements SimpleComputeResourceValidator
             {
             for (IvoaAbstractVolumeMount volumeMount : requested.getVolumes())
                 {
-                volumeMountValidatorFactory.validate(
+                log.debug("Validating volume mount [{}]", volumeMount);
+                ResultEnum volumeResult = volumeMountValidatorFactory.validate(
                     volumeMount,
                     context
                     );
+                success &= ResultEnum.ACCEPTED.equals(volumeResult);
                 }
             }
 
