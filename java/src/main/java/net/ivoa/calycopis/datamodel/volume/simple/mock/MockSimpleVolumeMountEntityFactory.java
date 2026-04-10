@@ -44,6 +44,5 @@ import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntityFactory
 public interface MockSimpleVolumeMountEntityFactory
 extends SimpleVolumeMountEntityFactory
     {
-
     }
 
