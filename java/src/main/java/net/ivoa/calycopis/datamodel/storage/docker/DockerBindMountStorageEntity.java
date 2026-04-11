@@ -30,9 +30,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
  * 
@@ -86,7 +89,25 @@ implements DockerBindMountStorage
         final Platform platform,
         final ComponentProcessingRequest request
         ){
-        return ProcessingAction.NO_ACTION;
+        return new ComponentProcessingAction()
+            {
+            @Override
+            public void preProcess(final LifecycleComponent component) {}
+
+            @Override
+            public void process() {}
+
+            @Override
+            public void postProcess(final LifecycleComponent component)
+                {
+                log.debug(
+                    "Post-processing component [{}][{}] next phase [AVAILABLE]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                component.setPhase(IvoaLifecyclePhase.AVAILABLE);
+                }
+            };
         }
 
     @Override
@@ -94,7 +115,20 @@ implements DockerBindMountStorage
         final Platform platform,
         final ComponentProcessingRequest request
         ){
-        return ProcessingAction.NO_ACTION;
+        return new ComponentProcessingAction()
+            {
+            @Override
+            public void preProcess(final LifecycleComponent component) {}
+
+            @Override
+            public void process() {}
+
+            @Override
+            public void postProcess(final LifecycleComponent component)
+                {
+                component.setPhase(IvoaLifecyclePhase.COMPLETED);
+                }
+            };
         }
 
     @Override
@@ -102,6 +136,19 @@ implements DockerBindMountStorage
         final Platform platform,
         final ComponentProcessingRequest request
         ){
-        return ProcessingAction.NO_ACTION;
+        return new ComponentProcessingAction()
+            {
+            @Override
+            public void preProcess(final LifecycleComponent component) {}
+
+            @Override
+            public void process() {}
+
+            @Override
+            public void postProcess(final LifecycleComponent component)
+                {
+                component.setPhase(IvoaLifecyclePhase.COMPLETED);
+                }
+            };
         }
     }

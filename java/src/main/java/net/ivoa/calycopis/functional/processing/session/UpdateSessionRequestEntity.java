@@ -145,7 +145,7 @@ implements SessionProcessingRequest
                 data
                 );
             }
-        for (LifecycleComponentEntity storage: session.getDataResources())
+        for (LifecycleComponentEntity storage: session.getStorageResources())
             {
             filter.count(
                 storage

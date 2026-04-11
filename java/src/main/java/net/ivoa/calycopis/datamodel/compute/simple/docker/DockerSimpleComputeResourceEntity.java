@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.compute.simple.docker;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,10 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.model.AccessMode;
+import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Volume;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -42,10 +46,15 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidator;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
+import net.ivoa.calycopis.datamodel.storage.docker.DockerBindMountStorage;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
@@ -55,6 +64,7 @@ import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAct
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount.ModeEnum;
 
 /**
  * A Docker SimpleComputeResource entity.
@@ -140,11 +150,59 @@ implements DockerSimpleComputeResource
         final Long maxCores = this.getMaxOfferedCores();
         final Long maxMemory = this.getMaxOfferedMemory();
 
+        final List<Bind> bindList = new ArrayList<Bind>();
+        for (AbstractVolumeMountEntity volumeMount : this.getVolumeMounts())
+            {
+            if (volumeMount instanceof SimpleVolumeMountEntity)
+                {
+                SimpleVolumeMountEntity simpleMount = (SimpleVolumeMountEntity) volumeMount;
+                AbstractDataResourceEntity dataResource = simpleMount.getDataResource();
+                if (dataResource != null)
+                    {
+                    AbstractStorageResource storage = dataResource.getStorage();
+                    if (storage instanceof DockerBindMountStorage)
+                        {
+                        DockerBindMountStorage bindStorage = (DockerBindMountStorage) storage;
+                        String mountPath = bindStorage.getMountPath();
+                        String hostPath;
+                        if (mountPath != null && mountPath.startsWith("file:"))
+                            {
+                            hostPath = URI.create(mountPath).getPath();
+                            }
+                        else {
+                            hostPath = mountPath;
+                            }
+                        String containerPath = simpleMount.getPath();
+                        AccessMode accessMode = AccessMode.rw;
+                        if (simpleMount.getMode() == ModeEnum.READONLY)
+                            {
+                            accessMode = AccessMode.ro;
+                            }
+                        if (hostPath != null && containerPath != null)
+                            {
+                            log.debug(
+                                "Adding bind mount [{}] -> [{}] ({})",
+                                hostPath,
+                                containerPath,
+                                accessMode
+                                );
+                            bindList.add(
+                                new Bind(
+                                    hostPath,
+                                    new Volume(containerPath),
+                                    accessMode
+                                    )
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
         final AbstractExecutableEntity executable = this.session.getExecutable();
         final String imageName;
         final List<String> variablesList = new ArrayList<String>();
         final List<String> commandList = new ArrayList<String>();
-        final List<String> volumeList = new ArrayList<String>();
 
         if (executable instanceof DockerContainerEntity)
             {
@@ -265,6 +323,13 @@ implements DockerSimpleComputeResource
                         }
 
                     //
+                    // Add bind mounts to the host configuration.
+                    if (!bindList.isEmpty())
+                        {
+                        hostConfig.withBinds(bindList);
+                        }
+
+                    //
                     // Create and start the container, retrying without resource limits
                     // if the cgroup controllers are not available (e.g. nested containers).
                     this.containerId = createAndStartContainer(
@@ -281,12 +346,17 @@ implements DockerSimpleComputeResource
                             "Retrying without resource limits for [{}]",
                             resourceUuid
                             );
+                        HostConfig retryConfig = HostConfig.newHostConfig();
+                        if (!bindList.isEmpty())
+                            {
+                            retryConfig.withBinds(bindList);
+                            }
                         this.containerId = createAndStartContainer(
                             dockerClient,
                             imageName,
                             variablesList,
                             commandList,
-                            HostConfig.newHostConfig(),
+                            retryConfig,
                             resourceUuid
                             );
                         }

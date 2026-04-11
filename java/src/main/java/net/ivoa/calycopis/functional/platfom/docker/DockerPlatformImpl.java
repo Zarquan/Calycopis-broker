@@ -53,6 +53,7 @@ import net.ivoa.calycopis.datamodel.compute.simple.docker.DockerSimpleComputeRes
 import net.ivoa.calycopis.datamodel.compute.simple.docker.DockerSimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
+import net.ivoa.calycopis.datamodel.data.docker.DockerSimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.docker.file.DockerFileResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.docker.file.DockerFileResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.docker.http.DockerHttpResourceEntityFactory;
@@ -67,6 +68,7 @@ import net.ivoa.calycopis.datamodel.executable.jupyter.mock.MockJupyterNotebookE
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.storage.docker.DockerSimpleStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.docker.DockerVolumeMountStorageEntityFactory;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.datamodel.volume.simple.docker.DockerSimpleVolumeMountEntityFactory;
@@ -173,8 +175,8 @@ implements DockerPlatform
         this.registerFactory(this.dockerContainerEntityFactory);
         this.registerFactory(this.jupyterNotebookEntityFactory);
         this.registerFactory(this.computeResourceEntityFactory);
-        //this.registerFactory(this.dataResourceEntityFactory);
-        this.registerFactory(this.storageResourceEntityFactory);
+        this.registerFactory(this.simpleDataResourceEntityFactory);
+        this.registerFactory(this.simpleStorageResourceEntityFactory);
         
         }
 
@@ -212,13 +214,13 @@ implements DockerPlatform
 // Data   
 
     @Autowired
+    private DockerSimpleDataResourceEntityFactory simpleDataResourceEntityFactory;
+
+    @Autowired
     private DockerFileResourceEntityFactory dockerFileResourceEntityFactory;    
 
     @Autowired
     private DockerHttpResourceEntityFactory dockerHttpResourceEntityFactory;
-
-    //@Autowired
-    //private AbstractDataResourceEntityFactory dataResourceEntityFactory;
 
     @Autowired
     private AbstractDataResourceValidatorFactory dataResourceValidatorFactory;
@@ -250,6 +252,9 @@ implements DockerPlatform
     private MockJupyterNotebookEntityFactory jupyterNotebookEntityFactory;
     
 // Storage
+
+    @Autowired
+    private DockerSimpleStorageResourceEntityFactory simpleStorageResourceEntityFactory;
 
     @Autowired
     private DockerVolumeMountStorageEntityFactory storageResourceEntityFactory;

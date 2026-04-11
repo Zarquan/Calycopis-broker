@@ -30,9 +30,12 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator.Result;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.spring.model.IvoaSimpleDataResource;
 
 /**
@@ -91,22 +94,63 @@ implements DockerHttpResource
     @Override
     public ProcessingAction getPrepareAction(Platform platform, ComponentProcessingRequest request)
         {
-        // TODO Auto-generated method stub
-        return null;
+        return new ComponentProcessingAction()
+            {
+            @Override
+            public void preProcess(final LifecycleComponent component) {}
+
+            @Override
+            public void process() {}
+
+            @Override
+            public void postProcess(final LifecycleComponent component)
+                {
+                log.debug(
+                    "Post-processing component [{}][{}] next phase [AVAILABLE]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                component.setPhase(IvoaLifecyclePhase.AVAILABLE);
+                }
+            };
         }
 
     @Override
     public ProcessingAction getMonitorAction(Platform platform, ComponentProcessingRequest request)
         {
-        // TODO Auto-generated method stub
-        return null;
+        return new ComponentProcessingAction()
+            {
+            @Override
+            public void preProcess(final LifecycleComponent component) {}
+
+            @Override
+            public void process() {}
+
+            @Override
+            public void postProcess(final LifecycleComponent component)
+                {
+                component.setPhase(IvoaLifecyclePhase.COMPLETED);
+                }
+            };
         }
 
     @Override
     public ProcessingAction getReleaseAction(Platform platform, ComponentProcessingRequest request)
         {
-        // TODO Auto-generated method stub
-        return null;
+        return new ComponentProcessingAction()
+            {
+            @Override
+            public void preProcess(final LifecycleComponent component) {}
+
+            @Override
+            public void process() {}
+
+            @Override
+            public void postProcess(final LifecycleComponent component)
+                {
+                component.setPhase(IvoaLifecyclePhase.COMPLETED);
+                }
+            };
         }
 
     }

@@ -220,7 +220,7 @@ EOF
     #
 
         #
-        # Simple data with http:// URL should be linked to bind mount storage.
+        # Simple data with http:// URL should be linked to volume storage.
         #
 
         cat > "007-001-offerset-request.yaml" << EOF
