@@ -142,8 +142,9 @@ implements DockerSimpleComputeResource
 
         final AbstractExecutableEntity executable = this.session.getExecutable();
         final String imageName;
-        final List<String> envList = new ArrayList<String>();
-        final List<String> cmdList = new ArrayList<String>();
+        final List<String> variablesList = new ArrayList<String>();
+        final List<String> commandList = new ArrayList<String>();
+        final List<String> volumeList = new ArrayList<String>();
 
         if (executable instanceof DockerContainerEntity)
             {
@@ -165,13 +166,13 @@ implements DockerSimpleComputeResource
                 {
                 for (Map.Entry<String, String> entry : environment.entrySet())
                     {
-                    envList.add(entry.getKey() + "=" + entry.getValue());
+                    variablesList.add(entry.getKey() + "=" + entry.getValue());
                     }
                 }
             List<String> command = dockerExecutable.getCommand();
             if (command != null)
                 {
-                cmdList.addAll(command);
+                commandList.addAll(command);
                 }
             }
         else
@@ -269,8 +270,8 @@ implements DockerSimpleComputeResource
                     this.containerId = createAndStartContainer(
                         dockerClient,
                         imageName,
-                        envList,
-                        cmdList,
+                        variablesList,
+                        commandList,
                         hostConfig,
                         resourceUuid
                         );
@@ -283,8 +284,8 @@ implements DockerSimpleComputeResource
                         this.containerId = createAndStartContainer(
                             dockerClient,
                             imageName,
-                            envList,
-                            cmdList,
+                            variablesList,
+                            commandList,
                             HostConfig.newHostConfig(),
                             resourceUuid
                             );
