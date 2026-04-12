@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.compute.simple.docker;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,6 @@ import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.model.AccessMode;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Volume;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -52,7 +50,7 @@ import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
-import net.ivoa.calycopis.datamodel.storage.docker.DockerBindMountStorage;
+import net.ivoa.calycopis.datamodel.storage.docker.DockerStorageLinkerBean;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
@@ -151,53 +149,80 @@ implements DockerSimpleComputeResource
         final Long maxMemory = this.getMaxOfferedMemory();
 
         final List<Bind> bindList = new ArrayList<Bind>();
+        log.debug(
+            "Resolving volume mounts for compute resource [{}], mount count [{}]",
+            resourceUuid,
+            this.getVolumeMounts().size()
+            );
         for (AbstractVolumeMountEntity volumeMount : this.getVolumeMounts())
             {
+            log.debug(
+                "Volume mount [{}] type [{}]",
+                volumeMount.getUuid(),
+                volumeMount.getClass().getSimpleName()
+                );
             if (volumeMount instanceof SimpleVolumeMountEntity)
                 {
                 SimpleVolumeMountEntity simpleMount = (SimpleVolumeMountEntity) volumeMount;
                 AbstractDataResourceEntity dataResource = simpleMount.getDataResource();
+                log.debug(
+                    "SimpleVolumeMount [{}] dataResource [{}]",
+                    simpleMount.getUuid(),
+                    dataResource != null ? dataResource.getUuid() + " " + dataResource.getClass().getSimpleName() : "null"
+                    );
                 if (dataResource != null)
                     {
                     AbstractStorageResource storage = dataResource.getStorage();
-                    if (storage instanceof DockerBindMountStorage)
+                    log.debug(
+                        "DataResource [{}] storage [{}]",
+                        dataResource.getUuid(),
+                        storage != null ? storage.getClass().getSimpleName() : "null"
+                        );
+                    if (storage != null)
                         {
-                        DockerBindMountStorage bindStorage = (DockerBindMountStorage) storage;
-                        String mountPath = bindStorage.getMountPath();
-                        String hostPath;
-                        if (mountPath != null && mountPath.startsWith("file:"))
-                            {
-                            hostPath = URI.create(mountPath).getPath();
-                            }
-                        else {
-                            hostPath = mountPath;
-                            }
                         String containerPath = simpleMount.getPath();
                         AccessMode accessMode = AccessMode.rw;
                         if (simpleMount.getMode() == ModeEnum.READONLY)
                             {
                             accessMode = AccessMode.ro;
                             }
-                        if (hostPath != null && containerPath != null)
+                        DockerStorageLinkerBean linkerBean = new DockerStorageLinkerBean(
+                            containerPath,
+                            accessMode
+                            );
+                        storage.link(linkerBean);
+                        if (linkerBean.isComplete())
                             {
+                            Bind bind = linkerBean.toBind();
                             log.debug(
-                                "Adding bind mount [{}] -> [{}] ({})",
-                                hostPath,
-                                containerPath,
-                                accessMode
+                                "Adding bind [{}] for volume mount [{}]",
+                                bind,
+                                simpleMount.getUuid()
                                 );
-                            bindList.add(
-                                new Bind(
-                                    hostPath,
-                                    new Volume(containerPath),
-                                    accessMode
-                                    )
+                            bindList.add(bind);
+                            }
+                        else {
+                            log.warn(
+                                "Linker bean incomplete for volume mount [{}], storage [{}] - skipping",
+                                simpleMount.getUuid(),
+                                storage.getClass().getSimpleName()
                                 );
                             }
                         }
                     }
                 }
+            else {
+                log.debug(
+                    "Volume mount [{}] is not a SimpleVolumeMountEntity, skipping",
+                    volumeMount.getUuid()
+                    );
+                }
             }
+        log.debug(
+            "Resolved [{}] bind mounts for compute resource [{}]",
+            bindList.size(),
+            resourceUuid
+            );
 
         final AbstractExecutableEntity executable = this.session.getExecutable();
         final String imageName;

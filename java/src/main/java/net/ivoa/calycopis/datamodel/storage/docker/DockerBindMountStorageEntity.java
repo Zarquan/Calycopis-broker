@@ -23,11 +23,14 @@
 
 package net.ivoa.calycopis.datamodel.storage.docker;
 
+import java.net.URI;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageLinker;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
@@ -84,6 +87,25 @@ implements DockerBindMountStorage
         return this.hostPath;
         }
     
+    @Override
+    public void link(final AbstractStorageLinker linker)
+        {
+        if (linker instanceof DockerStorageLinker)
+            {
+            DockerStorageLinker dockerLinker = (DockerStorageLinker) linker;
+            String sourcePath = this.hostPath;
+            if (sourcePath != null && sourcePath.startsWith("file:"))
+                {
+                sourcePath = URI.create(sourcePath).getPath();
+                }
+            log.debug(
+                "DockerBindMountStorageEntity linking source path [{}]",
+                sourcePath
+                );
+            dockerLinker.setSourcePath(sourcePath);
+            }
+        }
+
     @Override
     public ProcessingAction getPrepareAction(
         final Platform platform,

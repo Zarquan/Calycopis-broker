@@ -53,5 +53,14 @@ extends LifecycleComponent
      *
      */
     public List<AbstractVolumeMountEntity> getVolumeMounts();
-    
+
+    /**
+     * Link this storage resource to a compute resource via
+     * a platform-specific linker.
+     * The storage entity uses the linker to contribute its
+     * part of the volume mount specification.
+     *
+     */
+    public void link(AbstractStorageLinker linker);
+
     }

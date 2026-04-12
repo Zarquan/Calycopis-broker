@@ -57,7 +57,9 @@ Timeouts:
 """
 
 import os
+from datetime import datetime, timezone
 
+import docker
 import pytest
 
 from calycopis_client.wrappers.execution_client import ExecutionBrokerClient
@@ -88,6 +90,11 @@ BIND_MOUNT_TEST_FILE = os.environ.get(
 )
 
 PHASE_TIMEOUT = float(os.environ.get("PHASE_TIMEOUT", "120"))
+
+DOCKER_SOCKET = os.environ.get(
+    "DOCKER_SOCKET",
+    "unix:///run/podman/podman.sock",
+)
 
 DOCKER_CONTAINER_KIND = (
     "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
@@ -135,9 +142,41 @@ def client() -> ExecutionBrokerClient:
     return ExecutionBrokerClient(host=CALYCOPIS_URL)
 
 
+@pytest.fixture(scope="module")
+def docker_client() -> docker.DockerClient:
+    """Create a shared Docker/Podman client for container inspection."""
+    return docker.DockerClient(base_url=DOCKER_SOCKET)
+
+
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
+
+def _find_container_by_image(
+    docker_client: docker.DockerClient,
+    image_substr: str,
+    created_after: datetime,
+):
+    """Find the most recently created container whose image matches
+    *image_substr* and that was created after *created_after*.
+
+    Returns the docker Container object, or None.
+    """
+    for container in docker_client.containers.list(all=True):
+        tags = container.image.tags if container.image.tags else []
+        if not any(image_substr in t for t in tags):
+            continue
+        created_str = container.attrs.get("Created", "")
+        try:
+            created_dt = datetime.fromisoformat(
+                created_str.replace("Z", "+00:00")
+            )
+        except (ValueError, TypeError):
+            continue
+        if created_dt >= created_after:
+            return container
+    return None
+
 
 def _make_bind_mount_request(
     name: str = "bind-mount-test",
@@ -407,4 +446,104 @@ class TestBindMountLifecycle:
 
         assert result.phase == SimpleExecutionSessionPhase.COMPLETED, (
             f"Session should reach COMPLETED, got {result.phase}"
+        )
+
+
+# ===========================================================================
+# Container inspection tests — verify bind mounts via Docker/Podman API
+# ===========================================================================
+
+class TestBindMountContainerInspection:
+    """
+    Uses the Docker Python API to inspect the actual container created
+    by the broker and verify that the bind mount is present with the
+    correct source path, destination path, and access mode.
+
+    The test uses a long pause (120 s) and polls for the container
+    while waiting for the RUNNING phase, so that we can inspect the
+    container before the broker's release cycle removes it.
+    """
+
+    def test_container_has_bind_mount(self, client, docker_client):
+        """
+        Submit a bind-mount request, poll for the container via the
+        Docker/Podman API while the session reaches RUNNING, then
+        verify:
+        - The Mounts list contains a bind mount to /input.
+        - The mount source is the host file path.
+        - The mount is read-only.
+        - The HostConfig.Binds array has a matching entry.
+        """
+        from time import sleep as _sleep
+
+        test_start = datetime.now(timezone.utc)
+
+        request = _make_bind_mount_request(
+            "bind-inspect",
+            pause_seconds=120,
+        )
+        response = client.submit_execution(request, follow_redirect=True)
+        assert response.result == "YES"
+        assert len(response.offers) > 0
+
+        offer = response.offers[0]
+        offer_uuid = offer.meta.uuid
+
+        client.set_session_phase(
+            offer_uuid,
+            SimpleExecutionSessionPhase.ACCEPTED,
+        )
+
+        container = None
+        deadline = datetime.now(timezone.utc).timestamp() + PHASE_TIMEOUT
+        while datetime.now(timezone.utc).timestamp() < deadline:
+            container = _find_container_by_image(
+                docker_client,
+                "heliophorus-cantliei",
+                test_start,
+            )
+            if container is not None:
+                break
+            _sleep(5.0)
+
+        assert container is not None, (
+            "Could not find a heliophorus-cantliei container "
+            f"created after {test_start.isoformat()}"
+        )
+
+        container.reload()
+
+        mounts = container.attrs.get("Mounts", [])
+        bind_mounts = [m for m in mounts if m.get("Type") == "bind"]
+
+        assert len(bind_mounts) > 0, (
+            f"Container {container.short_id} has no bind mounts. "
+            f"HostConfig.Binds="
+            f"{container.attrs.get('HostConfig', {}).get('Binds', [])}  "
+            f"Mounts={mounts}"
+        )
+
+        mount = bind_mounts[0]
+        assert mount["Destination"] == "/input", (
+            f"Bind mount destination should be /input, "
+            f"got {mount['Destination']}"
+        )
+        assert mount["Source"] == BIND_MOUNT_TEST_FILE, (
+            f"Bind mount source should be {BIND_MOUNT_TEST_FILE}, "
+            f"got {mount['Source']}"
+        )
+        assert mount.get("RW") is False, (
+            f"Bind mount should be read-only (RW=False), "
+            f"got RW={mount.get('RW')}"
+        )
+
+        binds = container.attrs.get("HostConfig", {}).get("Binds", [])
+        matching = [
+            b for b in binds
+            if "/input" in b and BIND_MOUNT_TEST_FILE in b
+        ]
+        assert len(matching) > 0, (
+            f"HostConfig.Binds should contain an entry mapping "
+            f"{BIND_MOUNT_TEST_FILE} to /input, "
+            f"got Binds={binds}"
         )

@@ -191,6 +191,11 @@ implements AbstractStorageResource
         }
 
     @Override
+    public void link(AbstractStorageLinker linker)
+        {
+        }
+
+    @Override
     protected URI getWebappPath()
         {
         return AbstractStorageResource.WEBAPP_PATH;

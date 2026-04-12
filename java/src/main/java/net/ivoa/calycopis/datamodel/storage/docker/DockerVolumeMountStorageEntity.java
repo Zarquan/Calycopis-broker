@@ -28,6 +28,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageLinker;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
@@ -80,6 +81,20 @@ implements DockerVolumeMountStorage
     public String getMountPath()
         {
         return this.volumeIdent;
+        }
+
+    @Override
+    public void link(final AbstractStorageLinker linker)
+        {
+        if (linker instanceof DockerStorageLinker)
+            {
+            DockerStorageLinker dockerLinker = (DockerStorageLinker) linker;
+            log.debug(
+                "DockerVolumeMountStorageEntity linking volume ident [{}]",
+                this.volumeIdent
+                );
+            dockerLinker.setSourcePath(this.volumeIdent);
+            }
         }
 
     @Override
