@@ -25,7 +25,7 @@
 
     Target:
 
-        Implementing volumes (cont).
+        Implementing volumes (cont.)
 
     Result:
 

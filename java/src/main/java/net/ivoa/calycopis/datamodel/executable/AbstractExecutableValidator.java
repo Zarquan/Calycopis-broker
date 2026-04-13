@@ -98,7 +98,8 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
             ){
             super(
                 result,
-                object
+                object,
+                (object != null) ? object.getMeta() : null
                 );
             }
 

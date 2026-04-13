@@ -1,0 +1,364 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Implementing volumes (cont.)
+
+    Result:
+
+        Work in progress ...
+
+        Short URLs
+
+            https://upload.wikimedia.org/wikipedia/commons/8/8d/Trebula_groundstreak_%28Calycopis_trebula%29.jpg
+            https://tinyurl.com/Calycopis-trebula
+
+        GitHib raw content.
+
+            https://github.com/orgs/community/discussions/48074#discussioncomment-12300177
+            https://raw.githubusercontent.com/USERNAME/REPONAME/refs/heads/BRANCHNAME/PATH.pdf
+            https://raw.githubusercontent.com/Zarquan/jordanita/refs/heads/main/presentations/20260114-ExecutionBroker/20260114-ExecutionBroker.pdf
+
+
+# -----------------------------------------------------
+# Create our test data file.
+#[user@desktop]
+
+    testdata=/home/Zarquan/temp
+
+    openssl rand -out "${testdata}/random.txt" -base64 $(( 2**20 * 3/4 ))
+
+# -----------------------------------------------------
+# Run our hash tool manually.
+#[user@desktop]
+
+    podman run \
+        --rm \
+        --env "INPUT=/testdata/random.txt" \
+        --volume "${testdata}:/testdata:ro,z" \
+        ghcr.io/zarquan/heliophorus-androcles:sha-9a2513b
+
+    >   [{"filename":"/testdata/random.txt","hash":"3beb490bf02ae266ff7158e86f5b1319"}]
+
+
+# -----------------------------------------------------
+# Create a test to do the same thing.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --env "TESTDATA=${testdata}" \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Simple data with file:// URL should be linked to bind mount storage.
+        #
+
+        cat > "006-001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/zarquan/heliophorus-androcles:sha-9a2513b"
+    digest: "sha256:0dfeaad1f37ab8cd506f3a16d1ade56d035694a34e0ff28be51b97f1924c4df3"
+  command: [10, 0]
+data:
+  - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    meta:
+      name: data-006
+    location: file:/$TESTDATA/random.txt
+compute:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0
+  volumes:
+    - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0
+      resource: data-006
+      path: /input
+      mode: READONLY
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@006-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "006-002-offerset-response.yaml" \
+        | yq '.'
+
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
+    >   meta:
+    >     uuid: "dbde8474-72f1-4cf1-97db-cc9b302ced78"
+    >     url: "http://127.0.0.1:8082/offersets/dbde8474-72f1-4cf1-97db-cc9b302ced78"
+    >     created: "2026-04-10T15:07:58.603742389Z"
+    >   result: "YES"
+    >   offers:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "34acbd68-326d-426f-b77a-72134f4a6036"
+    >         name: "null-offer-0"
+    >         url: "http://127.0.0.1:8082/sessions/34acbd68-326d-426f-b77a-72134f4a6036"
+    >         created: "2026-04-10T15:07:58.633106655Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "7aa04898-a9ed-4539-b34f-18e97f26bfab"
+    >           url: "http://127.0.0.1:8082/executables/7aa04898-a9ed-4539-b34f-18e97f26bfab"
+    >           created: "2026-04-10T15:07:58.648126211Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             duration: "PT10S"
+    >           available:
+    >             start: "1970-01-01T00:00:10Z/PT0S"
+    >           releasing:
+    >             duration: "PT1S"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/zarquan/heliophorus-androcles:sha-9a2513b"
+    >           digest: "sha256:0dfeaad1f37ab8cd506f3a16d1ade56d035694a34e0ff28be51b97f1924c4df3"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         command:
+    >           - "10"
+    >           - "0"
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "35e704b5-a1ea-499d-bf35-40f0411ecfb9"
+    >           url: "http://127.0.0.1:8082/compute/35e704b5-a1ea-499d-bf35-40f0411ecfb9"
+    >           created: "2026-04-10T15:07:58.665678651Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2026-04-10T15:08:25Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2026-04-10T15:09:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2026-04-10T17:09:05Z"
+    >             duration: "PT10S"
+    >         volumes:
+    >           - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0"
+    >             meta:
+    >               uuid: "e81d92b5-543b-4bf0-9655-2ceb2eea4f1b"
+    >               url: "http://127.0.0.1:8082/volumes/e81d92b5-543b-4bf0-9655-2ceb2eea4f1b"
+    >               created: "2026-04-10T15:07:58.715169663Z"
+    >             path: "/input"
+    >             mode: "READONLY"
+    >             resource: "2a878cbe-7f91-4473-81ea-a2a841d0e0b4"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "5e5708e9-e6ba-4a41-a057-af75f848619d"
+    >             name: "BindMount"
+    >             url: "http://127.0.0.1:8082/storage/5e5708e9-e6ba-4a41-a057-af75f848619d"
+    >             created: "2026-04-10T15:07:58.681229049Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             releasing:
+    >               start: "1970-01-01T00:00:10Z"
+    >           data:
+    >             - "2a878cbe-7f91-4473-81ea-a2a841d0e0b4"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0"
+    >           meta:
+    >             uuid: "2a878cbe-7f91-4473-81ea-a2a841d0e0b4"
+    >             name: "data-006"
+    >             url: "http://127.0.0.1:8082/data/2a878cbe-7f91-4473-81ea-a2a841d0e0b4"
+    >             created: "2026-04-10T15:07:58.696953148Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             releasing:
+    >               duration: "PT10S"
+    >           storage: "5e5708e9-e6ba-4a41-a057-af75f848619d"
+    >           location: "file://home/Zarquan/temp/random.txt"
+    >       phase: "OFFERED"
+    >       expires: "2026-04-10T15:12:58.603742578Z"
+
+    #
+    # TODO
+    # Add the bind mount to the Docker prepare() method.
+    # Collect stdout and make it available somewhere ...
+    #
+
+        #
+        # Simple data with http:// URL should be linked to volume storage.
+        #
+
+        cat > "007-001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/zarquan/heliophorus-androcles:sha-9a2513b"
+    digest: "sha256:0dfeaad1f37ab8cd506f3a16d1ade56d035694a34e0ff28be51b97f1924c4df3"
+  command: [10, 0]
+data:
+  - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    meta:
+      name: data-007
+    location: https://tinyurl.com/Calycopis-trebula
+compute:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0
+  volumes:
+    - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0
+      resource: data-007
+      path: /input
+      mode: READONLY
+EOF
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@007-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "007-002-offerset-response.yaml" \
+        | yq '.'
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
+    >   meta:
+    >     uuid: "d9ef8e31-bd6a-4e73-852c-9ae1e4870280"
+    >     url: "http://127.0.0.1:8082/offersets/d9ef8e31-bd6a-4e73-852c-9ae1e4870280"
+    >     created: "2026-04-11T03:45:28.355215641Z"
+    >   result: "YES"
+    >   offers:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "808e2a04-ba93-444f-9c81-07ae350f85a7"
+    >         name: "null-offer-0"
+    >         url: "http://127.0.0.1:8082/sessions/808e2a04-ba93-444f-9c81-07ae350f85a7"
+    >         created: "2026-04-11T03:45:28.384002306Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "6e1e6b13-839a-4b71-9cae-eda74997212d"
+    >           url: "http://127.0.0.1:8082/executables/6e1e6b13-839a-4b71-9cae-eda74997212d"
+    >           created: "2026-04-11T03:45:28.397664408Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             duration: "PT10S"
+    >           available:
+    >             start: "1970-01-01T00:00:10Z/PT0S"
+    >           releasing:
+    >             duration: "PT1S"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/zarquan/heliophorus-androcles:sha-9a2513b"
+    >           digest: "sha256:0dfeaad1f37ab8cd506f3a16d1ade56d035694a34e0ff28be51b97f1924c4df3"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         command:
+    >           - "10"
+    >           - "0"
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "e454aaea-db7d-4074-a1a4-869e39ce7cd1"
+    >           url: "http://127.0.0.1:8082/compute/e454aaea-db7d-4074-a1a4-869e39ce7cd1"
+    >           created: "2026-04-11T03:45:28.421610588Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2026-04-11T03:46:25Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2026-04-11T03:47:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2026-04-11T05:47:05Z"
+    >             duration: "PT10S"
+    >         volumes:
+    >           - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0"
+    >             meta:
+    >               uuid: "b63d0e55-7e9f-4c52-954e-a1773f42481f"
+    >               url: "http://127.0.0.1:8082/volumes/b63d0e55-7e9f-4c52-954e-a1773f42481f"
+    >               created: "2026-04-11T03:45:28.462733310Z"
+    >             path: "/input"
+    >             mode: "READONLY"
+    >             resource: "a759d368-dba8-40f5-8fef-aa288b8d9d59"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "6975d744-4629-467a-80e8-f858751def3e"
+    >             name: "VolumeMount"
+    >             url: "http://127.0.0.1:8082/storage/6975d744-4629-467a-80e8-f858751def3e"
+    >             created: "2026-04-11T03:45:28.436972726Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             releasing:
+    >               start: "1970-01-01T00:00:10Z"
+    >           data:
+    >             - "a759d368-dba8-40f5-8fef-aa288b8d9d59"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0"
+    >           meta:
+    >             uuid: "a759d368-dba8-40f5-8fef-aa288b8d9d59"
+    >             name: "data-007"
+    >             url: "http://127.0.0.1:8082/data/a759d368-dba8-40f5-8fef-aa288b8d9d59"
+    >             created: "2026-04-11T03:45:28.451810151Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             releasing:
+    >               duration: "PT10S"
+    >           storage: "6975d744-4629-467a-80e8-f858751def3e"
+    >           location: "https://tinyurl.com/Calycopis-trebula"
+    >       phase: "OFFERED"
+    >       expires: "2026-04-11T03:50:28.355215852Z"
+
+    #
+    # TODO
+    # Create a Docker volume and add it to the Docker prepare() method.
+    # Collect stdout and make it available somewhere ...
+    #
+
+

@@ -36,8 +36,8 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 @Slf4j
 @Component
 public class AbstractComputeResourceValidatorFactoryImpl
-    extends ValidatorFactoryImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
-    implements AbstractComputeResourceValidatorFactory
+extends ValidatorFactoryImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+implements AbstractComputeResourceValidatorFactory
     {
 
     public AbstractComputeResourceValidatorFactoryImpl()
@@ -53,9 +53,7 @@ public class AbstractComputeResourceValidatorFactoryImpl
         unknown(
             context,
             resource.getKind(),
-            context.makeComputeValidatorResultKey(
-                resource
-                )
+            resource.getMeta()
             );
         }
     }

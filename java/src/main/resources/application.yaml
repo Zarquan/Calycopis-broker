@@ -36,6 +36,7 @@ server:
 logging:
     level:
         net.ivoa: DEBUG
+        net.ivoa.calycopis.functional.processing: INFO
         com.baeldung: INFO
         org.hibernate: INFO
         org.apache.tomcat: INFO
@@ -45,6 +46,9 @@ logging:
 spring:
     application:
         name: Ambleck
+
+    config:
+        import: file:/etc/calycopis/database.yaml
 
     # https://stackoverflow.com/a/55679297
     mvc:
@@ -62,12 +66,12 @@ spring:
 #       password: password
 #       driverClassName: org.h2.Driver
 
-        url: jdbc:postgresql://postgresql:5432/calycopis
-        username: albert
-        password: UVai0wie-wa9Eed4g
-        driverClassName: org.postgresql.Driver
+#       url: jdbc:postgresql://postgresql:5432/calycopis
+#       username: albert
+#       password: UVai0wie-wa9Eed4g
+#       driverClassName: org.postgresql.Driver
 
-        initialize: true
+#       initialize: true
     jpa:
         # https://medium.com/@hweemyoung/when-hibernate-dialect-not-working-d2c1eca549e3
         #database-platform: org.hibernate.dialect.H2Dialect

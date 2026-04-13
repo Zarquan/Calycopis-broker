@@ -36,10 +36,8 @@ package net.ivoa.calycopis.datamodel.storage.simple;
 
 import java.net.URI;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
@@ -55,17 +53,14 @@ import net.ivoa.calycopis.util.URIBuilder;
 @Table(
     name = "simplestorageresources"
     )
-@DiscriminatorValue(
-    value="uri:simple-storage-resource"
-    )
 public abstract class SimpleStorageResourceEntity
-    extends AbstractStorageResourceEntity
-    implements SimpleStorageResource
+extends AbstractStorageResourceEntity
+implements SimpleStorageResource
     {
     @Override
     public URI getKind()
         {
-        return SimpleExecutionSession.TYPE_DISCRIMINATOR;
+        return SimpleStorageResource.TYPE_DISCRIMINATOR;
         }
 
     /**
@@ -76,7 +71,7 @@ public abstract class SimpleStorageResourceEntity
         {
         super();
         }
-
+    
     /**
      * Protected constructor with parent and validator result.
      *
@@ -85,28 +80,9 @@ public abstract class SimpleStorageResourceEntity
         final SimpleExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result
         ){
-        this(
-            session,
-            result,
-            (IvoaSimpleStorageResource)result.getObject()
-            );
-        }
-    
-    /**
-     * Protected constructor with parent and validator result.
-     * TODO validated can be replaced by Result.getObject()
-     * TODO No need to pass validated.getMeta() separately.
-     *
-     */
-    protected SimpleStorageResourceEntity(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceValidator.Result result,
-        final IvoaSimpleStorageResource validated
-        ){
         super(
             session,
-            result,
-            validated.getMeta()
+            result
             );
 
         // TODO Add the storage fields ...

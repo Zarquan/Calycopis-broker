@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntityFactoryImpl;
@@ -67,7 +68,7 @@ implements MockSimpleDataResourceEntityFactory
         }
 
     @Override
-    public Optional<SimpleDataResourceEntity> select(final UUID uuid)
+    public Optional<AbstractDataResourceEntity> select(final UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()

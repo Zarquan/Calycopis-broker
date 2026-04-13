@@ -33,6 +33,7 @@ import java.util.Map;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 
 /**
  * Base class for validator factories.
@@ -67,28 +68,6 @@ public abstract class ValidatorFactoryImpl<ObjectType, EntityType extends Compon
         final OfferSetRequestParserContext context,
         final ObjectType object
         );
-    
-    /**
-     * Report an unknown type.
-     *
-     */
-    public void unknown(
-        final OfferSetRequestParserContext context,
-        final URI    typeName,
-        final String className
-        ){
-        context.addWarning(
-            "uri:unknown-type",
-            "Unknown type [${type}][${class}]",
-            Map.of(
-                "type",
-                typeName.toString(),
-                "class",
-                className
-                )
-            );
-        context.valid(false);
-        }
 
     @Override
     public ResultEnum validate(
@@ -102,9 +81,6 @@ public abstract class ValidatorFactoryImpl<ObjectType, EntityType extends Compon
         // handle more specific subtypes (e.g. SkaoDataResource) must be
         // registered before validators that handle their parent types
         // (e.g. IvoaDataResource).
-        // Each validator should also use exact class matching (getClass() ==)
-        // rather than instanceof, to prevent a parent type's validator from
-        // accidentally intercepting subclass instances.
         for (Validator<ObjectType, EntityType> validator : validators)
             {
             ResultEnum result = validator.validate(
@@ -127,5 +103,43 @@ public abstract class ValidatorFactoryImpl<ObjectType, EntityType extends Compon
             requested
             );
         return ResultEnum.FAILED;
+        }
+
+    /**
+     * Report an unknown resource.
+     *
+     */
+    protected void unknown(
+        final OfferSetRequestParserContext context,
+        final URI kind,
+        final IvoaComponentMetadata meta
+        ){
+        if (meta != null)
+            {
+            context.addWarning(
+                "uri:unknown-type",
+                "Unknown kind [${kind}][${name}][${uuid}]",
+                Map.of(
+                    "kind",
+                    (kind != null) ? kind.toString() : "null",
+                    "name",
+                    (meta.getName() != null) ? meta.getName() : "null",
+                    "uuid",
+                    (meta.getUuid() != null) ? meta.getUuid().toString() : "null"
+                    )
+                );
+            }
+        else
+            {
+            context.addWarning(
+                "uri:unknown-type",
+                "Unknown kind [${kind}]",
+                Map.of(
+                    "kind",
+                    kind.toString()
+                    )
+                );
+            }
+        context.valid(false);
         }
     }

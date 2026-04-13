@@ -69,5 +69,4 @@ implements Validator<ObjectType, EntityType>
             }
         return null;
         }    
-    
     }

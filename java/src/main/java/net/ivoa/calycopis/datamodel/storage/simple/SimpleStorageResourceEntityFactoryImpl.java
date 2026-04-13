@@ -45,8 +45,8 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  */
 @Slf4j
 public abstract class SimpleStorageResourceEntityFactoryImpl
-    extends FactoryBaseImpl
-    implements SimpleStorageResourceEntityFactory
+extends FactoryBaseImpl
+implements SimpleStorageResourceEntityFactory
     {
 
     public URI getKind()

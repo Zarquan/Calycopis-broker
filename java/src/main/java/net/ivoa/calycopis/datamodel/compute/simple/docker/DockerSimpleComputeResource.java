@@ -33,4 +33,32 @@ public interface DockerSimpleComputeResource
     extends AbstractComputeResource
     {
 
+    /**
+     * Get the Docker container ID.
+     *
+     */
+    public String getDockerContainerId();
+
+    /**
+     * Get the Docker container exit code.
+     *
+     */
+    public Integer getDockerContainerExitCode();
+
+    /**
+     * Get the captured stdout from the Docker container.
+     * May be null if the container has not yet exited or
+     * if log capture failed.
+     *
+     */
+    public String getContainerStdout();
+
+    /**
+     * Get the captured stderr from the Docker container.
+     * May be null if the container has not yet exited or
+     * if log capture failed.
+     *
+     */
+    public String getContainerStderr();
+
     }

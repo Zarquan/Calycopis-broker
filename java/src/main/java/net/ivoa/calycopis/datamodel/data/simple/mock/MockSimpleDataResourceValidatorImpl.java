@@ -48,10 +48,10 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.mock.MockDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleDataResource;
 
 /**
@@ -65,11 +65,11 @@ implements MockSimpleDataResourceValidator
 
     public MockSimpleDataResourceValidatorImpl(
         final SimpleDataResourceEntityFactory entityFactory,
-        final AbstractStorageResourceValidatorFactory storageValidators
+        final MockDataStorageLinker storageLinker
         ){
         super(
             entityFactory,
-            storageValidators
+            storageLinker
             );
         }
 
@@ -109,10 +109,10 @@ implements MockSimpleDataResourceValidator
      * Returns DEFAULT_PREPARE_ESTIMATE if the request does not specify a value.
      * 
      */
-    protected Long getPrepareDuration(final IvoaSimpleDataResource validated)
+    protected Long getPrepareDuration(final IvoaSimpleDataResource resource)
         {
         Long duration = getPrepareDuration(
-            validated.getSchedule()
+            resource.getSchedule()
             );
         if (duration != null)
             {

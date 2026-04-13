@@ -29,23 +29,34 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.AccessMode;
+import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.StreamType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidator;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
+import net.ivoa.calycopis.datamodel.storage.docker.DockerStorageLinkerBean;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
@@ -55,6 +66,7 @@ import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAct
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount.ModeEnum;
 
 /**
  * A Docker SimpleComputeResource entity.
@@ -126,9 +138,95 @@ implements DockerSimpleComputeResource
 
     @Column(name="dockercontainerexitcode")
     private Integer dockerContainerExitCode;
+    @Override
     public Integer getDockerContainerExitCode()
         {
         return this.dockerContainerExitCode;
+        }
+
+    @Lob
+    @Column(name="containerstdout")
+    private String containerStdout;
+    @Override
+    public String getContainerStdout()
+        {
+        return this.containerStdout;
+        }
+
+    @Lob
+    @Column(name="containerstderr")
+    private String containerStderr;
+    @Override
+    public String getContainerStderr()
+        {
+        return this.containerStderr;
+        }
+
+    /**
+     * Maximum number of characters to capture per stream.
+     * Output beyond this limit is truncated from the beginning,
+     * keeping only the last MAX_LOG_CHARS characters.
+     */
+    private static final int MAX_LOG_CHARS = 64 * 1024;
+
+    /**
+     * Capture stdout and stderr from a stopped Docker container
+     * using the Docker log API.
+     */
+    private static void captureContainerLogs(
+        final DockerClient dockerClient,
+        final String containerId,
+        final StringBuilder stdoutBuilder,
+        final StringBuilder stderrBuilder
+        ){
+        try {
+            dockerClient.logContainerCmd(containerId)
+                .withStdOut(true)
+                .withStdErr(true)
+                .withFollowStream(false)
+                .withTailAll()
+                .exec(new ResultCallback.Adapter<Frame>()
+                    {
+                    @Override
+                    public void onNext(Frame frame)
+                        {
+                        String text = new String(
+                            frame.getPayload(),
+                            java.nio.charset.StandardCharsets.UTF_8
+                            );
+                        if (frame.getStreamType() == StreamType.STDOUT)
+                            {
+                            stdoutBuilder.append(text);
+                            }
+                        else if (frame.getStreamType() == StreamType.STDERR)
+                            {
+                            stderrBuilder.append(text);
+                            }
+                        }
+                    })
+                .awaitCompletion();
+            }
+        catch (Exception e)
+            {
+            log.warn(
+                "Failed to capture logs for container [{}]: {}",
+                containerId,
+                e.getMessage()
+                );
+            }
+        }
+
+    /**
+     * Truncate a string to at most maxChars characters,
+     * keeping the tail (most recent output).
+     */
+    private static String truncateLog(final String text, final int maxChars)
+        {
+        if (text == null || text.length() <= maxChars)
+            {
+            return text;
+            }
+        return "...[truncated]...\n" + text.substring(text.length() - maxChars);
         }
 
     @Override
@@ -140,10 +238,86 @@ implements DockerSimpleComputeResource
         final Long maxCores = this.getMaxOfferedCores();
         final Long maxMemory = this.getMaxOfferedMemory();
 
+        final List<Bind> bindList = new ArrayList<Bind>();
+        log.debug(
+            "Resolving volume mounts for compute resource [{}], mount count [{}]",
+            resourceUuid,
+            this.getVolumeMounts().size()
+            );
+        for (AbstractVolumeMountEntity volumeMount : this.getVolumeMounts())
+            {
+            log.debug(
+                "Volume mount [{}] type [{}]",
+                volumeMount.getUuid(),
+                volumeMount.getClass().getSimpleName()
+                );
+            if (volumeMount instanceof SimpleVolumeMountEntity)
+                {
+                SimpleVolumeMountEntity simpleMount = (SimpleVolumeMountEntity) volumeMount;
+                AbstractDataResourceEntity dataResource = simpleMount.getDataResource();
+                log.debug(
+                    "SimpleVolumeMount [{}] dataResource [{}]",
+                    simpleMount.getUuid(),
+                    dataResource != null ? dataResource.getUuid() + " " + dataResource.getClass().getSimpleName() : "null"
+                    );
+                if (dataResource != null)
+                    {
+                    AbstractStorageResource storage = dataResource.getStorage();
+                    log.debug(
+                        "DataResource [{}] storage [{}]",
+                        dataResource.getUuid(),
+                        storage != null ? storage.getClass().getSimpleName() : "null"
+                        );
+                    if (storage != null)
+                        {
+                        String containerPath = simpleMount.getPath();
+                        AccessMode accessMode = AccessMode.rw;
+                        if (simpleMount.getMode() == ModeEnum.READONLY)
+                            {
+                            accessMode = AccessMode.ro;
+                            }
+                        DockerStorageLinkerBean linkerBean = new DockerStorageLinkerBean(
+                            containerPath,
+                            accessMode
+                            );
+                        storage.link(linkerBean);
+                        if (linkerBean.isComplete())
+                            {
+                            Bind bind = linkerBean.toBind();
+                            log.debug(
+                                "Adding bind [{}] for volume mount [{}]",
+                                bind,
+                                simpleMount.getUuid()
+                                );
+                            bindList.add(bind);
+                            }
+                        else {
+                            log.warn(
+                                "Linker bean incomplete for volume mount [{}], storage [{}] - skipping",
+                                simpleMount.getUuid(),
+                                storage.getClass().getSimpleName()
+                                );
+                            }
+                        }
+                    }
+                }
+            else {
+                log.debug(
+                    "Volume mount [{}] is not a SimpleVolumeMountEntity, skipping",
+                    volumeMount.getUuid()
+                    );
+                }
+            }
+        log.debug(
+            "Resolved [{}] bind mounts for compute resource [{}]",
+            bindList.size(),
+            resourceUuid
+            );
+
         final AbstractExecutableEntity executable = this.session.getExecutable();
         final String imageName;
-        final List<String> envList = new ArrayList<String>();
-        final List<String> cmdList = new ArrayList<String>();
+        final List<String> variablesList = new ArrayList<String>();
+        final List<String> commandList = new ArrayList<String>();
 
         if (executable instanceof DockerContainerEntity)
             {
@@ -165,13 +339,13 @@ implements DockerSimpleComputeResource
                 {
                 for (Map.Entry<String, String> entry : environment.entrySet())
                     {
-                    envList.add(entry.getKey() + "=" + entry.getValue());
+                    variablesList.add(entry.getKey() + "=" + entry.getValue());
                     }
                 }
             List<String> command = dockerExecutable.getCommand();
             if (command != null)
                 {
-                cmdList.addAll(command);
+                commandList.addAll(command);
                 }
             }
         else
@@ -234,16 +408,27 @@ implements DockerSimpleComputeResource
                         }
 
                     //
-                    // Pull the Docker image.
-                    log.debug(
-                        "Pulling Docker image [{}]",
-                        imageName
-                        );
-                    // TODO The image should already have been pulled into the local cache by the DockerDockerContainerEntity prepare phase.
-                    // TODO We should check that the image has already been cached and issue a warning if it hasn't.
-                    dockerClient.pullImageCmd(imageName)
-                        .exec(new PullImageResultCallback())
-                        .awaitCompletion();
+                    // Verify the image is in the local cache.
+                    // The image should already have been pulled by the
+                    // DockerDockerContainerEntity prepare phase.
+                    try {
+                        dockerClient.inspectImageCmd(imageName).exec();
+                        log.debug(
+                            "Image [{}] found in local cache",
+                            imageName
+                            );
+                        }
+                    catch (NotFoundException e)
+                        {
+                        log.error(
+                            "Image [{}] not found in local cache for compute resource [{}]. "
+                            + "The executable prepare phase should have pulled it.",
+                            imageName,
+                            resourceUuid
+                            );
+                        nextPhase = IvoaLifecyclePhase.FAILED;
+                        return;
+                        }
 
                     //
                     // Configure host resource limits based on offered cores and memory.
@@ -264,13 +449,20 @@ implements DockerSimpleComputeResource
                         }
 
                     //
+                    // Add bind mounts to the host configuration.
+                    if (!bindList.isEmpty())
+                        {
+                        hostConfig.withBinds(bindList);
+                        }
+
+                    //
                     // Create and start the container, retrying without resource limits
                     // if the cgroup controllers are not available (e.g. nested containers).
                     this.containerId = createAndStartContainer(
                         dockerClient,
                         imageName,
-                        envList,
-                        cmdList,
+                        variablesList,
+                        commandList,
                         hostConfig,
                         resourceUuid
                         );
@@ -280,12 +472,17 @@ implements DockerSimpleComputeResource
                             "Retrying without resource limits for [{}]",
                             resourceUuid
                             );
+                        HostConfig retryConfig = HostConfig.newHostConfig();
+                        if (!bindList.isEmpty())
+                            {
+                            retryConfig.withBinds(bindList);
+                            }
                         this.containerId = createAndStartContainer(
                             dockerClient,
                             imageName,
-                            envList,
-                            cmdList,
-                            HostConfig.newHostConfig(),
+                            variablesList,
+                            commandList,
+                            retryConfig,
                             resourceUuid
                             );
                         }
@@ -297,7 +494,7 @@ implements DockerSimpleComputeResource
                             this.containerId,
                             resourceUuid
                             );
-                        nextPhase = IvoaLifecyclePhase.AVAILABLE;
+                        nextPhase = IvoaLifecyclePhase.RUNNING;
                         }
                     else
                         {
@@ -462,6 +659,8 @@ implements DockerSimpleComputeResource
             {
             private IvoaLifecyclePhase nextPhase = IvoaLifecyclePhase.RUNNING;
             private Integer exitCode;
+            private String capturedStdout;
+            private String capturedStderr;
 
             @Override
             public void preProcess(final LifecycleComponent component)
@@ -510,6 +709,45 @@ implements DockerSimpleComputeResource
                         }
                     else {
                         this.exitCode = state.getExitCode();
+
+                        // Capture stdout and stderr before the container is removed.
+                        log.debug(
+                            "Capturing logs for exited container [{}]",
+                            containerId
+                            );
+                        StringBuilder stdoutBuilder = new StringBuilder();
+                        StringBuilder stderrBuilder = new StringBuilder();
+                        captureContainerLogs(
+                            dockerClient,
+                            containerId,
+                            stdoutBuilder,
+                            stderrBuilder
+                            );
+                        this.capturedStdout = truncateLog(
+                            stdoutBuilder.toString(),
+                            MAX_LOG_CHARS
+                            );
+                        this.capturedStderr = truncateLog(
+                            stderrBuilder.toString(),
+                            MAX_LOG_CHARS
+                            );
+                        log.debug(
+                            "Captured [{}] chars stdout, [{}] chars stderr for container [{}]",
+                            this.capturedStdout.length(),
+                            this.capturedStderr.length(),
+                            containerId
+                            );
+                        log.debug(
+                            "Container [{}] stdout: [{}]",
+                            containerId,
+                            this.capturedStdout.substring(0, Math.min(100, this.capturedStdout.length()))
+                            );
+                        log.debug(
+                            "Container [{}] stderr: [{}]",
+                            containerId,
+                            this.capturedStderr.substring(0, Math.min(100, this.capturedStderr.length()))
+                            );
+
                         if (this.exitCode != null && this.exitCode == 0)
                             {
                             this.nextPhase = IvoaLifecyclePhase.RELEASING;
@@ -520,7 +758,6 @@ implements DockerSimpleComputeResource
                                 containerId,
                                 this.exitCode
                                 );
-                            // TODO Add some messages to explain why.
                             this.nextPhase = IvoaLifecyclePhase.FAILED;
                             }
                         }
@@ -533,7 +770,6 @@ implements DockerSimpleComputeResource
                         resourceUuid,
                         e
                         );
-                    // TODO Add some messages to explain why.
                     this.nextPhase = IvoaLifecyclePhase.FAILED;
                     }
                 }
@@ -571,6 +807,8 @@ implements DockerSimpleComputeResource
             public void postProcess(final DockerSimpleComputeResourceEntity component)
                 {
                 component.dockerContainerExitCode = this.exitCode;
+                component.containerStdout = this.capturedStdout;
+                component.containerStderr = this.capturedStderr;
                 component.setPhase( 
                     this.nextPhase
                     );

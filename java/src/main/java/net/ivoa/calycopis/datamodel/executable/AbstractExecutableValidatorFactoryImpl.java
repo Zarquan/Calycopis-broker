@@ -46,13 +46,12 @@ public class AbstractExecutableValidatorFactoryImpl
     @Override
     public void unknown(
         final OfferSetRequestParserContext context,
-        final IvoaAbstractExecutable executable
+        final IvoaAbstractExecutable resource
         ){
         unknown(
             context,
-            executable.getKind(),
-            executable.getClass().getName()
+            resource.getKind(),
+            resource.getMeta()
             );
         }
-
     }

@@ -62,8 +62,7 @@ implements AbstractStorageResourceValidatorFactory
         unknown(
             context,
             resource.getKind(),
-            resource.getClass().getName()
+            resource.getMeta()
             );
         }
-
     }

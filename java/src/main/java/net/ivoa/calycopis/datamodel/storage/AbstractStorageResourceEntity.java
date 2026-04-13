@@ -42,7 +42,6 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.ListWrapper;
 import net.ivoa.calycopis.util.URIBuilder;
 
@@ -77,11 +76,10 @@ implements AbstractStorageResource
      */
     protected AbstractStorageResourceEntity(
         final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceValidator.Result result,
-        final IvoaComponentMetadata meta
+        final AbstractStorageResourceValidator.Result result
         ){
         super(
-            meta
+            (result != null) ? result.getMeta() : null
             );
 
         this.session = session;
@@ -190,6 +188,11 @@ implements AbstractStorageResource
                 }
             );
         return bean;
+        }
+
+    @Override
+    public void link(AbstractStorageLinker linker)
+        {
         }
 
     @Override

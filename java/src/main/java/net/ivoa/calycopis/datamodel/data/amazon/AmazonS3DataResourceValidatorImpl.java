@@ -58,10 +58,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaS3DataResource;
@@ -89,11 +89,9 @@ implements AmazonS3DataResourceValidator
      */
     public AmazonS3DataResourceValidatorImpl(
         final AmazonS3DataResourceEntityFactory entityFactory,
-        final AbstractStorageResourceValidatorFactory storageValidators
+        final AbstractDataStorageLinker storageLinker
         ){
-        super(
-            storageValidators
-            );
+        super(storageLinker);
         this.entityFactory = entityFactory ;
         }
 
@@ -144,7 +142,7 @@ implements AmazonS3DataResourceValidator
             context
             );
 
-        AbstractStorageResourceValidator.Result storage = storageCheck(
+        AbstractStorageResourceValidator.Result storage = linkStorage(
             requested,
             validated,
             context

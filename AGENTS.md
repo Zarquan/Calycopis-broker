@@ -325,6 +325,8 @@ To add an entirely new resource type (e.g. `gpu`):
 
 ## Docker service
 
+### Host Podman service
+
  * The host system runs Podman as a rootless service.
  * See https://docs.podman.io/en/latest/markdown/podman-system-service.1.html for details.
  * The `developer-tools` container is launched with a volume mount mapping the unix socket for the host Podman service into the container, enabling agents running in the container to access the Podman service on the host.
@@ -334,10 +336,73 @@ podman run \
   ....
   --env "DOCKER_HOST=unix:///run/podman/podman.sock" \
   --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
-  --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:Z" \
+  --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
   ....
   ....
 ```
+
+### Architecture: container-in-container via the Podman socket
+
+The development environment involves three layers:
+
+ 1. **The host machine** — runs the Podman service and owns the host filesystem.
+ 2. **The `calycopis-dev` container** — the development container where the
+    Cursor agent, the Java broker, and the Python tests all run. It has its
+    own filesystem, which is separate from the host filesystem.
+ 3. **Application containers** (e.g. `heliophorus-cantliei`,
+    `heliophorus-androcles`) — created by the broker via the Podman API.
+
+The bind-mounted `podman.sock` socket bridges layers 2 and 1: API calls made
+inside the `calycopis-dev` container are forwarded to the Podman service on
+the host. Critically, the Podman service executes those calls in the context
+of the **host** filesystem, not the `calycopis-dev` container's filesystem.
+
+### Filesystem side effects of the bind-mounted Podman socket
+
+When the broker (running inside the `calycopis-dev` container) calls the
+Podman API to create a container with a bind mount, the Podman service on
+the host resolves the bind mount path against the **host filesystem**.
+
+This has important consequences:
+
+ * **Files created inside the `calycopis-dev` container are not visible to
+   application containers.** For example, if you create
+   `/home/Zarquan/temp/random.txt` inside the `calycopis-dev` container,
+   that file exists only in the container's filesystem. When the broker
+   launches an application container with
+   `-v /home/Zarquan/temp/random.txt:/input:ro`, the Podman service mounts
+   the file at that path on the **host** filesystem — which may be a
+   completely different file, or may not exist at all.
+
+ * **The host file and the container file can have the same path but
+   different content.** If `/home/Zarquan/temp/random.txt` exists on both
+   the host and inside the `calycopis-dev` container, the application
+   container will always see the host copy. Python tests running inside
+   `calycopis-dev` that read the file directly (e.g. via `open()` or
+   `hashlib`) will see the container copy, leading to mismatches.
+
+ * **Containers launched via the Podman API can see each other's bind
+   mounts.** Because both the application container and any helper
+   containers (e.g. an Alpine container used to compute a reference
+   checksum) are launched through the same host Podman service, they both
+   see the host filesystem. Running `podman run -v /path:/input alpine
+   md5sum /input` from inside `calycopis-dev` will produce the same result
+   as the broker's application container, because both resolve `/path`
+   against the host.
+
+### Practical implications for testing
+
+ * **Do not rely on local file I/O for reference values.** When a Python
+   test needs to compute an expected checksum or verify file content that
+   will be seen by an application container, it should compute the reference
+   by running a container with the same bind mount (via `docker-py` or
+   `podman run`), rather than reading the file directly from the
+   `calycopis-dev` filesystem.
+
+ * **Test data files must exist on the host.** If a test requires a specific
+   file to be available as a bind mount, that file must already exist on the
+   host filesystem at the expected path. Creating it inside the
+   `calycopis-dev` container is not sufficient.
 
 ## Project structure
 

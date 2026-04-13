@@ -49,10 +49,10 @@ import java.util.Map;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import net.ivoa.calycopis.datamodel.data.mock.MockDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.spring.model.IvoaSkaoDataResource;
 
 /**
@@ -66,12 +66,12 @@ implements MockSkaoDataResourceValidator
     public MockSkaoDataResourceValidatorImpl(
         final JdbcTemplate jdbcTemplate,
         final SkaoDataResourceEntityFactory entityFactory,
-        final AbstractStorageResourceValidatorFactory storageValidators
+        final MockDataStorageLinker storageLinker
         ){
         super(
             jdbcTemplate,
             entityFactory,
-            storageValidators
+            storageLinker
             );
         }
 

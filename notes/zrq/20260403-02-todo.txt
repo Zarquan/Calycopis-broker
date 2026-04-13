@@ -77,6 +77,11 @@
     - FAILED
     - CANCELLED
 
+    Do we need this ?
+    Asynch queue jobs transition to AVAILABLE when added to the queue
+    then RUNNING when actually running.
+
+
 # -----------------------------------------------------
 
     Refactor the schedule components
@@ -125,5 +130,7 @@
             duration
 
 # -----------------------------------------------------
+
+
 
 

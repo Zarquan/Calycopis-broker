@@ -1,0 +1,378 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Implementing volumes (cont.)
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    IvoaSimpleDataResource
+        uuid: 20
+        mode: readonly/readwrite
+        location: http://...
+        storage: 21
+
+    IvoaSimpleCompResource
+        uuid: 22
+        volumes
+            - uuid: 23
+              path: ...
+              mode: ...
+              resource: data 20
+
+    Validate data
+    IvoaSimpleDataResource
+        location.startsWith("file://")
+        => DockerFileResourceValidator
+
+        location.startsWith("http://")
+        location.startsWith("https://")
+        => DockerHttpResourceValidator
+
+
+    DockerFileResource
+    extends
+    SimpleDataResource
+
+    DockerFileResourceEntity
+    extends
+    SimpleDataResourceEntity
+    implements
+    DockerFileResource
+
+    DockerFileResourceEntityFactory
+    extends
+    SimpleDataResourceEntityFactory
+
+    DockerFileResourceEntityFactoryImpl
+    extends
+    SimpleDataResourceEntityFactoryImpl
+    implements
+    DockerFileResourceEntityFactory
+
+    DockerFileDataResourceEntityRepository
+    extends
+    JpaRepository<DockerFileDataResourceEntity, UUID>
+
+
+
+
+
+    DockerFileResourceValidator
+    extends
+    SimpleDataResourceValidator
+
+
+    DockerFileResourceValidatorImpl
+    extends
+    SimpleDataResourceValidatorImpl
+    implements
+    DockerFileResourceValidator
+
+        Matches kind for IvoaSimpleDataResource
+        Added to the validator list in DockerPlatform
+        Entity factory creates DockerFileDataResource
+
+        validate(....)
+
+            if (location.startsWith("file://")
+
+                super.validate(....)
+
+            else
+
+                return ResultEnum.CONTINUE;
+
+
+        validateLocation(....)
+            // Validate the local path
+            check file/path/mode
+
+        getPrepareDuration(....)
+            return 0L;
+
+        getReleaseDuration(....)
+            return 0L;
+
+
+    DockerHttpResourceValidator
+    extends
+    SimpleDataResourceValidator
+
+    DockerHttpResourceValidatorImpl
+    extends
+    SimpleDataResourceValidatorImpl
+    implements
+    DockerHttpResourceValidator
+
+        Matches kind for IvoaSimpleDataResource
+        Added to the validator list in DockerPlatform
+        Entity factory creates DockerHttpDataResource
+
+        validate(....)
+
+            if ((location.startsWith("http://") || (location.startsWith("https://"))
+
+                super.validate(....)
+
+            else
+
+                return ResultEnum.CONTINUE;
+
+        validateLocation(....)
+            http head
+                check exists
+                check access
+                get size
+
+        getPrepareDuration(....)
+            // Duration based on size and location.
+            ....
+
+        getReleaseDuration(....)
+            // Duration based on size and location.
+            ....
+
+    DockerStopResourceValidator
+    extends
+    SimpleDataResourceValidator
+
+    DockerStopResourceValidatorImpl
+    extends
+    SimpleDataResourceValidatorImpl
+    implements DockerStopResourceValidator
+
+        Matches kind for IvoaSimpleDataResource
+        Added to the end of the validator list in DockerPlatform
+        Entity factory is null
+
+        validate(....)
+
+            context.addWarning(
+                "uri:unknown-type",
+                "Unknown data access protocol [${protocol}] for [${kind}][${name}][${uuid}]",
+                Map.of(
+                    uuid.toString().
+                    "protocol",
+                    "kind",
+                    kind.toString(),
+                    "name",
+                    name,
+                    "uuid"
+                    )
+                );
+            context.valid(false);
+
+
+
+    DockerDataStorageLinker
+    extends
+    AbstractDataStorageLinker
+
+    DockerDataStorageLinkerImpl
+    implements
+    DockerDataStorageLinker
+
+        linkStorage(
+            IvoaAbstractDataResource requested
+            IvoaAbstractDataResource validated
+            OfferSetRequestParserContext context
+            )
+
+            switch(requested.getClass())
+
+                IvoaSimpleDataResource
+                    linkSimple(....)
+
+
+        linkSimple(....)
+
+            if ((location.startsWith("http://")) || (location.startsWith("https://"))
+
+                linkVolumeMount(....)
+
+            if (location.startsWith("file://")
+
+                linkBindMount(....)
+
+        linkVolumeMount(....)
+
+                validator/builder for DockerVolumeMountStorage
+
+        linkBindMount(....)
+
+                validator/builder for DockerBindMountStorage
+
+
+
+    DockerVolumeMountStorage
+    extends
+    SimpleStorageResource
+
+    DockerVolumeMountStorageEntity
+    extends
+    SimpleStorageResourceEntity
+    implements
+    DockerVolumeMountStorage
+
+        validate()
+            // later - check space from volume pool
+            // later - booking space from the pool
+            --
+
+        prepare()
+            create docker-volume
+
+        release()
+            delete docker-volume
+
+
+    DockerBindMountStorage
+    extends
+    SimpleStorageResource
+
+    DockerBindMountStorageEntity
+    extends
+    SimpleStorageResourceEntity
+    implements
+    DockerBindMountStorage
+
+        validate()
+            check path is accessible
+            if endsWith("/")
+                checkDirectory(mode)
+            else
+                checkFile(mode)
+
+        checkFile(mode)
+            if file exists
+                check mode matches
+            else
+                check parent writable
+            if mode = writeable
+                check available space
+
+        checkDirectory(mode)
+            if directory exists
+                check mode
+            else
+                check parent writable
+
+        release()
+            --
+
+    DockerBindMountStorageEntityFactory
+    extends
+    SimpleStorageResourceEntityFactory
+
+    DockerBindMountStorageEntityFactoryImpl
+    extends
+    SimpleStorageResourceEntityFactoryImpl
+    implements
+    DockerBindMountStorageEntityFactory
+
+
+
+    DockerBindMountStorageEntityRepository
+    extends
+    LifecycleComponentEntityRepository<DockerBindMountStorageEntity>
+
+
+
+
+
+
+
+
+
+
+
+    extends  DockerRemoteDataResource
+    replaces DockerSimpleDataResource
+
+        release()
+            --
+
+
+
+    DockerHttpDataResource
+    extends  DockerRemoteDataResource
+    replaces DockerSimpleDataResource
+
+        prepare()
+            Download data into volume
+                Using curl/wget container
+                    from url
+                    to volume/path
+
+
+
+    DockerFileDataResource
+    extends  DockerLocalDataResource
+    replaces DockerSimpleDataResource
+
+        prepare()
+            Create parent directory.
+
+
+
+
+
+
+
+    DockerSimpleComputeResource
+
+        validate()
+            foreach volume
+                validate volume
+
+
+        prepare()
+            for each volume
+                MountList.add
+                    DockerHttpDataResource.getStorage()
+                        => DockerVolumeMountStorage implements DockerVolumeMount
+                        DockerVolumeMountStorage.getMountIdent()
+                            => docker-volume.getVolumeName()
+                            => "{volume-ident}:{mount-path} ro/rw"
+
+                    DockerFileDataResource.getStorage()
+                        => DockerBindMountStorage implements DockerVolumeMount
+                        DockerBindMountStorage.getMountIdent()
+                            => getHostPath()
+                            => "{host-path}:{mount-path} ro/rw"
+
+
+        release()
+            Stop container
+            Delete container
+
+
+

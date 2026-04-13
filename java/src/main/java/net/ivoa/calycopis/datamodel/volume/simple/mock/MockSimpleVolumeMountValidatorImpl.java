@@ -45,8 +45,8 @@ implements MockSimpleVolumeMountValidator
     public MockSimpleVolumeMountValidatorImpl(
         final SimpleVolumeMountEntityFactory volumeMountFactory,
         final AbstractDataResourceEntityFactory dataResourceFactory,
-        final AbstractStorageResourceEntityFactory storageResourceFactory)
-        {
+        final AbstractStorageResourceEntityFactory storageResourceFactory
+        ){
         super(
             volumeMountFactory,
             dataResourceFactory,

@@ -100,7 +100,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
             super(
                 result,
                 object,
-                object.getMeta()
+                (object != null) ? object.getMeta() : null
                 );
             }
 

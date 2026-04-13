@@ -35,7 +35,6 @@
 
 package net.ivoa.calycopis.datamodel.volume.simple.mock;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
@@ -51,9 +50,6 @@ import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidator;
 @Entity
 @Table(
     name = "mocksimplevolumemounts"
-    )
-@DiscriminatorValue(
-    value="uri:mock-simple-volume-mount"
     )
 public class MockSimpleVolumeMountEntity
     extends SimpleVolumeMountEntity
@@ -91,7 +87,7 @@ public class MockSimpleVolumeMountEntity
      */
     public MockSimpleVolumeMountEntity(
         final AbstractComputeResourceEntity computeResource,
-        final AbstractStorageResourceEntity    storageResource,
+        final AbstractStorageResourceEntity storageResource,
         final SimpleVolumeMountValidator.Result result
         ){
         super(
@@ -100,7 +96,5 @@ public class MockSimpleVolumeMountEntity
             result
             );
         }
-    
-    
     }
 
