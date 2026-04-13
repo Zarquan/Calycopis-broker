@@ -178,7 +178,7 @@ implements ComponentProcessingRequest
             // If the next phase is WAITING, reschedule this request.
             // TODO Ask the component how long to wait.
             case WAITING:
-                Duration delay = DEFAULT_PREPARE_WAIT_INTERVAL ;
+                Duration delay;
                 if ((component.getPrepareStartInstant() != null) && (component.getPrepareStartInstant().isAfter(Instant.now())))
                     {
                     delay = Duration.between(
@@ -187,6 +187,9 @@ implements ComponentProcessingRequest
                         ).dividedBy(
                             2L
                             );
+                    }
+                else {
+                    delay = Duration.ZERO;
                     }
                 log.debug(
                     "Re-scheduling request [{}][{}] for component [{}][{}] in [{}]s",
