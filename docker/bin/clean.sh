@@ -22,7 +22,7 @@
 #
 
 # -----------------------------------------------------
-# Delete all our active pods.
+# Delete all pods.
 #[user@desktop]
 
     echo "Checking pods"
@@ -33,7 +33,7 @@
     fi
 
 # -----------------------------------------------------
-# Delete all our active containers.
+# Delete all containers.
 #[user@desktop]
 
     echo "Checking containers"
@@ -43,9 +43,19 @@
         podman rm -f $(podman ps -aq)
     fi
 
+# -----------------------------------------------------
+# Delete all volumes.
+#[user@desktop]
+
+    echo "Checking volumes"
+    if [ -n "$(podman volume ls -q)" ]
+    then
+        echo "Deleting volumes"
+        podman volume rm -f $(podman volume ls -q)
+    fi
 
 # -----------------------------------------------------
-# Delete all our container images.
+# Delete all images.
 #[user@desktop]
 
     echo "Checking images"

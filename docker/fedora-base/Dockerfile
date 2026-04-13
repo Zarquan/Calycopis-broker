@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # https://docs.fedoraproject.org/en-US/fedora/latest/release-notes/
-FROM registry.fedoraproject.org/fedora:42
+FROM registry.fedoraproject.org/fedora:43
 
 # https://docs.docker.com/v17.09/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG buildtag
@@ -39,6 +39,10 @@ LABEL org.opencontainers.image.authors  "https://github.com/Zarquan"
 # Mount the YUM cache as a volume.
 VOLUME /var/cache/dnf
 VOLUME /var/cache/yum
+
+#
+# Update the system.
+RUN dnf -y update
 
 #
 # Install common admin tools.

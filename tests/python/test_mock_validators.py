@@ -734,40 +734,40 @@ class TestSimpleDataResourceValidation:
         response = _submit(client, request)
         _assert_accepted(response, "Valid data location should be accepted")
 
-    def test_blacklisted_data_location(self, client):
+    def test_excluded_data_location(self, client):
         """
-        A SimpleDataResource with a blacklisted location should be rejected.
+        A SimpleDataResource with an excluded location should be rejected.
         """
         request = ExecutionRequest(
-            executable=_make_docker_executable("simple-data-blacklisted"),
+            executable=_make_docker_executable("simple-data-excluded"),
             data=[
                 SimpleDataResource(
                     kind=SIMPLE_DATA_KIND,
-                    meta=ComponentMetadata(name="blacklisted-data"),
-                    location="http://example.com/blacklisted.dat",
+                    meta=ComponentMetadata(name="excluded-data"),
+                    location="http://example.com/excluded.dat",
                 ),
             ],
         )
         response = _submit(client, request)
-        _assert_rejected(response, "Blacklisted data location should be rejected")
+        _assert_rejected(response, "Excluded data location should be rejected")
 
-    def test_blacklisted_data_location_forbidden(self, client):
+    def test_excluded_data_location_forbidden(self, client):
         """
-        A SimpleDataResource with the other blacklisted location
+        A SimpleDataResource with the other excluded location
         should also be rejected.
         """
         request = ExecutionRequest(
-            executable=_make_docker_executable("simple-data-forbidden"),
+            executable=_make_docker_executable("simple-data-excluded"),
             data=[
                 SimpleDataResource(
                     kind=SIMPLE_DATA_KIND,
-                    meta=ComponentMetadata(name="forbidden-data"),
-                    location="http://example.com/forbidden.dat",
+                    meta=ComponentMetadata(name="excluded-data"),
+                    location="http://example.com/excluded.vot",
                 ),
             ],
         )
         response = _submit(client, request)
-        _assert_rejected(response, "Blacklisted data location (forbidden) should be rejected")
+        _assert_rejected(response, "Excluded data location should be rejected")
 
     def test_missing_data_location(self, client):
         """
@@ -932,14 +932,14 @@ class TestIvoaDataResourceValidation:
 
     Mock rules:
       - IVOID_BLACKLIST: [
-            URI("ivo://example.com/blacklisted"),
+            URI("ivo://example.com/excluded"),
             URI("ivo://example.com/forbidden")
         ]
     """
 
     def test_valid_ivoa_data_resource(self, client):
         """
-        An IvoaDataResource with a valid (non-blacklisted) ivoid
+        An IvoaDataResource with a valid ivoid
         should be accepted.
         """
         request = ExecutionRequest(
@@ -958,29 +958,28 @@ class TestIvoaDataResourceValidation:
         assert response.result == "YES"
         assert response.offers is not None and len(response.offers) > 0
 
-    def test_blacklisted_ivoid(self, client):
+    def test_excluded_ivoid(self, client):
         """
-        An IvoaDataResource with a blacklisted ivoid should be rejected.
+        An IvoaDataResource with an excluded ivoid should be rejected.
         """
         request = ExecutionRequest(
-            executable=_make_docker_executable("ivoa-data-blacklisted"),
+            executable=_make_docker_executable("ivoa-data-excluded"),
             data=[
                 IvoaDataResource(
                     kind=IVOA_DATA_KIND,
-                    meta=ComponentMetadata(name="blacklisted-ivoa"),
+                    meta=ComponentMetadata(name="excluded-ivoa"),
                     ivoa=IvoaDataResourceBlock(
-                        ivoid="ivo://example.com/blacklisted",
+                        ivoid="ivo://example.com/excluded",
                     ),
                 ),
             ],
         )
         response = _submit(client, request)
-        _assert_rejected(response, "Blacklisted ivoid should be rejected")
+        _assert_rejected(response, "Excluded ivoid should be rejected")
 
-    def test_blacklisted_ivoid_forbidden(self, client):
+    def test_forbidden_ivoid(self, client):
         """
-        An IvoaDataResource with the other blacklisted ivoid
-        should also be rejected.
+        An IvoaDataResource with a forbidden ivoid should be rejected.
         """
         request = ExecutionRequest(
             executable=_make_docker_executable("ivoa-data-forbidden"),
@@ -995,7 +994,7 @@ class TestIvoaDataResourceValidation:
             ],
         )
         response = _submit(client, request)
-        _assert_rejected(response, "Blacklisted ivoid (forbidden) should be rejected")
+        _assert_rejected(response, "Forbidden ivoid should be rejected")
 
     def test_missing_ivoid(self, client):
         """

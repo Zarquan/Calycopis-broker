@@ -220,7 +220,7 @@ implements MockPlatform
         this.volumeMountValidatorFactory.addValidator(
             new MockSimpleVolumeMountValidatorImpl(
                 this.volumeMountEntityFactory,
-                this.dataResourceEntityFactory,
+                this.mockSimpleDataResourceEntityFactory,
                 this.storageResourceEntityFactory
                 )
             );
@@ -271,8 +271,8 @@ implements MockPlatform
     @Autowired
     private MockSkaoDataResourceEntityFactory mockSkaoDataResourceEntityFactory;
 
-    @Autowired
-    private AbstractDataResourceEntityFactory dataResourceEntityFactory;
+    //@Autowired
+    //private AbstractDataResourceEntityFactory dataResourceEntityFactory;
     /*
     @Override
     public AbstractDataResourceEntityFactory getDataResourceEntityFactory()

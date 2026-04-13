@@ -42,6 +42,11 @@ RUN dnf install -y \
     java-latest-openjdk-devel
 
 #
+# Install Podman
+RUN dnf install -y \
+    podman
+
+#
 # Add our install scripts.
 COPY bin /usr/local/bin/
 RUN chmod a+x /usr/local/bin/*.sh

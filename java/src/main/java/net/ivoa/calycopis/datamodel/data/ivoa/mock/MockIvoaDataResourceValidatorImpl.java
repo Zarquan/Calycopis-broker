@@ -74,7 +74,7 @@ implements MockIvoaDataResourceValidator
 
     public static final List<URI> EXCLUDED_LOCATIONS = List.of(
         URI.create("ivo://example.com/excluded"),
-        URI.create("ivo://example.com/excluded")
+        URI.create("ivo://example.com/forbidden")
         );
 
     @Override
