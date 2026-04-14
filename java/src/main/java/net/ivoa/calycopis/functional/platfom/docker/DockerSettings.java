@@ -25,7 +25,7 @@
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
- *       "value": 5,
+ *       "value": 100,
  *       "units": "%"
  *       }
  *     }
@@ -33,21 +33,29 @@
  *
  */
 
-package net.ivoa.calycopis.functional.platfom.mock;
+package net.ivoa.calycopis.functional.platfom.docker;
 
-import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.functional.processing.mock.MockEntitySettings;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
- * 
+ * Configuration properties for the Docker platform, bound from
+ * the broker.docker section of the application configuration.
+ *
  */
-public interface MockPlatform extends Platform
+@Component
+@ConfigurationProperties(prefix = "broker.docker")
+public class DockerSettings
     {
+    private String helperImage = "alpine:3";
 
-    /**
-     * Get the MockEntitySettings for this platform.
-     *
-     */
-    public MockEntitySettings getMockEntitySettings();
+    public String getHelperImage()
+        {
+        return helperImage;
+        }
 
+    public void setHelperImage(String helperImage)
+        {
+        this.helperImage = helperImage;
+        }
     }

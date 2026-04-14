@@ -427,13 +427,62 @@ This has important consequences:
 
 ### Database service
 
-The broker requires a PostgreSQL database to be running before the service can start.
-The database credentials are configured in `java/src/main/resources/application.yaml`.
+The broker requires a PostgreSQL database. H2 is not supported because the
+application uses `GENERATE_SERIES` and other PostgreSQL-specific SQL features.
 
-If the `developer-tools` container was launched inside a Podman pod (e.g. `calycopis-pod`),
-you can start a PostgreSQL instance inside the same pod using:
+#### Configuration chain
 
+The main `application.yaml` does **not** contain database credentials directly.
+Instead it imports an external file:
+
+```yaml
+spring:
+    config:
+        import: file:/etc/calycopis/database.yaml
 ```
+
+The external file `/etc/calycopis/database.yaml` supplies the Spring datasource
+properties:
+
+```yaml
+spring:
+    datasource:
+        url: jdbc:postgresql://postgresql:5432/calycopis
+        username: <generated-username>
+        password: <generated-password>
+        driverClassName: org.postgresql.Driver
+        initialize: true
+```
+
+This separation keeps credentials out of the version-controlled source tree.
+
+#### Generating credentials and creating the configuration file
+
+Use `pwgen` (available in the `developer-tools` container) to generate random
+credentials, then write the configuration file using `yq`:
+
+```bash
+databaseuser=$(pwgen 32 1)
+databasepass=$(pwgen 32 1)
+
+mkdir -p /etc/calycopis
+
+yq -n "
+  .spring.datasource.url = \"jdbc:postgresql://postgresql:5432/calycopis\" |
+  .spring.datasource.username = \"${databaseuser}\" |
+  .spring.datasource.password = \"${databasepass}\" |
+  .spring.datasource.driverClassName = \"org.postgresql.Driver\" |
+  .spring.datasource.initialize = true
+" > /etc/calycopis/database.yaml
+```
+
+#### Starting the PostgreSQL container
+
+If the `developer-tools` container was launched inside a Podman pod
+(e.g. `calycopis-pod`), start a PostgreSQL instance inside the same pod,
+using the same credentials:
+
+```bash
 podman run \
     --rm \
     --detach \
@@ -442,18 +491,55 @@ podman run \
     --pod calycopis-pod \
     --expose 5432 \
     --env "POSTGRES_DB=calycopis" \
-    --env "POSTGRES_USER=albert" \
-    --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+    --env "POSTGRES_USER=${databaseuser}" \
+    --env "POSTGRES_PASSWORD=${databasepass}" \
     docker.io/library/postgres:latest
 ```
 
-Running inside the same pod means the PostgreSQL service is accessible at `postgresql:5432`
-from within the `developer-tools` container, matching the datasource URL in `application.yaml`.
+Running inside the same pod means PostgreSQL is accessible at
+`postgresql:5432` from within the `developer-tools` container, matching the
+datasource URL in the configuration file.
 
-You can verify the database is ready using:
+#### Verifying the database is ready
+
+Wait a few seconds for PostgreSQL to initialise, then check connectivity:
+
+```bash
+python3 -c "
+import socket
+s = socket.socket()
+s.settimeout(5)
+s.connect(('postgresql', 5432))
+print('PostgreSQL is ready')
+s.close()
+"
 ```
-python3 -c "import socket; s=socket.socket(); s.settimeout(5); s.connect(('postgresql',5432)); print('PostgreSQL is ready'); s.close()"
+
+#### Re-creating the database
+
+The broker uses `spring.jpa.hibernate.ddl-auto: create`, so the schema is
+recreated on every broker restart. If you need a completely fresh database
+(e.g. after schema changes that cause migration errors), stop and re-create
+the PostgreSQL container:
+
+```bash
+podman rm -f postgresql
+
+podman run \
+    --rm \
+    --detach \
+    --replace \
+    --name postgresql \
+    --pod calycopis-pod \
+    --expose 5432 \
+    --env "POSTGRES_DB=calycopis" \
+    --env "POSTGRES_USER=$(yq '.spring.datasource.username' /etc/calycopis/database.yaml)" \
+    --env "POSTGRES_PASSWORD=$(yq '.spring.datasource.password' /etc/calycopis/database.yaml)" \
+    docker.io/library/postgres:latest
 ```
+
+This reads the existing credentials from the configuration file so they
+remain consistent without needing to regenerate them.
 
 ### Maven build
 

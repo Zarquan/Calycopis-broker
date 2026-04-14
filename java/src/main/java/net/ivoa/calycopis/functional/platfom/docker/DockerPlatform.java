@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-04-14T17:00:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
@@ -44,6 +56,12 @@ public interface DockerPlatform extends Platform
      * Get the DockerContainerEntityFactory for this platform.
      *
      */
-    public DockerContainerEntityFactory getDockerContainerEntityFactory();    
+    public DockerContainerEntityFactory getDockerContainerEntityFactory();
+
+    /**
+     * Get the DockerSettings for this platform.
+     *
+     */
+    public DockerSettings getDockerSettings();
     
     }
