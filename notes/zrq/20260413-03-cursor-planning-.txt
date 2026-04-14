@@ -1,0 +1,1585 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Working with Cursor to plan the next steps.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create new branches to work in.
+#[user@desktop]
+
+    branchname=planning
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Run an instance of our development environment.
+#[user@desktop]
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    # WARNING - this exposes the user's Podman socket to the container.
+    # WARNING - exposing the user's Podman socket requires a patch to the SELinux rules.
+    # WARNING - this exposes the user's SSH agent to the container.
+    # WARNING - exposing the user's SSH agent requires a patch to the SELinux rules.
+
+    source "${HOME:?}/calycopis.env"
+    source "${HOME:?}/heliophorus.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "SSH_AUTH_SOCK=/tmp/ssh-sock" \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${HOME}/.m2:/root/.m2:rw,Z" \
+        --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,Z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,Z" \
+        --volume "${SSH_AUTH_SOCK}:/tmp/ssh-sock:rw,Z" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2026.04.12 \
+            bash
+
+            podman ps
+
+    >   CONTAINER ID  IMAGE                                              COMMAND     CREATED         STATUS        PORTS       NAMES
+    >   1c47102427f2  localhost/podman-pause:5.4.2-1743552000                        14 seconds ago  Up 7 seconds              3b84420325dc-infra
+    >   23054c5e6e58  ghcr.io/ivoa/calycopis/developer-tools:2026.04.12  bash        6 seconds ago   Up 6 seconds              calycopis-dev
+
+
+# -----------------------------------------------------
+# Create out database config.
+#[root@calycopis-dev]
+
+    mkdir /etc/calycopis
+
+    cat > /etc/calycopis/database.yaml << EOF
+spring:
+    datasource:
+        url: jdbc:postgresql://postgresql:5432/calycopis
+        username: $(pwgen 32 1)
+        password: $(pwgen 32 1)
+        driverClassName: org.postgresql.Driver
+        initialize: true
+EOF
+
+
+# -----------------------------------------------------
+# Start our PostgreSQL database.
+#[root@calycopis-dev]
+
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=$(yq '.spring.datasource.username' /etc/calycopis/database.yaml)" \
+        --env "POSTGRES_PASSWORD=$(yq '.spring.datasource.password' /etc/calycopis/database.yaml)" \
+        docker.io/library/postgres:latest
+
+    >   ....
+    >   ....
+
+
+    podman inspect \
+        postgresql \
+    | jq '.[0].Config.Env'
+
+    >   [
+    >     "LANG=en_US.utf8",
+    >     "PG_VERSION=18.3-1.pgdg13+1",
+    >     "POSTGRES_DB=calycopis",
+    >     "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+    >     "container=podman",
+    >     "PGDATA=/var/lib/postgresql/18/docker",
+    >     "GOSU_VERSION=1.19",
+    >     "PG_MAJOR=18",
+    >     "POSTGRES_USER=cohkae6paiCei8irohmai9zeaso3gowa",
+    >     "POSTGRES_PASSWORD=eiphahquu8caiFi8ooNuvoofa8zeenge",
+    >     "HOME=/root",
+    >     "HOSTNAME=calycopis-pod"
+    >   ]
+
+
+# -----------------------------------------------------
+# Launch our broker service with the docker platform.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq
+        pushd java
+
+            ./mvnw clean spring-boot:run -D calycopis-platform=docker
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start another terminal to run our Python tests.
+#[user@desktop]
+
+    testdata=/home/Zarquan/temp
+
+    podman exec \
+        --tty \
+        --env "TESTDATA=${testdata}" \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    pip install pytest
+
+    pip install docker
+
+    pip install --edit /calycopis/Calycopis-schema/github-zrq/codegen/python/client/build
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Run the docker tests ....
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq
+        pushd tests/python/
+
+            pytest test_docker_platform.py
+
+            pytest test_docker_direct_execution.py
+
+            pytest test_docker_bind_mount.py
+
+            pytest test_docker_stress.py
+
+        popd
+    popd
+
+
+    >   ....
+    >   ================= 18 passed, 102 warnings in 455.04s (0:07:35) =================
+    >   ....
+    >   ================= 13 passed, 58 warnings in 233.18s (0:03:53) ==================
+    >   ....
+    >   ================== 7 passed, 33 warnings in 164.18s (0:02:44) ==================
+    >   ....
+    >   ======================== 1 passed in 151.98s (0:02:31) =========================
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start another terminal to run Cursor.
+#[user@desktop]
+
+    testdata=/home/Zarquan/temp
+
+    podman exec \
+        --tty \
+        --env "TESTDATA=${testdata}" \
+        --interactive \
+            calycopis-dev \
+                bash
+
+        curl https://cursor.com/install -fsS | bash
+
+        agent
+
+    ?   /resume
+    ?   /plan
+
+    ?   So far we have been working on implementing docker bind mounts to mount file:// URLs for data from the local filesystem.
+    ?   I would now like to develop a plan for the next stage of work to implement docker volume mounts to handle http:// URLs for data from remote systems.
+
+    >    ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >    │ Suggested Plan                                                                                                                                                                           │
+    >    │                                                                                                                                                                                          │
+    >    │ Docker Volume Mounts for Remote HTTP Data                                                                                                                                                │
+    >    │                                                                                                                                                                                          │
+    >    │ Current State                                                                                                                                                                            │
+    >    │                                                                                                                                                                                          │
+    >    │ The bind mount flow for file:// data is fully working:                                                                                                                                   │
+    >    │ • DockerDataStorageLinkerImpl routes file:// to linkBindMount(), creating a DockerBindMountStorageEntity with the host path                                                              │
+    >    │ • DockerBindMountStorageEntity.link() passes the host path to the linker bean                                                                                                            │
+    >    │ • DockerSimpleComputeResourceEntity assembles the Bind object and attaches it to the container                                                                                           │
+    >    │                                                                                                                                                                                          │
+    >    │ The volume mount flow for http:// data has the validation and entity scaffolding in place, but all lifecycle actions are no-ops:                                                         │
+    >    │ • DockerDataStorageLinkerImpl routes http:// to linkVolumeMount(), creating a DockerVolumeMountStorageEntity                                                                             │
+    >    │ • DockerVolumeMountStorageEntity has a volumeIdent field but it is never populated                                                                                                       │
+    >    │ • link() passes null to the linker, so isComplete() returns false and the mount is skipped                                                                                               │
+    >    │ • DockerHttpResourceEntity prepare/monitor/release are all no-ops                                                                                                                        │
+    >    │                                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ Proposed Data Flow                                                                                                                                                                       │
+    >    │                                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ ┌────────────────┐  ┌────────────────────────────────┐  ┌──────────────────────────┐   ┌───────────────────────────────────┐                             ┌───────────────────┐           │
+    >    │ │ PrepareSession │  │ DockerVolumeMountStorageEntity │  │ DockerHttpResourceEntity │   │ DockerSimpleComputeResourceEntity │                             │ Docker/Podman API │           │
+    >    │ └────────┬───────┘  └────────────────┬───────────────┘  └─────────────┬────────────┘   └─────────────────┬─────────────────┘                             └─────────┬─────────┘           │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │          prepare          │                                │                                  │                                                         │                     │
+    >    │          │───────────────────────────▶                                │                                  │                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │                                │                 createVolumeCmd().exec()                                                   │                     │
+    >    │          │                           │─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────▶                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │                                │                        volumeName│                                                         │                     │
+    >    │          │                           ◀╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           ├───┐                            │                                  │                                                         │                     │
+    >    │          │                           │   │ store volumeIdent, set AVAILABLE                              │                                                         │                     │
+    >    │          │                           ◀───┘                            │                                  │                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                          prepare                           │                                  │                                                         │                     │
+    >    │          │────────────────────────────────────────────────────────────▶                                  │                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │                ┌───────────────────────────────┐                  │                                                         │                     │
+    >    │          │                           │                │ Needs storage AVAILABLE first │                  │                                                         │                     │
+    >    │          │                           │                └───────────────────────────────┘                  │                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │                                │                      run wget/curl helper container (volume mounted)                       │                     │
+    >    │          │                           │                                │────────────────────────────────────────────────────────────────────────────────────────────▶                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │                                │                                  │ download completes                                      │                     │
+    >    │          │                           │                                ◀╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌│                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │                                ├───┐                              │                                                         │                     │
+    >    │          │                           │                                │   │ set AVAILABLE                │                                                         │                     │
+    >    │          │                           │                                ◀───┘                              │                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │   prepare (waits for dependencies)                                │                                                         │                     │
+    >    │          │───────────────────────────────────────────────────────────────────────────────────────────────▶                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │                     storage.link(linkerBean)                      │                                                         │                     │
+    >    │          │                           ◀───────────────────────────────────────────────────────────────────│                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │                    setSourcePath(volumeIdent)                     │                                                         │                     │
+    >    │          │                           │╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌▶                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │                                │                                  │  createContainer with Bind(volumeName, containerPath)   │                     │
+    >    │          │                           │                                │                                  │─────────────────────────────────────────────────────────▶                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │ ┌──────────────────────┐             │                                │                                  │                                                         │                     │
+    >    │ │ ... session runs ... │             │                                │                                  │                                                         │                     │
+    >    │ └──────────────────────┘             │                                │                                  │                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │          release          │                                │                                  │                                                         │                     │
+    >    │          │───────────────────────────▶                                │                                  │                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           │                                │            removeVolumeCmd(volumeName).exec()                                              │                     │
+    >    │          │                           │─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────▶                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │          │                           ├───┐                            │                                  │                                                         │                     │
+    >    │          │                           │   │ set COMPLETED              │                                  │                                                         │                     │
+    >    │          │                           ◀───┘                            │                                  │                                                         │                     │
+    >    │          │                           │                                │                                  │                                                         │                     │
+    >    │ ┌────────┴───────┐  ┌────────────────┴───────────────┐  ┌─────────────┴────────────┐   ┌─────────────────┴─────────────────┐                             ┌─────────┴─────────┐           │
+    >    │ │ PrepareSession │  │ DockerVolumeMountStorageEntity │  │ DockerHttpResourceEntity │   │ DockerSimpleComputeResourceEntity │                             │ Docker/Podman API │           │
+    >    │ └────────────────┘  └────────────────────────────────┘  └──────────────────────────┘   └───────────────────────────────────┘                             └───────────────────┘           │
+    >    │ ctrl+o to show source                                                                                                                                                                    │
+    >    │                                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ Key Design Decisions                                                                                                                                                                     │
+    >    │                                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ 1. How to download HTTP data into the Docker volume                                                                                                                                      │
+    >    │                                                                                                                                                                                          │
+    >    │ There are two approaches:                                                                                                                                                                │
+    >    │ • a) Run a helper container (e.g. alpine/curl or busybox) with the volume mounted, executing wget/curl to download the file. This works naturally with the container-in-container        │
+    >    │   architecture since the Podman service on the host manages both the volume and the helper container.                                                                                    │
+    >    │ • b) Use the Docker API to copy data (copyArchiveToContainerCmd). This is more complex and requires creating an intermediate tar archive.                                                │
+    >    │                                                                                                                                                                                          │
+    >    │ Recommendation: Approach (a) — run a lightweight helper container. It is simpler, works reliably across the Podman socket boundary, and avoids buffering the entire download in the      │
+    >    │ broker's JVM memory.                                                                                                                                                                     │
+    >    │                                                                                                                                                                                          │
+    >    │ 2. Ordering: storage must be AVAILABLE before data can prepare                                                                                                                           │
+    >    │                                                                                                                                                                                          │
+    >    │ Currently PrepareSessionRequestEntity.beginPreparing() schedules all component prepare requests simultaneously. The DockerHttpResourceEntity prepare action needs the Docker volume to   │
+    >    │  already exist (created by DockerVolumeMountStorageEntity's prepare action) before it can launch the download helper container.                                                          │
+    >    │ Two options:                                                                                                                                                                             │
+    >    │ • a) Use prepareStartInstant ordering — set a prepareStartInstant on the data resource that is slightly after the storage resource's expected prepare completion. This uses the          │
+    >    │   existing scheduling mechanism.                                                                                                                                                         │
+    >    │ • b) Check storage phase in data's prepare action — have DockerHttpResourceEntity.getPrepareAction() check whether its associated storage entity is AVAILABLE. If not, return a          │
+    >    │   no-op and stay in PREPARING (the prepare loop will retry in 10 seconds).                                                                                                               │
+    >    │                                                                                                                                                                                          │
+    >    │ Recommendation: Approach (b) — it is simpler, more robust (no time estimation needed), and follows the existing pattern where the compute resource implicitly waits for its              │
+    >    │ dependencies. The 10-second retry interval from DEFAULT_PREPARE_LOOP_INTERVAL is acceptable.                                                                                             │
+    >    │                                                                                                                                                                                          │
+    >    │ 3. Helper container image                                                                                                                                                                │
+    >    │                                                                                                                                                                                          │
+    >    │ A small image like alpine:3 with wget (included by default) is sufficient. The image name could be made configurable via application.yaml under broker.docker.helper-image for future    │
+    >    │ flexibility.                                                                                                                                                                             │
+    >    │                                                                                                                                                                                          │
+    >    │ Implementation Steps                                                                                                                                                                     │
+    >    │                                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ Step 1: `DockerVolumeMountStorageEntity` — Create volume on prepare, delete on release                                                                                                   │
+    >    │                                                                                                                                                                                          │
+    >    │ In DockerVolumeMountStorageEntity.java:                                                                                                                                                  │
+    >    │ • `getPrepareAction()`: Cast platform to DockerPlatform, get DockerClientFactory, call dockerClient.createVolumeCmd().exec(). Store the returned volume name in this.volumeIdent.        │
+    >    │   Set phase to AVAILABLE.                                                                                                                                                                │
+    >    │ • `getReleaseAction()`: Get the DockerClient, call dockerClient.removeVolumeCmd(this.volumeIdent).exec(). Set phase to COMPLETED.                                                        │
+    >    │ • `getMonitorAction()`: Optionally inspect the volume; for now, transition straight to COMPLETED (existing behaviour is acceptable).                                                     │
+    >    │ • Add @Column annotation to volumeIdent to ensure JPA persistence.                                                                                                                       │
+    >    │                                                                                                                                                                                          │
+    >    │ Access pattern (same as DockerSimpleComputeResourceEntity):                                                                                                                              │
+    >    │                                                                                                                                                                                          │
+    >    │ if (platform instanceof DockerPlatform) {                                                                                                                                                │
+    >    │     DockerClientFactory clientFactory = ((DockerPlatform) platform).getDockerClientFactory();                                                                                            │
+    >    │     try (DockerClient dockerClient = clientFactory.getDockerClient()) {                                                                                                                  │
+    >    │         CreateVolumeResponse volume = dockerClient.createVolumeCmd().exec();                                                                                                             │
+    >    │         this.volumeIdent = volume.getName();                                                                                                                                             │
+    >    │     }                                                                                                                                                                                    │
+    >    │ }                                                                                                                                                                                        │
+    >    │                                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ Step 2: `DockerHttpResourceEntity` — Download data into the volume via a helper container                                                                                                │
+    >    │                                                                                                                                                                                          │
+    >    │ In DockerHttpResourceEntity.java:                                                                                                                                                        │
+    >    │ • `getPrepareAction()`:                                                                                                                                                                  │
+    >    │   • Check that the associated storage entity is AVAILABLE. If not, remain in PREPARING (the processing loop will retry).                                                                 │
+    >    │   • Get the DockerClient from the platform.                                                                                                                                              │
+    >    │   • Get the volume name from this.getStorage() — since the storage is the DockerVolumeMountStorageEntity, its volumeIdent is now populated.                                              │
+    >    │   • Get the data URL from this.getLocation().                                                                                                                                            │
+    >    │   • Create and start a helper container:                                                                                                                                                 │
+    >    │     • Image: alpine:3 (or configurable)                                                                                                                                                  │
+    >    │     • Command: ["wget", "-O", "/data/output", "<http-url>"]                                                                                                                              │
+    >    │     • Volume: Bind(volumeIdent, new Volume("/data"), AccessMode.rw)                                                                                                                      │
+    >    │   • Wait for the helper container to exit.                                                                                                                                               │
+    >    │   • Check exit code; if 0, set phase to AVAILABLE. If non-zero, fail with an error message.                                                                                              │
+    >    │   • Remove the helper container.                                                                                                                                                         │
+    >    │ • `getReleaseAction()`: No action needed (volume cleanup is handled by the storage entity).                                                                                              │
+    >    │                                                                                                                                                                                          │
+    >    │ The storage phase check can be done by navigating this.getStorage().getPhase():                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ if (this.getStorage().getPhase() != IvoaLifecyclePhase.AVAILABLE) {                                                                                                                      │
+    >    │     // Storage not ready yet, stay in PREPARING                                                                                                                                          │
+    >    │     return new ComponentProcessingAction() {                                                                                                                                             │
+    >    │         public void preProcess(LifecycleComponent c) {}                                                                                                                                  │
+    >    │         public void process() {}                                                                                                                                                         │
+    >    │         public void postProcess(LifecycleComponent c) {                                                                                                                                  │
+    >    │             // Leave phase as PREPARING — the loop will retry                                                                                                                            │
+    >    │         }                                                                                                                                                                                │
+    >    │     };                                                                                                                                                                                   │
+    >    │ }                                                                                                                                                                                        │
+    >    │                                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ Step 3: `DockerStorageLinker` — Already works for volumes                                                                                                                                │
+    >    │                                                                                                                                                                                          │
+    >    │ No changes needed. DockerVolumeMountStorageEntity.link() already calls setSourcePath(this.volumeIdent). Once volumeIdent is populated by Step 1, the linker bean will have all three     │
+    >    │ parts (sourcePath, containerPath, accessMode) and isComplete() will return true. The DockerSimpleComputeResourceEntity will create the correct Bind object.                              │
+    >    │                                                                                                                                                                                          │
+    >    │ Step 4: Configuration (optional)                                                                                                                                                         │
+    >    │                                                                                                                                                                                          │
+    >    │ In application.yaml, add:                                                                                                                                                                │
+    >    │                                                                                                                                                                                          │
+    >    │ broker:                                                                                                                                                                                  │
+    >    │   docker:                                                                                                                                                                                │
+    >    │     helper-image: "alpine:3"                                                                                                                                                             │
+    >    │                                                                                                                                                                                          │
+    >    │ Create a DockerSettings class (or add to an existing config class) with @ConfigurationProperties(prefix = "broker.docker") exposing getHelperImage(). Inject into DockerPlatform /       │
+    >    │ DockerPlatformImpl.                                                                                                                                                                      │
+    >    │                                                                                                                                                                                          │
+    >    │ Step 5: Python integration test                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ Create tests/python/test_docker_volume_mount.py:                                                                                                                                         │
+    >    │ • Submit an execution request with an http:// data resource (e.g. a small public file like https://tinyurl.com/Calycopis-trebula or similar)                                             │
+    >    │ • Mount it at /input as READONLY                                                                                                                                                         │
+    >    │ • Use the heliophorus-androcles container to compute the MD5 of the downloaded file                                                                                                      │
+    >    │ • Poll session phases through PREPARING -> RUNNING -> COMPLETED                                                                                                                          │
+    >    │ • Verify the session completes successfully                                                                                                                                              │
+    >    │ • Optionally inspect container logs for the MD5 output                                                                                                                                   │
+    >    │                                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ Files to Change                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ • DockerVolumeMountStorageEntity.java — implement prepare (create volume) and release (delete volume)                                                                                    │
+    >    │ • DockerHttpResourceEntity.java — implement prepare (download via helper container)                                                                                                      │
+    >    │ • application.yaml — add broker.docker.helper-image (optional)                                                                                                                           │
+    >    │ • DockerPlatform.java / DockerPlatformImpl.java — expose helper image config (optional)                                                                                                  │
+    >    │ • New: tests/python/test_docker_volume_mount.py — integration test                                                                                                                       │
+    >    │                                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ Files That Need No Changes                                                                                                                                                               │
+    >    │                                                                                                                                                                                          │
+    >    │ • DockerStorageLinkerBean.java — already handles volume names as source paths                                                                                                            │
+    >    │ • DockerStorageLinker.java — interface already documented for volume names                                                                                                               │
+    >    │ • DockerSimpleComputeResourceEntity.java — the linker pattern already handles volume mounts correctly                                                                                    │
+    >    │ • DockerDataStorageLinkerImpl.java — validation routing already creates DockerVolumeMountStorageEntity for http:// URLs                                                                  │
+    >    │ • PrepareSessionRequestEntity.java — no ordering changes needed (using retry approach)                                                                                                   │
+    >    │                                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │ Risks and Considerations                                                                                                                                                                 │
+    >    │                                                                                                                                                                                          │
+    >    │ • Helper container image pull: The alpine:3 image may not be cached. The prepare action should handle NotFoundException and pull the image if needed (or fail gracefully with a          │
+    >    │   clear error message).                                                                                                                                                                  │
+    >    │ • Download timeout: Large files could take a long time to download. Consider adding a configurable timeout for the helper container.                                                     │
+    >    │ • Download path inside volume: The helper container writes to /data/output, but the application container mounts the volume at the user-specified path. The convention needs to be       │
+    >    │   consistent — one option is to always write to a fixed filename (/data/content) and have the volume mount point be the directory containing that file.                                  │
+    >    │ • Error propagation: If the download fails, the DockerHttpResourceEntity should set its phase to FAILED and add an error message (via MessageSubject.addError()), which will             │
+    >    │   propagate to the session.                                                                                                                                                              │
+    >    │                                                                                                                                                                                          │
+    >    │  Saved to root/.cursor/plans/Docker Volume Mount HTTP-a78d21c1.plan.md                                                                                                                   │
+    >    │ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── │
+    >    │                                                                                                                                                                                          │
+    >    │ Ready to build?                                                                                                                                                                          │
+    >    │                                                                                                                                                                                          │
+    >    │  → 1. Yes, build locally (b)                                                                                                                                                             │
+    >    │    2. No, propose changes (p or Esc)                                                                                                                                                     │
+    >    │                                                                                                                                                                                          │
+    >    └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+    ?   1. Yes, build locally (b)
+
+    >     I'll implement the Docker volume mount support for remote HTTP data step by step. Let me start by reading the key files I need to modify.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ … Thought for 1.9s                                                                                                                                                                       │
+    >     │ Now let me look at how DockerSimpleComputeResourceEntity accesses the DockerClient to understand the pattern I need to follow. Let me also check the DockerClientFactory interface       │
+    >     │ and the existing compute resource entity for the exact pattern used.                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ⬢ To-do Working on 7 to-dos
+    >       ☐ Implement DockerVolumeMountStorageEntity.getPrepareAction() to call createVolumeCmd and store volumeIdent
+    >       ☐ Implement DockerVolumeMountStorageEntity.getReleaseAction() to call removeVolumeCmd
+    >       ☐ Add @Column annotation to volumeIdent field for JPA persistence
+    >       ☐ Implement DockerHttpResourceEntity.getPrepareAction() — check storage AVAILABLE, run wget helper container to download data into volume
+    >       ☐ Handle storage-not-ready case in DockerHttpResourceEntity by staying in PREPARING phase
+    >       ☐ Add broker.docker.helper-image configuration to application.yaml and DockerPlatform (optional)
+    >       ☐ Create test_docker_volume_mount.py Python integration test with http:// data resource
+    >   
+    >     ⬢ Read 3 files
+    >       Read ...rage/docker/DockerVolumeMountStorageEntity.java
+    >       Read .../data/docker/http/DockerHttpResourceEntity.java
+    >       Read ...torage/docker/DockerBindMountStorageEntity.java
+    >   
+    >     Now let me look at how the compute resource entity accesses the Docker client, and check what imports are available.
+    >   
+    >     ⬢ Read 3 files
+    >       Read ...e/docker/DockerSimpleComputeResourceEntity.java lines 1-80
+    >       Read ...e/docker/DockerSimpleComputeResourceEntity.java lines 340-459
+    >       Read ...ctional/platfom/docker/DockerClientFactory.java
+    >   
+    >     Now let me also check MessageSubject for error reporting, and the application.yaml for the config section.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ … Thought for 1.4s                                                                                                                                                                       │
+    >     │ Now I have a good understanding of the patterns. Let me also check the LifecycleComponent interface to see how getStorage() works on data resources and what getPhase() returns.         │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ⬢ Read, grepped 2 files, 3 greps
+    >       … 2 earlier items hidden
+    >       Grepped "addError|addMessage" in ...tamodel/component/LifecycleComponentEntity.java
+    >       Read ...calycopis/datamodel/message/MessageSubject.java
+    >       Grepped "addError|addMessage" in ...e/docker/DockerSimpleComputeResourceEntity.java
+    >   
+    >     Now let me check the data resource entity's getStorage() method and how the DockerVolumeMountStorage interface is defined.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ … Thought for 890ms                                                                                                                                                                      │
+    >     │ Now I have all the context I need. Let me also check what AbstractStorageResource interface looks like to understand the getPhase() method.                                              │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ⬢ Grepped, read 2 greps, 2 files
+    >       Grepped "getStorage|setStorage" in ...model/data/simple/SimpleDataResourceEntity.java
+    >       Read ...el/storage/docker/DockerVolumeMountStorage.java
+    >       Read ...datamodel/storage/docker/DockerVolumeMount.java
+    >       Grepped "getStorage|setStorage|storageResource" in .../datamodel/data/AbstractDataResourceEntity.java
+    >   
+    >     Now let me check the LifecycleComponent interface to verify getPhase() is available.
+    >   
+    >     ⬢ Grepped 2 greps
+    >       Grepped "getPhase" in ...pis/datamodel/component/LifecycleComponent.java
+    >       Grepped "interface AbstractStorageResource" in ...ithub-zrq/java/src/main/java/net/ivoa/calycopis
+    >   
+    >     Good. AbstractStorageResource extends LifecycleComponent, so getPhase() is available. Now I have everything I need. Let me also check one of the existing Python tests for the test
+    >     structure.
+    >   
+    >     ⬢ Read ...b-zrq/tests/python/test_docker_androcles_md5.py
+    >   
+    >     Good, I have a thorough understanding of all the patterns. Now let me implement the changes. Starting with DockerVolumeMountStorageEntity — the prepare and release actions, plus the
+    >     @Column annotation.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...rage/docker/DockerVolumeMountStorageEntity.java +6                                                                                                                                    │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  @@ -23,6 +23,10 @@                                                                                                                                                                      │
+    >     │                                                                                                                                                                                          │
+    >     │   package net.ivoa.calycopis.datamodel.storage.docker;                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │ + import com.github.dockerjava.api.DockerClient;                                                                                                                                         │
+    >     │ + import com.github.dockerjava.api.command.CreateVolumeResponse;                                                                                                                         │
+    >     │ +                                                                                                                                                                                        │
+    >     │ + import jakarta.persistence.Column;                                                                                                                                                     │
+    >     │   import jakarta.persistence.DiscriminatorValue;                                                                                                                                         │
+    >     │   import jakarta.persistence.Entity;                                                                                                                                                     │
+    >     │  … truncated (10 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now add the @Column annotation and replace the prepare/release actions.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...rage/docker/DockerVolumeMountStorageEntity.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  @@ -81,7 +81,7 @@                                                                                                                                                                       │
+    >     │               );                                                                                                                                                                         │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ -     // The volume identifier from the Docker API.                                                                                                                                      │
+    >     │ +     @Column(name = "volumeident")                                                                                                                                                      │
+    >     │       private String volumeIdent;                                                                                                                                                        │
+    >     │       @Override                                                                                                                                                                          │
+    >     │       public String getMountPath()                                                                                                                                                       │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now replace the getPrepareAction() method with the real Docker volume creation logic.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...rage/docker/DockerVolumeMountStorageEntity.java +68 -4                                                                                                                                │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  @@ -108,19 +108,83 @@                                                                                                                                                                   │
+    >     │           final Platform platform,                                                                                                                                                       │
+    >     │           final ComponentProcessingRequest request                                                                                                                                       │
+    >     │           ){                                                                                                                                                                             │
+    >     │ -         // TODO Create a ProcessingAction that calls the Docker API and creates a new volume.                                                                                          │
+    >     │ +         final String storageUuid = this.getUuid().toString();                                                                                                                          │
+    >     │ +                                                                                                                                                                                        │
+    >     │ +         final DockerClientFactory clientFactory;                                                                                                                                       │
+    >     │ +         if (platform instanceof DockerPlatform)                                                                                                                                        │
+    >     │ +             {                                                                                                                                                                          │
+    >     │  … truncated (78 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ⬢ To-do Working on 5 to-dos • 2 done
+    >       ☒ Implement DockerVolumeMountStorageEntity.getPrepareAction() to call createVolumeCmd and store volumeIdent
+    >       ☒ Add @Column annotation to volumeIdent field for JPA persistence
+    >       ☐ Implement DockerVolumeMountStorageEntity.getReleaseAction() to call removeVolumeCmd
+    >       ☐ Implement DockerHttpResourceEntity.getPrepareAction() — check storage AVAILABLE, run wget helper container to download data into volume
+    >       ☐ Handle storage-not-ready case in DockerHttpResourceEntity by staying in PREPARING phase
+    >       ☐ Add broker.docker.helper-image configuration to application.yaml and DockerPlatform (optional)
+    >       ☐ Create test_docker_volume_mount.py Python integration test with http:// data resource
+    >   
+    >     Now replace the getReleaseAction() to delete the Docker volume.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...rage/docker/DockerVolumeMountStorageEntity.java +61 -3                                                                                                                                │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  @@ -216,14 +216,72 @@                                                                                                                                                                   │
+    >     │           final Platform platform,                                                                                                                                                       │
+    >     │           final ComponentProcessingRequest request                                                                                                                                       │
+    >     │           ){                                                                                                                                                                             │
+    >     │ -         // TODO Create a ProcessingAction that calls the Docker API to delete the volume.                                                                                              │
+    >     │ +         final String storageUuid = this.getUuid().toString();                                                                                                                          │
+    >     │ +         final String volumeName = this.volumeIdent;                                                                                                                                    │
+    >     │ +                                                                                                                                                                                        │
+    >     │ +         final DockerClientFactory clientFactory;                                                                                                                                       │
+    >     │ +         if (platform instanceof DockerPlatform)                                                                                                                                        │
+    >     │  … truncated (66 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now update the monitor action to remove the TODO comment (keeping the simple no-op behaviour as planned).
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...rage/docker/DockerVolumeMountStorageEntity.java -1                                                                                                                                    │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  @@ -194,7 +194,6 @@                                                                                                                                                                     │
+    >     │           final Platform platform,                                                                                                                                                       │
+    >     │           final ComponentProcessingRequest request                                                                                                                                       │
+    >     │           ){                                                                                                                                                                             │
+    >     │ -         // TODO Create a ProcessingAction that calls the Docker API to monitor the volume status.                                                                                      │
+    >     │           return new ComponentProcessingAction()                                                                                                                                         │
+    >     │               {                                                                                                                                                                          │
+    >     │               @Override                                                                                                                                                                  │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Let me verify the file looks correct.
+    >   
+    >     ⬢ Read ...rage/docker/DockerVolumeMountStorageEntity.java
+    >   
+    >     The storage entity is complete. Now let me implement the DockerHttpResourceEntity with the helper container download logic and storage-readiness check.
+    >   
+    >     ⬢ To-do Working on 4 to-dos • 3 done
+    >       ☒ Implement DockerVolumeMountStorageEntity.getPrepareAction() to call createVolumeCmd and store volumeIdent
+    >       ☒ Implement DockerVolumeMountStorageEntity.getReleaseAction() to call removeVolumeCmd
+    >       ☒ Add @Column annotation to volumeIdent field for JPA persistence
+    >       ☐ Implement DockerHttpResourceEntity.getPrepareAction() — check storage AVAILABLE, run wget helper container to download data into volume
+    >       ☐ Handle storage-not-ready case in DockerHttpResourceEntity by staying in PREPARING phase
+    >       ☐ Add broker.docker.helper-image configuration to application.yaml and DockerPlatform (optional)
+    >       ☐ Create test_docker_volume_mount.py Python integration test with http:// data resource
+    >   
+    >     Now I need to understand how data resources access their storage entity, and what DockerVolumeMountStorage / getMountPath() returns. Let me check the data resource entity class
+    >     hierarchy more carefully for the getStorage() return type.
+    >   
+    >     ⬢ Grepped "interface AbstractStorageResource" in .../datamodel/storage/AbstractStorageResource.java
+    >       Found 1 matches
+    >   
+    >     Good — AbstractStorageResource extends LifecycleComponent, so getPhase() is available. The getStorage() on the data resource returns AbstractStorageResource. I need to cast to
+    >     DockerVolumeMountStorage to get getMountPath(). Now let me implement DockerHttpResourceEntity.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../data/docker/http/DockerHttpResourceEntity.java +16                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  @@ -23,6 +23,18 @@                                                                                                                                                                      │
+    >     │                                                                                                                                                                                          │
+    >     │   package net.ivoa.calycopis.datamodel.data.docker.http;                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │ + import java.util.concurrent.TimeUnit;                                                                                                                                                  │
+    >     │ +                                                                                                                                                                                        │
+    >     │ + import com.github.dockerjava.api.DockerClient;                                                                                                                                         │
+    >     │ + import com.github.dockerjava.api.command.CreateContainerResponse;                                                                                                                      │
+    >     │ + import com.github.dockerjava.api.command.InspectContainerResponse;                                                                                                                     │
+    >     │ + import com.github.dockerjava.api.command.WaitContainerResultCallback;                                                                                                                  │
+    >     │  … truncated (22 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now replace the getPrepareAction() method with the real implementation.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../data/docker/http/DockerHttpResourceEntity.java +231 -8                                                                                                                               │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  @@ -107,26 +107,249 @@                                                                                                                                                                  │
+    >     │               );                                                                                                                                                                         │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ +     private static final String HELPER_IMAGE = "alpine:3";                                                                                                                             │
+    >     │ +     private static final long DOWNLOAD_TIMEOUT_SECONDS = 300;                                                                                                                          │
+    >     │ +                                                                                                                                                                                        │
+    >     │       @Override                                                                                                                                                                          │
+    >     │       public ProcessingAction getPrepareAction(Platform platform, ComponentProcessingRequest request)                                                                                    │
+    >     │           {                                                                                                                                                                              │
+    >     │  … truncated (248 more lines) · ctrl+r to review                                                                                                                                         │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Let me verify the complete file looks correct.
+    >   
+    >     ⬢ Read .../data/docker/http/DockerHttpResourceEntity.java
+    >   
+    >     I notice the InspectContainerResponse import is unused. Let me clean that up.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../data/docker/http/DockerHttpResourceEntity.java -1                                                                                                                                    │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  @@ -27,7 +27,6 @@                                                                                                                                                                       │
+    >     │                                                                                                                                                                                          │
+    >     │   import com.github.dockerjava.api.DockerClient;                                                                                                                                         │
+    >     │   import com.github.dockerjava.api.command.CreateContainerResponse;                                                                                                                      │
+    >     │ - import com.github.dockerjava.api.command.InspectContainerResponse;                                                                                                                     │
+    >     │   import com.github.dockerjava.api.command.WaitContainerResultCallback;                                                                                                                  │
+    >     │   import com.github.dockerjava.api.exception.NotFoundException;                                                                                                                          │
+    >     │   import com.github.dockerjava.api.model.AccessMode;                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ⬢ To-do Working on 2 to-dos • 5 done
+    >       ☒ Implement DockerVolumeMountStorageEntity.getPrepareAction() to call createVolumeCmd and store volumeIdent
+    >       ☒ Implement DockerVolumeMountStorageEntity.getReleaseAction() to call removeVolumeCmd
+    >       ☒ Add @Column annotation to volumeIdent field for JPA persistence
+    >       ☒ Implement DockerHttpResourceEntity.getPrepareAction() — check storage AVAILABLE, run wget helper container to download data into volume
+    >       ☒ Handle storage-not-ready case in DockerHttpResourceEntity by staying in PREPARING phase
+    >       ☐ Add broker.docker.helper-image configuration to application.yaml and DockerPlatform (optional)
+    >       ☐ Create test_docker_volume_mount.py Python integration test with http:// data resource
+    >   
+    >     Now let me add the configurable helper image. I'll add it to application.yaml and create a simple configuration class.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ub-zrq/java/src/main/resources/application.yaml +2                                                                                                                                    │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/resources/application.yaml                                                                                                   │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/resources/application.yaml                                                                                                   │
+    >     │  @@ -85,6 +85,8 @@                                                                                                                                                                       │
+    >     │                   web-allow-others: true                                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │   broker:                                                                                                                                                                                │
+    >     │ +   docker:                                                                                                                                                                              │
+    >     │ +     helper-image: "alpine:3"                                                                                                                                                           │
+    >     │     # Delay and loop count for the MockXyzResourceEntity classes                                                                                                                         │
+    >     │     mock-entities:                                                                                                                                                                       │
+    >     │       actions:                                                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now let me check the existing MockEntitySettings pattern to create a similar DockerSettings class.
+    >   
+    >     ⬢ Read ...ctional/processing/mock/MockEntitySettings.java
+    >   
+    >     Now I'll create the DockerSettings class following the same pattern, and wire it into DockerPlatform.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...s/functional/platfom/docker/DockerSettings.java +48                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │  --- /dev/null                                                                                                                                                                           │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/functional/platfom/docker/DockerSettings.java                                                        │
+    >     │  @@ -1 +1,49 @@                                                                                                                                                                          │
+    >     │ + /*                                                                                                                                                                                     │
+    >     │ +  * <meta:header>                                                                                                                                                                       │
+    >     │ +  *   <meta:licence>                                                                                                                                                                    │
+    >     │ +  *     Copyright (C) 2026 University of Manchester.                                                                                                                                    │
+    >     │ +  *                                                                                                                                                                                     │
+    >     │ +  *     This information is free software: you can redistribute it and/or modify                                                                                                        │
+    >     │ +  *     it under the terms of the GNU General Public License as published by                                                                                                            │
+    >     │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                                                               │
+    >     │ +  *     (at your option) any later version.                                                                                                                                             │
+    >     │  … truncated (40 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now expose it via DockerPlatform interface and its implementation.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...s/functional/platfom/docker/DockerPlatform.java +7 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/functional/platfom/docker/DockerPlatform.java                                                        │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/functional/platfom/docker/DockerPlatform.java                                                        │
+    >     │  @@ -44,6 +44,12 @@                                                                                                                                                                      │
+    >     │        * Get the DockerContainerEntityFactory for this platform.                                                                                                                         │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public DockerContainerEntityFactory getDockerContainerEntityFactory();                                                                                                             │
+    >     │ +     public DockerContainerEntityFactory getDockerContainerEntityFactory();                                                                                                             │
+    >     │ +                                                                                                                                                                                        │
+    >     │ +     /**                                                                                                                                                                                │
+    >     │ +      * Get the DockerSettings for this platform.                                                                                                                                       │
+    >     │ +      *                                                                                                                                                                                 │
+    >     │  … truncated (4 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...nctional/platfom/docker/DockerPlatformImpl.java +8                                                                                                                                    │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/functional/platfom/docker/DockerPlatformImpl.java                                                    │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/functional/platfom/docker/DockerPlatformImpl.java                                                    │
+    >     │  @@ -190,6 +190,14 @@                                                                                                                                                                    │
+    >     │           return this.dockerClientFactory;                                                                                                                                               │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ +     @Autowired                                                                                                                                                                         │
+    >     │ +     private DockerSettings dockerSettings;                                                                                                                                             │
+    >     │ +     @Override                                                                                                                                                                          │
+    >     │ +     public DockerSettings getDockerSettings()                                                                                                                                          │
+    >     │ +         {                                                                                                                                                                              │
+    >     │ +         return this.dockerSettings;                                                                                                                                                    │
+    >     │  … truncated (5 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now update DockerHttpResourceEntity to use the configurable helper image from DockerSettings instead of the hardcoded constant.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../data/docker/http/DockerHttpResourceEntity.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  @@ -106,7 +106,7 @@                                                                                                                                                                     │
+    >     │               );                                                                                                                                                                         │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ -     private static final String HELPER_IMAGE = "alpine:3";                                                                                                                             │
+    >     │ +     private static final String DEFAULT_HELPER_IMAGE = "alpine:3";                                                                                                                     │
+    >     │       private static final long DOWNLOAD_TIMEOUT_SECONDS = 300;                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../data/docker/http/DockerHttpResourceEntity.java +4 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  @@ -191,9 +191,12 @@                                                                                                                                                                    │
+    >     │           final String dataUrl = this.getLocation();                                                                                                                                     │
+    >     │                                                                                                                                                                                          │
+    >     │           final DockerClientFactory clientFactory;                                                                                                                                       │
+    >     │ +         final String helperImage;                                                                                                                                                      │
+    >     │           if (platform instanceof DockerPlatform)                                                                                                                                        │
+    >     │               {                                                                                                                                                                          │
+    >     │ -             clientFactory = ((DockerPlatform) platform).getDockerClientFactory();                                                                                                      │
+    >     │ +             DockerPlatform dockerPlatform = (DockerPlatform) platform;                                                                                                                 │
+    >     │ +             clientFactory = dockerPlatform.getDockerClientFactory();                                                                                                                   │
+    >     │  … truncated (4 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now replace all the HELPER_IMAGE references with the helperImage variable.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../data/docker/http/DockerHttpResourceEntity.java +6 -6                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  @@ -241,16 +241,16 @@                                                                                                                                                                   │
+    >     │                           }                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │                       try {                                                                                                                                                              │
+    >     │ -                         dockerClient.inspectImageCmd(HELPER_IMAGE).exec();                                                                                                             │
+    >     │ +                         dockerClient.inspectImageCmd(helperImage).exec();                                                                                                              │
+    >     │                           }                                                                                                                                                              │
+    >     │                       catch (NotFoundException ex)                                                                                                                                       │
+    >     │                           {                                                                                                                                                              │
+    >     │                           log.debug(                                                                                                                                                     │
+    >     │  … truncated (34 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now let me build the project to check for compilation errors.
+    >   
+    >     ⬢ To-do Working on 1 to-do • 6 done
+    >       ☒ Implement DockerVolumeMountStorageEntity.getPrepareAction() to call createVolumeCmd and store volumeIdent
+    >       ☒ Implement DockerVolumeMountStorageEntity.getReleaseAction() to call removeVolumeCmd
+    >       ☒ Add @Column annotation to volumeIdent field for JPA persistence
+    >       ☒ Implement DockerHttpResourceEntity.getPrepareAction() — check storage AVAILABLE, run wget helper container to download data into volume
+    >       ☒ Handle storage-not-ready case in DockerHttpResourceEntity by staying in PREPARING phase
+    >       ☒ Add broker.docker.helper-image configuration to application.yaml and DockerPlatform (optional)
+    >       ☐ Create test_docker_volume_mount.py Python integration test with http:// data resource
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && mvn compile -q 2>&1 | tail -30 exit 127 • 1m 40s
+    >       --: line 1: mvn: command not found
+    >   
+    >     $ which mvn 2>/dev/null || ls /usr/local/bin/mvn 2>/dev/null || ls /opt/*/bin/mvn 2>/dev/null || find / -maxdepth 4 -name "mvn" -type f 2>/dev/null | head -5 exit 1 • 952ms
+    >   
+    >     $ ls /calycopis/Calycopis-broker/github-zrq/java/mvnw 2>/dev/null || ls /calycopis/Calycopis-broker/github-zrq/mvnw 2>/dev/null; echo "---"; which java 2>/dev/null; echo "---"; ls
+    >       /calycopis/Calycopis-broker/github-zrq/java/pom.xml 296ms
+    >       /calycopis/Calycopis-broker/github-zrq/java/mvnw
+    >       ---
+    >       … truncated (4 more lines) · ctrl+o to expand
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw compile -q 2>&1 | tail -40 15s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (11 more lines) · ctrl+o to expand
+    >   
+    >     The project compiles successfully (exit code 0, only external library warnings). Now let me create the Python integration test.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ub-zrq/tests/python/test_docker_volume_mount.py +337                                                                                                                                  │
+    >     │                                                                                                                                                                                          │
+    >     │  --- /dev/null                                                                                                                                                                           │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/tests/python/test_docker_volume_mount.py                                                                                                   │
+    >     │  @@ -1 +1,338 @@                                                                                                                                                                         │
+    >     │ + #                                                                                                                                                                                      │
+    >     │ + # <meta:header>                                                                                                                                                                        │
+    >     │ + #   <meta:licence>                                                                                                                                                                     │
+    >     │ + #     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)                                                                                                                    │
+    >     │ + #                                                                                                                                                                                      │
+    >     │ + #     This information is free software: you can redistribute it and/or modify                                                                                                         │
+    >     │ + #     it under the terms of the GNU General Public License as published by                                                                                                             │
+    >     │ + #     the Free Software Foundation, either version 3 of the License, or                                                                                                                │
+    >     │ + #     (at your option) any later version.                                                                                                                                              │
+    >     │  … truncated (329 more lines) · ctrl+r to review                                                                                                                                         │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ⬢ To-do All done
+    >       ☒ Implement DockerVolumeMountStorageEntity.getPrepareAction() to call createVolumeCmd and store volumeIdent
+    >       ☒ Implement DockerVolumeMountStorageEntity.getReleaseAction() to call removeVolumeCmd
+    >       ☒ Add @Column annotation to volumeIdent field for JPA persistence
+    >       ☒ Implement DockerHttpResourceEntity.getPrepareAction() — check storage AVAILABLE, run wget helper container to download data into volume
+    >       ☒ Handle storage-not-ready case in DockerHttpResourceEntity by staying in PREPARING phase
+    >       ☒ Add broker.docker.helper-image configuration to application.yaml and DockerPlatform (optional)
+    >       ☒ Create test_docker_volume_mount.py Python integration test with http:// data resource
+    >   
+    >     All tasks are complete. Let me also verify the final state of all changed files is consistent.
+    >   
+    >     ⬢ Read .../data/docker/http/DockerHttpResourceEntity.java lines 108-122
+    >   
+    >     I notice DEFAULT_HELPER_IMAGE is no longer used since I switched to the configurable helperImage from DockerSettings. Let me clean that up.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../data/docker/http/DockerHttpResourceEntity.java -1                                                                                                                                    │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  @@ -106,7 +106,6 @@                                                                                                                                                                     │
+    >     │               );                                                                                                                                                                         │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ -     private static final String DEFAULT_HELPER_IMAGE = "alpine:3";                                                                                                                     │
+    >     │       private static final long DOWNLOAD_TIMEOUT_SECONDS = 300;                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Let me rebuild to confirm it still compiles.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw compile -q 2>&1 | tail -20 13s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (11 more lines) · ctrl+o to expand
+    >   
+    >     Clean compile. Here's a summary of all the changes made:
+    >   
+    >     Changes Summary
+    >   
+    >     `DockerVolumeMountStorageEntity.java` — Volume lifecycle
+    >   
+    >     • Added @Column(name = "volumeident") annotation for JPA persistence
+    >     • `getPrepareAction()`: Now calls dockerClient.createVolumeCmd().exec() via the DockerPlatform and stores the returned volume name in this.volumeIdent. On failure, sets phase to FAILED
+    >        with an error message.
+    >     • `getReleaseAction()`: Now calls dockerClient.removeVolumeCmd(volumeName).exec() to clean up the Docker volume. Failures are logged as warnings (non-fatal on release).
+    >     • `getMonitorAction()`: Unchanged behaviour (transitions to COMPLETED), removed the TODO comment.
+    >   
+    >     `DockerHttpResourceEntity.java` — HTTP data download
+    >   
+    >     • `getPrepareAction()`: Completely reworked with three guard checks:
+    >       1. If storage is null → FAILED
+    >       2. If storage is not yet AVAILABLE → stays in PREPARING (no-op, the processing loop retries in 10 seconds)
+    >       3. If storage is not a DockerVolumeMountStorage → FAILED
+    >     • When all checks pass, it pulls the helper image if needed, creates a container running wget -O /data/content <url> with the Docker volume mounted at /data, waits for completion,
+    >       checks the exit code, and cleans up the helper container.
+    >     • Uses the configurable helper image from DockerSettings.
+    >   
+    >     `DockerSettings.java` — New configuration class
+    >   
+    >     • @ConfigurationProperties(prefix = "broker.docker") with a helperImage property (default "alpine:3").
+    >   
+    >     `DockerPlatform.java` / `DockerPlatformImpl.java`
+    >   
+    >     • Added getDockerSettings() to the interface and implementation, wiring in the DockerSettings bean.
+    >   
+    >     `application.yaml`
+    >   
+    >     • Added broker.docker.helper-image: "alpine:3".
+    >   
+    >     `test_docker_volume_mount.py` — New integration test
+    >   
+    >     • test_session_completes: Submits an HTTP data resource request and verifies the session reaches COMPLETED.
+    >     • test_md5_matches: Downloads the same URL in a reference container, runs androcles via the broker with the HTTP data resource, captures stdout, and verifies the MD5 matches. The
+    >       androcles container uses INPUT=/input/content to read the file downloaded by the helper into the volume.
+
+    ?   Please run the test to verify it works.
+
+
+    >     Let me first check if the broker is running and then run the test.
+    >   
+    >     $ ls /root/.cursor/projects/terminals/ 524ms
+    >       113817.txt
+    >       16771.txt
+    >       … truncated (17 more lines) · ctrl+o to expand
+    >   
+    >     $ head -n 10 /root/.cursor/projects/terminals/*.txt 2>/dev/null | head -120 189ms
+    >       ==> /root/.cursor/projects/terminals/113817.txt <==
+    >       ---
+    >       … truncated (119 more lines) · ctrl+o to expand
+    >   
+    >     $ curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/ 2>&1 exit 7 • 217ms
+    >       000
+    >   
+    >     The broker isn't running. Let me check if there's a stale server process and start a fresh one with the new code.
+    >   
+    >     $ ps aux | grep -i "[s]pring-boot\|[c]alycopis" | head -10 exit 1 • 235ms
+    >   
+    >     No broker running. Let me start it with the docker profile.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && nohup ./mvnw spring-boot:run -Dspring-boot.run.profiles=docker > /tmp/calycopis-server.log 2>&1 &
+    >       echo "Server PID: $!" 5.1s (background)
+    >   
+    >     $ sleep 30 && curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/ 2>&1 exit 7 • 30s
+    >       000
+    >   
+    >     $ sleep 30 && curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/ 2>&1 exit 7 • 30s
+    >       000
+    >   
+    >     $ tail -30 /tmp/calycopis-server.log 234ms
+    >       2026-04-14T17:02:39.984276526Z main INFO Configuration XmlConfiguration[location=/calycopis/Calycopis-broker/github-zrq/java/target/cla​sses/log4j2.xml,
+    >       lastModified=2026-04-14T11:40:21.920Z] started.
+    >       2026-04-14T17:02:39.987850704Z main INFO Stopping configuration org.apache.logging.log4j.core.config.DefaultConfiguration@7fad8c79...
+    >       … truncated (29 more lines) · ctrl+o to expand
+    >   
+    >     The broker needs a database config file. Let me check what's expected and how it was previously configured.
+    >   
+    >     $ ls /etc/calycopis/ 2>/dev/null; echo "---"; ls /calycopis/Calycopis-broker/github-zrq/java/src/main/resources/ 237ms
+    >       ---
+    >       application.yaml
+    >       … truncated (3 more lines) · ctrl+o to expand
+    >   
+    >     $ mkdir -p /etc/calycopis && cat > /etc/calycopis/database.yaml << 'EOF'
+    >       spring:
+    >         datasource:
+    >           url: jdbc:h2:mem:testdb
+    >           username: sa
+    >           password: password
+    >           driverClassName: org.h2.Driver
+    >         jpa:
+    >           database-platform: org.hibernate.dialect.H2Dialect
+    >       EOF
+    >       echo "Created database.yaml" 221ms
+    >       Created database.yaml
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && nohup ./mvnw spring-boot:run -Dspring-boot.run.profiles=docker > /tmp/calycopis-server.log 2>&1 &
+    >       echo "Server PID: $!" 5.1s (background)
+    >   
+    >     $ for i in $(seq 1 12); do sleep 5; code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/ 2>&1); echo "Attempt $i: $code"; if [ "$code" != "000" ]; then break; fi; done 16s
+    >       Attempt 1: 000
+    >       Attempt 2: 000
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     The broker is up (404 on the root path is expected — the API endpoints are at specific paths). Let me now run the test.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq && python3 -m pytest tests/python/test_docker_volume_mount.py -v 2>&1 exit 1 • 264ms
+    >       /usr/bin/python3: No module named pytest
+    >   
+    >     $ pip install pytest docker 2>&1 | tail -5 5.0s
+    >       Installing collected packages: urllib3, pygments, pluggy, packaging, iniconfig, idna, charset_normalizer, certifi, requests, pytest, docker
+    >       … truncated (4 more lines) · ctrl+o to expand
+    >   
+    >     $ pip install /calycopis/Calycopis-schema/github-zrq/codegen/python/client/build/ 2>&1 | tail -5 7.2s
+    >       Installing collected packages: typing-extensions, annotated-types, typing-inspection, pydantic-core, pydantic, calycopis_client
+    >       … truncated (4 more lines) · ctrl+o to expand
+    >   
+    >     Now let me run the test.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq && python3 -m pytest tests/python/test_docker_volume_mount.py -v 2>&1 exit 1 • 6.3s
+    >       ============================= test session starts ==============================
+    >       platform linux -- Python 3.14.3, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python3
+    >       … truncated (150 more lines) · ctrl+o to expand
+    >   
+    >     The server is returning a 500 error. Let me check the server logs.
+    >   
+    >     $ tail -80 /tmp/calycopis-server.log 142ms
+    >           at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:825) ~[spring-jdbc-6.2.9.jar:6.2.9]
+    >           at org.springframework.jdbc.core.simple.DefaultJdbcClient$DefaultStatementSpec$Inde​xedParamMappedQuerySpec.list(DefaultJdbcClient.java:346) ~[spring-jdbc-6.2.9.jar:6.2.9]
+    >       … truncated (79 more lines) · ctrl+o to expand
+    >   
+    >     Let me find the actual error message further up in the log.
+    >   
+    >     $ grep -n "ERROR\|Exception\|Caused by" /tmp/calycopis-server.log | tail -30 175ms
+    >       794:2026-04-14 17:04:46 ERROR http-nio-8082-exec-3 [dispatcherServlet] log() Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request
+    >       processing failed: org.springframework.jdbc.BadSqlGrammarException: PreparedStatementCallback; bad SQL grammar [WITH ExecutionBlocks AS
+    >       1006:org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "GENERATE_SERIES" not found; SQL statement:
+    >       … truncated (13 more lines) · ctrl+o to expand
+    >   
+    >     The error is Column "GENERATE_SERIES" not found — this is an H2 database compatibility issue with the ComputeResourceOfferFactory SQL query, not related to my changes. The broker seems
+    >      to need a PostgreSQL database rather than H2. Let me check if there's a PostgreSQL service configured.
+    >   
+    >     $ ps aux | grep -i postgres | head -5; echo "---"; ss -tlnp | grep 5432 2>/dev/null || netstat -tlnp 2>/dev/null | grep 5432 exit 1 • 293ms
+    >       root        1538 29.7  6.5 7499964 1016468 ?     Sl   17:04   0:18 /usr/lib/jvm/java-latest-openjdk/bin/java -XX:TieredStopAtLevel=1 -cp
+    >       /calycopis/Calycopis-broker/github-zrq/java/target/classes:/root/.m2/repository/​net/ivoa/calycopis/calycopis-spring/1.0.4-SNAPSHOT/calycopis-spring-1.0.4-SNAPSH​OT.jar:/root/.m2/reposit
+    >       ory/org/springframework/data/spring-data-jpa/3.5.2/sprin​g-data-jpa-3.5.2.jar:/root/.m2/repository/org/springframework/data/spring-data-c​ommons/3.5.2/spring-data-commons-3.5.2.jar:/root
+    >       /.m2/repository/org/springframew​ork/spring-orm/6.2.9/spring-orm-6.2.9.jar:/root/.m2/repository/org/springframewo​rk/spring-context/6.2.9/spring-context-6.2.9.jar:/root/.m2/repository/or
+    >       g/spring​framework/spring-expression/6.2.9/spring-expression-6.2.9.jar:/root/.m2/reposito​ry/org/springframework/spring-aop/6.2.9/spring-aop-6.2.9.jar:/root/.m2/repositor​y/org/springfram
+    >       ework/spring-tx/6.2.9/spring-tx-6.2.9.jar:/root/.m2/repository/o​rg/springframework/spring-beans/6.2.9/spring-beans-6.2.9.jar:/root/.m2/repositor​y/org/antlr/antlr4-runtime/4.13.0/antlr4
+    >       -runtime-4.13.0.jar:/root/.m2/repository​/org/openapitools/jackson-databind-nullable/0.2.6/jackson-databind-nullable-0.2.​6.jar:/root/.m2/repository/org/springdoc/springdoc-openapi-ui/1.
+    >       8.0/springdoc-op​enapi-ui-1.8.0.jar:/root/.m2/repository/org/springdoc/springdoc-openapi-webmvc-c​ore/1.8.0/springdoc-openapi-webmvc-core-1.8.0.jar:/root/.m2/repository/org/sprin​gdoc/spr
+    >       ingdoc-openapi-common/1.8.0/springdoc-openapi-common-1.8.0.jar:/root/.m2​/repository/io/swagger/core/v3/swagger-core/2.2.20/swagger-core-2.2.20.jar:/root​/.m2/repository/io/swagger/core/
+    >       v3/swagger-annotations/2.2.20/swagger-annotation​s-2.2.20.jar:/root/.m2/repository/io/swagger/core/v3/swagger-models/2.2.20/swagg​er-models-2.2.20.jar:/root/.m2/repository/org/webjars/sw
+    >       agger-ui/5.11.8/swagger-​ui-5.11.8.jar:/root/.m2/repository/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.​jar:/root/.m2/repository/javax/activation/javax.act… [line truncated for
+    >       display]
+    >       root        1850 25.0  0.0   4920  3724 ?        Ss   17:05   0:00 /usr/bin/bash -O extglob -c snap=$(command cat <&3) && builtin shopt -s extglob && builtin eval -- "$snap" && {
+    >       builtin set +u 2>/dev/null || true; builtin eval "${__CURSOR_SANDBOX_ENV_RESTORE:-}" 2>/dev/null; builtin export PWD="$(builtin pwd)"; builtin shopt -s expand_aliases 2>/dev/null;
+    >       alias sudo='sudo -A'; builtin eval "$1"; }; COMMAND_EXIT_CODE=$?; dump_bash_state >&4; builtin exit $COMMAND_EXIT_CODE -- ps aux | grep -i postgres | head -5; echo "---"; ss -tlnp |
+    >       grep 5432 2>/dev/null || netstat -tlnp 2>/dev/null | grep 5432
+    >       … truncated (5 more lines) · ctrl+o to expand
+    >   
+    >     The error is a pre-existing H2 database compatibility issue (GENERATE_SERIES function not found in H2). This is not related to our changes — it's in the ComputeResourceOfferFactory SQL
+    >      query. The broker was previously running with a PostgreSQL database. Let me check if there's a PostgreSQL instance available.
+    >   
+    >     $ curl -s http://postgresql:5432 2>&1 | head -3; echo "---"; getent hosts postgresql 2>/dev/null; echo "---"; cat /etc/hosts | grep -i postgres 2>/dev/null Cancelled • 3.8s
+    >   
+
+    #
+    # Ctrl^C to stop and advise on starting the postgresql database.
+    #
+
+    ?   You can use the following commands to configure and run a PostgreSQL database.
+    ?   
+    ?   ```
+    ?       mkdir /etc/calycopis
+    ?   
+    ?       cat > /etc/calycopis/database.yaml << EOF
+    ?   spring:
+    ?       datasource:
+    ?           url: jdbc:postgresql://postgresql:5432/calycopis
+    ?           username: $(pwgen 32 1)
+    ?           password: $(pwgen 32 1)
+    ?           driverClassName: org.postgresql.Driver
+    ?           initialize: true
+    ?   EOF
+    ?   ```
+    ?   
+    ?   ```
+    ?       podman run \
+    ?           --rm \
+    ?           --detach \
+    ?           --replace \
+    ?           --name postgresql \
+    ?           --pod calycopis-pod \
+    ?           --expose 5432 \
+    ?           --env "POSTGRES_DB=calycopis" \
+    ?           --env "POSTGRES_USER=$(yq '.spring.datasource.username' /etc/calycopis/database.yaml)" \
+    ?           --env "POSTGRES_PASSWORD=$(yq '.spring.datasource.password' /etc/calycopis/database.yaml)" \
+    ?           docker.io/library/postgres:latest
+    ?   
+    ?   ```
+
+    >     $ kill $(ps aux | grep '[s]pring-boot:run' | awk '{print $2}') 2>/dev/null; kill $(ps aux | grep '[A]mbleckApplication' | awk '{print $2}') 2>/dev/null; echo "Stopped broker" 313ms
+    >       Stopped broker
+    >   
+    >     $ which pwgen yq podman 2>&1 251ms
+    >       /usr/bin/pwgen
+    >       /usr/bin/yq
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     $ mkdir -p /etc/calycopis
+    >   
+    >       cat > /etc/calycopis/database.yaml << EOF
+    >       spring:
+    >           datasource:
+    >               url: jdbc:postgresql://postgresql:5432/calycopis
+    >               username: $(pwgen 32 1)
+    >               password: $(pwgen 32 1)
+    >               driverClassName: org.postgresql.Driver
+    >               initialize: true
+    >       EOF
+    >   
+    >       echo "Created database.yaml"
+    >       cat /etc/calycopis/database.yaml 271ms
+    >       Created database.yaml
+    >       spring:
+    >       … truncated (7 more lines) · ctrl+o to expand
+    >   
+    >     $ podman run \
+    >           --rm \
+    >           --detach \
+    >           --replace \
+    >           --name postgresql \
+    >           --pod calycopis-pod \
+    >           --expose 5432 \
+    >           --env "POSTGRES_DB=calycopis" \
+    >           --env "POSTGRES_USER=$(yq '.spring.datasource.username' /etc/calycopis/database.yaml)" \
+    >           --env "POSTGRES_PASSWORD=$(yq '.spring.datasource.password' /etc/calycopis/database.yaml)" \
+    >           docker.io/library/postgres:latest 857ms
+    >       0a7bcc536964716213de553557a57daf4027c4f7b27ff9f3c9b8ac9e1f7bcada
+    >   
+    >     $ sleep 5 && podman exec postgresql pg_isready -U $(yq '.spring.datasource.username' /etc/calycopis/database.yaml) 2>&1 6.0s
+    >       /var/run/postgresql:5432 - accepting connections
+    >   
+    >     PostgreSQL is running. Now start the broker.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && nohup ./mvnw spring-boot:run -Dspring-boot.run.profiles=docker > /tmp/calycopis-server.log 2>&1 &
+    >       echo "Server PID: $!" 5.1s (background)
+    >   
+    >     $ for i in $(seq 1 20); do sleep 5; code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/ 2>&1); echo "Attempt $i: $code"; if [ "$code" != "000" ]; then break; fi; done 16s
+    >       Attempt 1: 000
+    >       Attempt 2: 000
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     Broker is up. Let me verify there are no startup errors this time.
+    >   
+    >     $ grep -c "ERROR" /tmp/calycopis-server.log; grep "Started AmbleckApplication" /tmp/calycopis-server.log 147ms
+    >       0
+    >       Found MappingJackson2HttpMessageConverter [org.springframework.http.converter.json.MappingJackson2HttpMessageConverter]Fou​nd MappingJackson2HttpMessageConverter
+    >       [org.springframework.http.converter.json.MappingJackson2HttpMessageConverter]202​6-04-14 17:08:23 INFO main AmbleckApplication logStarted() Started AmbleckApplication in 11.31 seconds
+    >       (process running for 12.376)
+    >       … truncated (1 more line) · ctrl+o to expand
+    >   
+    >     Clean startup, no errors. Now let me run the test.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq && python3 -m pytest tests/python/test_docker_volume_mount.py -v 2>&1 exit 1 • 58s
+    >       ============================= test session starts ==============================
+    >       platform linux -- Python 3.14.3, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python3
+    >       … truncated (137 more lines) · ctrl+o to expand
+    >   
+    >     The session is reaching FAILED instead of COMPLETED. Let me check the server logs to find out what's going wrong.
+    >   
+    >     $ grep -E "ERROR|FAILED|error|failed|volume|Volume|storage|Storage|http-vol" /tmp/calycopis-server.log | grep -v "JansiLoader\|Unsafe\|final field\|guava\|plexus\|calycopis-spring" | tail
+    >       -40 221ms
+    >               kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.​0
+    >       2026-04-14 17:08:41 DEBUG http-nio-8082-exec-7 OfferSetRequestParserContextImpl makeVolumeValidatorResultKey() Key [d1528e75-0c61-40c1-9c66-2a9e64493a4c]
+    >       … truncated (39 more lines) · ctrl+o to expand
+    >   
+    >     Two issues are visible in the logs:
+    >     1. Hibernate proxy issue (same pattern as before): Storage [...] for data resource [...] is not a DockerVolumeMountStorage (type [AbstractStorageResourceEntity$HibernateProxy]) — the
+    >        instanceof DockerVolumeMountStorage check in DockerHttpResourceEntity fails because of the Hibernate proxy.
+    >     2. Volume ident is `null` when the compute resource tries to link it — because the data resource failed, but also because the volume ident set during the prepare phase of the storage
+    >        entity may not be visible in a different transaction/session.
+    >   
+    >     The fix for issue #1 is to use the same linker pattern approach. But actually, in DockerHttpResourceEntity, we don't need the storage to be a specific type — we just need to check its
+    >     phase and get the volume name. The existing linker pattern already handles the Hibernate proxy issue for the compute resource. For the data resource, I need to avoid the instanceof
+    >     check.
+    >     Let me look at how the storage entity is accessed. The getStorage() returns the proxy. Instead of instanceof DockerVolumeMountStorage, I can use the linker pattern or simply check the
+    >     getMountPath() through the DockerVolumeMount interface — but the proxy wraps AbstractStorageResourceEntity, not the subclass interface.
+    >     The simplest fix: use the linker pattern here too. Or, since we know all HTTP data resources are paired with volume mount storage, just skip the type check and get the volume name via
+    >     the linker.
+    >     Actually, looking more carefully at the code, the volumeIdent is also null at link time. This is because the storage entity's volumeIdent is set during the process() phase of the
+    >     storage's prepare action, but this is a different JPA entity instance — the one loaded by the data resource's getStorage() is a stale proxy that doesn't see the update.
+    >     Let me address both issues. For the DockerHttpResourceEntity, I'll use the linker to get the volume name instead of casting to DockerVolumeMountStorage.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ … Thought for 46s                                                                                                                                                                        │
+    >     │ ... (29 lines hidden above) · ctrl+o to expand                                                                                                                                           │
+    >     │ Looking at ComponentProcessingRequestEntity.postProcess(), it loads the component again via getComponent(platform) — a fresh load from the database. So the component parameter          │
+    >     │ passed to action.postProcess() is a newly loaded entity, not the same instance modified in process(). But DockerVolumeMountStorageEntity.this still refers to the original detached      │
+    >     │ instance where volumeIdent was set.                                                                                                                                                      │
+    >     │                                                                                                                                                                                          │
+    >     │ The issue is that volumeIdent gets set on the detached entity during process(), but postProcess() loads a fresh managed entity from the database that doesn't have this change. I        │
+    >     │ need to capture the volume name as a local variable in the action and then apply it to the component in postProcess(), where it's actually managed by the session.                       │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ⬢ Read ...del/storage/docker/DockerStorageLinkerBean.java
+    >   
+    >     I can see two problems in the logs:
+    >     1. Hibernate proxy issue: instanceof DockerVolumeMountStorage fails on the proxy
+    >     2. `volumeIdent` is `null` at link time — the value set during process() isn't persisted because process() runs outside the transaction
+    >   
+    >     Let me check how DockerSimpleComputeResourceEntity handles storing its container ID to understand the correct pattern.
+    >   
+    >     ⬢ Read ...e/docker/DockerSimpleComputeResourceEntity.java lines 370-569
+    >   
+    >     Now I see the pattern. The compute resource stores containerId as a local field in the action, then in postProcess() it casts the component parameter to
+    >     DockerSimpleComputeResourceEntity and sets component.dockerContainerId = this.containerId. This works because postProcess() runs inside a transaction and receives the managed entity.
+    >     I need to apply the same pattern to DockerVolumeMountStorageEntity — store the volume name in a local action variable, then set it on the component in postProcess(). I also need to fix
+    >      the DockerHttpResourceEntity to avoid the instanceof check on the Hibernate proxy.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...rage/docker/DockerVolumeMountStorageEntity.java +12 -2                                                                                                                                │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java                                         │
+    >     │  @@ -127,6 +127,7 @@                                                                                                                                                                     │
+    >     │           return new ComponentProcessingAction()                                                                                                                                         │
+    >     │               {                                                                                                                                                                          │
+    >     │               private IvoaLifecyclePhase nextPhase = IvoaLifecyclePhase.AVAILABLE;                                                                                                       │
+    >     │ +             private String createdVolumeName;                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │               @Override                                                                                                                                                                  │
+    >     │               public void preProcess(final LifecycleComponent component)                                                                                                                 │
+    >     │  @@ -156,10 +157,10 @@                                                                                                                                                                   │
+    >     │                           return;                                                                                                                                                        │
+    >     │  … truncated (27 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now fix DockerHttpResourceEntity to avoid the instanceof check on the Hibernate proxy. Instead I'll use the linker pattern to get the volume name.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../data/docker/http/DockerHttpResourceEntity.java +7 -5                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  @@ -160,10 +160,13 @@                                                                                                                                                                   │
+    >     │                   };                                                                                                                                                                     │
+    >     │               }                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │ -         if (!(storage instanceof DockerVolumeMountStorage))                                                                                                                            │
+    >     │ +         final DockerStorageLinkerBean volumeLinker = new DockerStorageLinkerBean("/data", AccessMode.rw);                                                                              │
+    >     │ +         ((AbstractStorageResourceEntity) storage).link(volumeLinker);                                                                                                                  │
+    >     │ +         final String volumeName = volumeLinker.getSourcePath();                                                                                                                        │
+    >     │ +         if (volumeName == null || volumeName.isEmpty())                                                                                                                                │
+    >     │               {                                                                                                                                                                          │
+    >     │  … truncated (24 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now I need to add the missing imports and add a getSourcePath() accessor to DockerStorageLinkerBean. Let me check the current state of the imports.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../data/docker/http/DockerHttpResourceEntity.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java                                             │
+    >     │  @@ -43,7 +43,7 @@                                                                                                                                                                       │
+    >     │   import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;                                                                                                       │
+    >     │   import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;                                                                                                                   │
+    >     │   import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;                                                                                                             │
+    >     │ - import net.ivoa.calycopis.datamodel.storage.docker.DockerVolumeMountStorage;                                                                                                           │
+    >     │ + import net.ivoa.calycopis.datamodel.storage.docker.DockerStorageLinkerBean;                                                                                                            │
+    >     │   import net.ivoa.calycopis.functional.platfom.Platform;                                                                                                                                 │
+    >     │   import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;                                                                                                               │
+    >     │   import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;                                                                                                                    │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now add a getSourcePath() method to DockerStorageLinkerBean.
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...del/storage/docker/DockerStorageLinkerBean.java +5                                                                                                                                    │
+    >     │                                                                                                                                                                                          │
+    >     │  --- a//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerStorageLinkerBean.java                                                │
+    >     │  +++ b//calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerStorageLinkerBean.java                                                │
+    >     │  @@ -70,6 +70,11 @@                                                                                                                                                                      │
+    >     │           this.sourcePath = sourcePath;                                                                                                                                                  │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ +     public String getSourcePath()                                                                                                                                                      │
+    >     │ +         {                                                                                                                                                                              │
+    >     │ +         return this.sourcePath;                                                                                                                                                        │
+    >     │ +         }                                                                                                                                                                              │
+    >     │ +                                                                                                                                                                                        │
+    >     │       /**                                                                                                                                                                                │
+    >     │  … truncated (2 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now let me rebuild and check for compilation.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw compile -q 2>&1 | tail -20 17s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (11 more lines) · ctrl+o to expand
+    >   
+    >     Compiles cleanly. Now restart the broker and run the tests again.
+    >   
+    >     $ kill $(ps aux | grep '[A]mbleckApplication' | awk '{print $2}') 2>/dev/null; sleep 2; echo "Stopped" 2.2s
+    >       Stopped
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && nohup ./mvnw spring-boot:run -Dspring-boot.run.profiles=docker > /tmp/calycopis-server.log 2>&1 &
+    >       echo "Server PID: $!" 5.2s (background)
+    >   
+    >     $ for i in $(seq 1 20); do sleep 5; code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/ 2>&1); if [ "$code" != "000" ]; then echo "Broker ready (HTTP $code)"; break; fi;
+    >       done 21s
+    >       Broker ready (HTTP 404)
+    >   
+    >     $ grep -c "ERROR" /tmp/calycopis-server.log exit 1 • 721ms
+    >       0
+    >   
+    >     Clean start. Now run the test.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq && python3 -m pytest tests/python/test_docker_volume_mount.py::TestDockerVolumeMount::test_session_completes -v 2>&1 1m 14s
+    >       ============================= test session starts ==============================
+    >       platform linux -- Python 3.14.3, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python3
+    >       … truncated (18 more lines) · ctrl+o to expand
+    >   
+    >     The session completes successfully. Now let me run the MD5 matching test.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq && python3 -m pytest tests/python/test_docker_volume_mount.py::TestDockerVolumeMount::test_md5_matches -v 2>&1 57s
+    >       ============================= test session starts ==============================
+    >       platform linux -- Python 3.14.3, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python3
+    >       … truncated (22 more lines) · ctrl+o to expand
+    >   
+    >     Both tests pass. Let me run them together to confirm.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq && python3 -m pytest tests/python/test_docker_volume_mount.py -v 2>&1 1m 57s
+    >       ============================= test session starts ==============================
+    >       platform linux -- Python 3.14.3, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python3
+    >       … truncated (20 more lines) · ctrl+o to expand
+    >   
+    >     Both tests pass. Let me also verify the server logs show the complete flow working correctly.
+    >   
+    >     $ grep -E "volume|Volume|helper|download|wget|Docker volume|Stored volume|linking volume" /tmp/calycopis-server.log | tail -30 295ms
+    >       2026-04-14 17:15:50 DEBUG http-nio-8082-exec-7 SimpleVolumeMountValidatorImpl validate() Target resource [http-vol-md5-data] for volume [4c61140c-da4b-4a2c-b94c-65c1f0277e10]
+    >       2026-04-14 17:15:50 DEBUG http-nio-8082-exec-7 SimpleVolumeMountValidatorImpl validate() Found data resource [http-vol-md5-data] for volume [4c61140c-da4b-4a2c-b94c-65c1f0277e10]
+    >       … truncated (29 more lines) · ctrl+o to expand
+    >   
+    >     The logs show the complete working flow:
+    >     1. Volume created: Created Docker volume [c31648...]
+    >     2. Volume ident stored on the managed entity in postProcess()
+    >     3. Linker correctly passes the volume name: linking volume ident [c31648...]
+    >     4. Helper container downloads the data: Starting helper container [...] to download [https://...] into volume [c31648...]
+    >     5. Compute resource mounts the volume: Adding bind [c31648...:/input:ro]
+    >   
+    >     Both tests pass, the full end-to-end flow is working. Here's a summary of the additional fixes needed beyond the original plan:
+    >     Fixes discovered during testing:
+    >     1. `DockerVolumeMountStorageEntity` — transaction boundary fix: The volumeIdent was being set on the enclosing entity instance during process(), which runs outside the transaction. The
+    >        fix stores the volume name in a local action variable (createdVolumeName) and sets it on the JPA-managed component in postProcess() (which runs inside a transaction), following the
+    >        same pattern used by DockerSimpleComputeResourceEntity for its container ID.
+    >     2. `DockerHttpResourceEntity` — Hibernate proxy bypass: The instanceof DockerVolumeMountStorage check failed on the Hibernate proxy (same issue previously encountered with bind mounts).
+    >         Replaced the type check with the linker pattern — using DockerStorageLinkerBean to extract the volume name via storage.link(), which dispatches correctly through the proxy.
+    >     3. `DockerStorageLinkerBean` — added `getSourcePath()`: Added a getter so the data resource entity can read the volume name extracted by the linker.
+
+    ?   The tests seem to take quite a while.
+    ?   The download itself should take less than a minute.
+    ?   Are there any hard coded delays left over from the Mock classes that are slowing it down ?
+
+    >     Good question. Let me check the timing in the logs and look for delays.
+    >   
+    >     $ grep -E "scheduling-1.*(volume|Volume|helper|download|Docker|phase|AVAILABLE|PREPARING|RUNNING|COMPLETED|FAILED|docker-container|compute|storage|data)" /tmp/calycopis-server.log | grep
+    >       "17:15" | head -40 321ms
+    >       2026-04-14 17:15:25 DEBUG scheduling-1 DockerSimpleComputeResourceEntity getPrepareAction() Resolving volume mounts for compute resource [f6fb64c7-ea57-411f-81ac-e631956c68ab], mount
+    >       count [1]
+    >       2026-04-14 17:15:25 DEBUG scheduling-1 DockerSimpleComputeResourceEntity getPrepareAction() Volume mount [fba9e8cf-acce-4cad-aa61-22306521ffe5] type [DockerSimpleVolumeMountEntity]
+    >       … truncated (39 more lines) · ctrl+o to expand
+    >   
+    >     Now let me trace the full timeline of the second test run (17:15:xx) to see where time is spent.
+    >   
+    >     $ grep "scheduling-1" /tmp/calycopis-server.log | grep -E "17:1[56]" | grep -E
+    >       "phase|Phase|AVAILABLE|PREPARING|RUNNING|COMPLETED|RELEASING|process\(\)|postProcess\(\)|loop\(\)|Pre-process|Post-process|Start|Creat|Remov|Captur|Monitor|Download|helper|Resolv|volume
+    >       ident|Stored volume" | head -60 exit 141 • 280ms
+    >       2026-04-14 17:15:00 INFO scheduling-1 ProcessingServiceImpl loop() ++++++++
+    >       2026-04-14 17:15:00 INFO scheduling-1 ProcessingServiceImpl loop() --------
+    >       … truncated (59 more lines) · ctrl+o to expand
+    >   
+    >     I can see ~25 seconds of empty processing loops (17:15:00 to 17:15:25) before the compute resource starts preparing. This is the prepareStartInstant delay. Let me check when the
+    >     session was accepted and what the prepare start times are.
+    >   
+    >     $ grep "scheduling-1" /tmp/calycopis-server.log | grep -E "17:1[4-6]" | grep -v "loop()" | head -60 exit 141 • 267ms
+    >       2026-04-14 17:14:25 DEBUG scheduling-1 DockerSimpleComputeResourceEntity getPrepareAction() Resolving volume mounts for compute resource [cb9b4e1d-3d26-4049-88aa-96e6b39aa578], mount
+    >       count [1]
+    >       2026-04-14 17:14:25 DEBUG scheduling-1 DockerSimpleComputeResourceEntity getPrepareAction() Volume mount [1ac859e9-7250-49fc-8dae-e9ce7c1d543c] type [DockerSimpleVolumeMountEntity]
+    >       … truncated (59 more lines) · ctrl+o to expand
+    >   
+    >     Now I can see the problem clearly. Here's the timeline for the second test:
+    >     • 17:14:54 — Helper container downloads data (completes in ~1 second)
+    >     • 17:14:55 → 17:15:25 — 30 seconds of empty loops before the compute resource starts preparing
+    >   
+    >     This is the same prepareStartInstant delay we fixed previously for bind mounts. The compute resource has a WAITING phase because its prepareStartInstant is set to a future time based
+    >     on the estimated prepare duration. Let me check what prepare times are being calculated.
+    >   
+    >     $ grep "prepare time\|prepareStart\|WAITING\|future" /tmp/calycopis-server.log | tail -20 176ms
+    >       2026-04-14 17:21:43 DEBUG http-nio-8082-exec-7 OfferSetRequestParserContextImpl calculateTotalPrepareTime() Executable prepare time [http-vol-lifecycle-exec][10]
+    >       2026-04-14 17:21:43 DEBUG http-nio-8082-exec-7 AbstractStorageResourceValidator$ResultBean getTotalPrepareDuration() Data prepare time [http-vol-lifecycle-data][0]
+    >       … truncated (19 more lines) · ctrl+o to expand
+    >   
+    >     There it is. The compute resource has a 35 second estimated prepare time, the executable has 10 seconds, and the storage/data both report 0. The compute resource's prepareStartInstant
+    >     is set 10 seconds into the future (after the executable), and then the WAITING → PREPARING transition has the 30-second DEFAULT_PREPARE_WAIT_INTERVAL issue.
+    >     But actually, the previous fix to PrepareComponentRequestEntity already sets delay = Duration.ZERO when prepareStartInstant is not in the future. The 30-second gap is actually the
+    >     compute resource's prepareStartInstant being set to now + 10s (executable prepare time) — it waits 10 seconds, then the WAITING halving loop kicks in.
+    >     Let me check the validator to see where the 35-second compute prepare time comes from.
+    >   
+    >     ⬢ Grepped "getPrepareDuration|prepareDuration|35" in ...r/DockerSimpleComputeResourceValidatorImpl.java
+    >       Found 3 matches
+    >   
+    >     The compute resource validator hardcodes a 35-second prepare time. This is a scheduling estimate — the compute resource's prepareStartInstant is set so it starts preparing after the
+    >     executable (10 seconds) has finished its prepare phase. But the real Docker operations are much faster than 35 seconds.
+    >     The 30-second gap is not from the Mock classes, but from the scheduling estimates. The compute resource waits for its prepareStartInstant before starting. This is an existing design
+    >     issue across all Docker components, not specific to our volume mount changes.
+    >     The delays that matter for our test are:
+    >   
+    >     ┌───────────────────────────────────────────┬──────────┬──────────────────────────────────────┐
+    >     │ Time span                                 │ Duration │ Cause                                │
+    >     ├───────────────────────────────────────────┼──────────┼──────────────────────────────────────┤
+    >     │ Accept → executable AVAILABLE             │ ~1s      │ Image already cached                 │
+    >     │ Exec AVAILABLE → storage/data AVAILABLE   │ ~1s      │ Volume create + download both fast   │
+    >     │ Data AVAILABLE → compute starts preparing │ ~30s     │ prepareStartInstant scheduling delay │
+    >     │ Compute prepare → container running       │ ~1s      │ Fast                                 │
+    >     │ Container running → exited                │ ~10s     │ Monitor loop interval                │
+    >     │ Releasing → completed                     │ ~10s     │ Release loop interval                │
+    >     └───────────────────────────────────────────┴──────────┴──────────────────────────────────────┘
+    >   
+    >     The 30-second scheduling delay is the main bottleneck. It's not from Mock classes — it's from DockerSimpleComputeResourceValidatorImpl.DEFAULT_PREPARE_TIME = 35L which schedules the
+    >     compute resource to start preparing 10 seconds (executable prepare time) in the future, combined with the halving approach in PrepareComponentRequestEntity that takes several
+    >     iterations to converge.
+    >     The 10-second monitor and release delays are from DEFAULT_PREPARE_LOOP_INTERVAL in PrepareComponentRequestEntity.
+    >     These are pre-existing scheduling estimates, not leftovers from Mock classes.
+
+    ?   Can you read the AGENTS.md file at `at /calycopis/Calycopis-broker/github-zrq/AGENTS.md`
+    ?   with reference to the section on 'Coding conventions' and the rules defined in the `agents/` directory.
+    ?   I beleive the same rules should also be available in the `~/.cursor/rules/` directory.
+
+    >     I've read the AGENTS.md coding conventions and all four rules files. Here's what they require:
+    >     Coding conventions from `AGENTS.md`:
+    >     • Use generic JPA annotations over Spring-specific ones
+    >     • Avoid fragile patterns (no @Transient workarounds, static singletons, ApplicationContextAware lookups)
+    >     • Favour clarity over brevity
+    >     • Do NOT use ?: ternary operator (except in logging arguments)
+    >     • Use expanded if/else blocks with braces on their own lines
+    >   
+    >     Rules from `agents/` directory:
+    >     1. `licence-header.mdc` — All new files must have a GPL licence header with <meta:licence> block
+    >     2. `copyright-year.mdc` — Copyright year must be updated to the current year (2026) when modifying a file
+    >     3. `ai-metrics.mdc` — Every created/modified file must have an AIMetrics block with timestamp, model info, and contribution percentage
+    >     4. `unexpected-behaviour.mdc` — Stop and ask the user before working around unexpected API/service behaviour
+    >   
+    >     I notice the files I created and modified in this session are missing the required AIMetrics blocks, and the new files (DockerSettings.java, test_docker_volume_mount.py) need licence
+    >     headers checked, and modified files need their copyright years updated to 2026. Want me to go through all the changed files and apply these conventions now?
+
+    ?   Yes please
+
+    >   ....
+    >   ....
+    >     All done. Here's a summary of the changes applied across 21 files:
+    >     Copyright year updated to 2026 (was 2024 or 2025):
+    >     • AbstractStorageResourceEntity.java (2025 -> 2026)
+    >     • AbstractDataResourceEntity.java (2025 -> 2026)
+    >     • MockSimpleComputeResourceEntity.java (2024 -> 2026)
+    >     • MockDockerContainerEntity.java (2025 -> 2026)
+    >     • MockJupyterNotebookEntity.java (2025 -> 2026)
+    >     • PrepareComponentRequestEntity.java (2025 -> 2026)
+    >     • UpdateSessionRequestEntity.java (2025 -> 2026)
+    >     • LifecycleComponentEntity.java (2025 -> 2026)
+    >     • application.yaml (2024 -> 2026)
+    >   
+    >     New AIMetrics block added (files that had none):
+    >     • DockerVolumeMountStorageEntity.java (40%)
+    >     • DockerHttpResourceEntity.java (70%)
+    >     • DockerSettings.java (100%)
+    >     • DockerPlatform.java (10%)
+    >     • DockerBindMountStorageEntity.java (20%)
+    >     • DockerFileResourceEntity.java (30%)
+    >     • DockerSimpleComputeResourceEntity.java (40%)
+    >     • AbstractStorageResourceEntity.java (5%)
+    >     • AbstractDataResourceEntity.java (5%)
+    >     • MockSimpleComputeResourceEntity.java (10%)
+    >     • MockDockerContainerEntity.java (10%)
+    >     • MockJupyterNotebookEntity.java (10%)
+    >     • PrepareComponentRequestEntity.java (5%)
+    >     • UpdateSessionRequestEntity.java (1%)
+    >     • MockPlatform.java (5%)
+    >     • LifecycleComponentEntity.java (5%)
+    >     • application.yaml (5%)
+    >     • test_docker_volume_mount.py (100%)
+    >   
+    >     New AIMetrics entry appended (files that already had one):
+    >     • DockerStorageLinkerBean.java (5%)
+    >     • DockerPlatformImpl.java (5%)
+    >     • execution_client.py (10%)
+
+
+    ?   Can you add a section to the `AGENTS.md` file describing how to configure and start the PostgreSQL database.
+
+    >   ....
+    >   ....
+    >     Done. The "Database service" section in AGENTS.md now covers:
+    >     1. Why PostgreSQL is required — H2 doesn't support GENERATE_SERIES
+    >     2. Configuration chain — how application.yaml imports /etc/calycopis/database.yaml to keep credentials out of version control
+    >     3. Generating credentials — using pwgen and yq to create the configuration file
+    >     4. Starting the PostgreSQL container — podman run inside the same pod with matching credentials
+    >     5. Verifying connectivity — a quick Python socket check
+    >     6. Re-creating the database — how to tear down and restart PostgreSQL, reading credentials back from the config file
+
+
+    ?   /quit
+
+    >     To resume this session: agent --resume=a78d21c1-7fa4-4dde-8baa-e02fe46bab70
+

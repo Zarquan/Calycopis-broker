@@ -1,0 +1,87 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Run an X11 application inside a docker container.
+        Useful if we want to run the Cursor GUI application.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Bind mount the X11 socket to run graphical program in a container.
+#[user@desktop]
+
+    #
+    # Thanks to Major Hayden :-)
+    # https://major.io/p/run-xorg-applications-with-podman/
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env "DISPLAY=${DISPLAY}" \
+        --volume "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+        --security-opt "label=type:container_runtime_t" \
+        ghcr.io/ivoa/calycopis/developer-tools:2026.04.12 \
+            bash
+
+            dnf install -y xeyes
+            xeyes
+
+
+    #
+    # The full form
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --volume "${HOME}/.m2:/root/.m2:rw,Z" \
+        --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,Z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,Z" \
+        --env "SSH_AUTH_SOCK=/tmp/ssh-sock" \
+        --volume "${SSH_AUTH_SOCK}:/tmp/ssh-sock:rw,Z" \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        --env "DISPLAY=${DISPLAY}" \
+        --volume "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+        --security-opt "label=type:container_runtime_t" \
+        ghcr.io/ivoa/calycopis/developer-tools:2026.04.12 \
+            bash
+
+            dnf install -y xeyes
+            xeyes
+
+    #
+    # All three tunnels work.
+    # SSH, Docker, and X11.
+    #
+

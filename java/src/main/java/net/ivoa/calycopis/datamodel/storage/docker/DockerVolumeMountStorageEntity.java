@@ -18,11 +18,27 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-04-14T17:00:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 40,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
 package net.ivoa.calycopis.datamodel.storage.docker;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateVolumeResponse;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -33,6 +49,8 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageLinker;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
+import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
@@ -75,7 +93,7 @@ implements DockerVolumeMountStorage
             );
         }
 
-    // The volume identifier from the Docker API.
+    @Column(name = "volumeident")
     private String volumeIdent;
     @Override
     public String getMountPath()
@@ -102,19 +120,93 @@ implements DockerVolumeMountStorage
         final Platform platform,
         final ComponentProcessingRequest request
         ){
-        // TODO Create a ProcessingAction that calls the Docker API and creates a new volume.
+        final String storageUuid = this.getUuid().toString();
+
+        final DockerClientFactory clientFactory;
+        if (platform instanceof DockerPlatform)
+            {
+            clientFactory = ((DockerPlatform) platform).getDockerClientFactory();
+            }
+        else {
+            log.error(
+                "Unexpected platform type [{}] expected [DockerPlatform] for storage [{}]",
+                platform.getClass().getSimpleName(),
+                storageUuid
+                );
+            return ProcessingAction.NO_ACTION;
+            }
+
         return new ComponentProcessingAction()
             {
-            @Override
-            public void preProcess(final LifecycleComponent component) {}
+            private IvoaLifecyclePhase nextPhase = IvoaLifecyclePhase.AVAILABLE;
+            private String createdVolumeName;
 
             @Override
-            public void process() {}
+            public void preProcess(final LifecycleComponent component)
+                {
+                log.debug(
+                    "Pre-processing volume storage [{}]",
+                    storageUuid
+                    );
+                }
+
+            @Override
+            public void process()
+                {
+                log.debug(
+                    "Creating Docker volume for storage [{}]",
+                    storageUuid
+                    );
+                try {
+                    DockerClient dockerClient = clientFactory.getDockerClient();
+                    if (dockerClient == null)
+                        {
+                        log.error(
+                            "Unable to create Docker client for storage [{}]",
+                            storageUuid
+                            );
+                        nextPhase = IvoaLifecyclePhase.FAILED;
+                        return;
+                        }
+                    CreateVolumeResponse volume = dockerClient.createVolumeCmd().exec();
+                    this.createdVolumeName = volume.getName();
+                    log.debug(
+                        "Created Docker volume [{}] for storage [{}]",
+                        this.createdVolumeName,
+                        storageUuid
+                        );
+                    }
+                catch (Exception ex)
+                    {
+                    log.error(
+                        "Failed to create Docker volume for storage [{}]",
+                        storageUuid,
+                        ex
+                        );
+                    nextPhase = IvoaLifecyclePhase.FAILED;
+                    }
+                }
 
             @Override
             public void postProcess(final LifecycleComponent component)
                 {
-                component.setPhase(IvoaLifecyclePhase.AVAILABLE);
+                if (nextPhase == IvoaLifecyclePhase.FAILED)
+                    {
+                    component.addError(
+                        "uri:docker-volume-create-failed",
+                        "Failed to create Docker volume, see logs for details"
+                        );
+                    }
+                else if (component instanceof DockerVolumeMountStorageEntity)
+                    {
+                    ((DockerVolumeMountStorageEntity) component).volumeIdent = this.createdVolumeName;
+                    log.debug(
+                        "Stored volume ident [{}] on storage entity [{}]",
+                        this.createdVolumeName,
+                        storageUuid
+                        );
+                    }
+                component.setPhase(nextPhase);
                 }
             };
         }
@@ -124,7 +216,6 @@ implements DockerVolumeMountStorage
         final Platform platform,
         final ComponentProcessingRequest request
         ){
-        // TODO Create a ProcessingAction that calls the Docker API to monitor the volume status.
         return new ComponentProcessingAction()
             {
             @Override
@@ -146,14 +237,72 @@ implements DockerVolumeMountStorage
         final Platform platform,
         final ComponentProcessingRequest request
         ){
-        // TODO Create a ProcessingAction that calls the Docker API to delete the volume.
+        final String storageUuid = this.getUuid().toString();
+        final String volumeName = this.volumeIdent;
+
+        final DockerClientFactory clientFactory;
+        if (platform instanceof DockerPlatform)
+            {
+            clientFactory = ((DockerPlatform) platform).getDockerClientFactory();
+            }
+        else {
+            log.error(
+                "Unexpected platform type [{}] expected [DockerPlatform] for storage [{}]",
+                platform.getClass().getSimpleName(),
+                storageUuid
+                );
+            return ProcessingAction.NO_ACTION;
+            }
+
         return new ComponentProcessingAction()
             {
             @Override
-            public void preProcess(final LifecycleComponent component) {}
+            public void preProcess(final LifecycleComponent component)
+                {
+                log.debug(
+                    "Pre-processing release for volume storage [{}]",
+                    storageUuid
+                    );
+                }
 
             @Override
-            public void process() {}
+            public void process()
+                {
+                if (volumeName == null || volumeName.isEmpty())
+                    {
+                    log.warn(
+                        "No volume identifier to remove for storage [{}]",
+                        storageUuid
+                        );
+                    return;
+                    }
+                log.debug(
+                    "Removing Docker volume [{}] for storage [{}]",
+                    volumeName,
+                    storageUuid
+                    );
+                try {
+                    DockerClient dockerClient = clientFactory.getDockerClient();
+                    if (dockerClient != null)
+                        {
+                        dockerClient.removeVolumeCmd(volumeName).exec();
+                        log.debug(
+                            "Removed Docker volume [{}] for storage [{}]",
+                            volumeName,
+                            storageUuid
+                            );
+                        }
+                    }
+                catch (Exception ex)
+                    {
+                    log.warn(
+                        "Failed to remove Docker volume [{}] for storage [{}]",
+                        volumeName,
+                        storageUuid,
+                        ex
+                        );
+                    }
+                }
 
             @Override
             public void postProcess(final LifecycleComponent component)

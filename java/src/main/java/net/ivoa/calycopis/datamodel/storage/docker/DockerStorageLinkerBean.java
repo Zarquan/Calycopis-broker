@@ -28,6 +28,16 @@
  *       "value": 75,
  *       "units": "%"
  *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-04-14T17:00:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 5,
+ *       "units": "%"
+ *       }
  *     }
  *   ]
  *
@@ -68,6 +78,11 @@ implements DockerStorageLinker
     public void setSourcePath(final String sourcePath)
         {
         this.sourcePath = sourcePath;
+        }
+
+    public String getSourcePath()
+        {
+        return this.sourcePath;
         }
 
     /**

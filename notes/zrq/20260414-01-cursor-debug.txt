@@ -1,0 +1,279 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Latest version of Cursor CLI hitting 100% cpu.
+        Agent unresponsive.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+
+https://forum.cursor.com/t/regression-cpu-spikes-to-100-and-agent-hangs/157585/10
+
+    >   ### Where does the bug appear (feature/product)?
+    >
+    >   Cursor CLI
+    >
+    >   ### Describe the Bug
+    >
+    >   New version of cursor CLI (version 2026.04.13-a9d7fb5) becoming unresponsive running 100% cpu .
+    >   As soon as the CLI starts it launches multiple threads running index.js, all hitting 100% cpu. CLI is slow and agent is unable to answer simple questions.
+    >
+    >   ### Steps to Reproduce
+    >
+    >   Run a Podman (Docker) container with bind mount for .cursor directory.
+    >
+    >   ```
+    >   #
+    >   # Run a Docker (Podman) container with bind mount for .cursor directory.
+    >   podman run \
+    >       --rm \
+    >       --tty \
+    >       --interactive \
+    >       ...
+    >       --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+    >       ...
+    >       ghcr.io/ivoa/calycopis/developer-tools:2026.04.12 \
+    >           bash
+    >   ```
+    >
+    >   ```
+    >   #
+    >   # Download and run Cursor CLI inside the container.
+    >   curl https://cursor.com/install -fsS | bash
+    >
+    >   agent
+    >   ```
+    >
+    >   ### Expected Behavior
+    >
+    >   Normal behaviour is Cursor CLI ready to respond to commands.
+    >   Been running Cursor CLI in Podman containers for couple of months, not had any problems until today.
+    >
+    >   ### Operating System
+    >
+    >   Linux
+    >
+    >   ### Version Information
+    >
+    >   CLI Version         2026.04.13-a9d7fb5
+    >   Model               Opus 4.6 1M Thinking
+    >   Subscription Tier   Pro+
+    >   OS                  linux (x64)
+    >
+    >   ### Additional Information
+    >
+    >   Cursor CLI is run inside a Podman container which is triggering SELinux alerts on the host system. “SELinux is preventing bwrap from mounton access on the directory /newroot/proc”.
+    >   We have been running Cursor CLI in containers for couple of months and haven’t seen these before, so might be related.
+    >
+    >   ### Does this stop you from using Cursor
+    >
+    >   Yes - Cursor is unusable
+
+
+    #
+    # Known bug.
+    # Fix ispending.
+    # In the mean time recomended to use previopus version.
+    #
+
+
+# -----------------------------------------------------
+# Run an instance of our development environment.
+#[user@desktop]
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    # WARNING - this exposes the user's Podman socket to the container.
+    # WARNING - exposing the user's Podman socket requires a patch to the SELinux rules.
+    # WARNING - this exposes the user's SSH agent to the container.
+    # WARNING - exposing the user's SSH agent requires a patch to the SELinux rules.
+
+    source "${HOME:?}/calycopis.env"
+    source "${HOME:?}/heliophorus.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "SSH_AUTH_SOCK=/tmp/ssh-sock" \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${HOME}/.m2:/root/.m2:rw,Z" \
+        --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,Z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,Z" \
+        --volume "${SSH_AUTH_SOCK}:/tmp/ssh-sock:rw,Z" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2026.04.12 \
+            bash
+
+            podman ps
+
+
+    #
+    # Download the Cursor install script.
+    curl https://cursor.com/install -o ~/install-cursor.sh
+
+    #
+    # Edit to replace the version number.
+
+    sed -n '
+        /versions/ p
+        ' ~/install-cursor.sh
+
+    >   TEMP_EXTRACT_DIR="$HOME/.local/share/cursor-agent/versions/.tmp-2026.04.13-a9d7fb5-$(date +%s)"
+    >   DOWNLOAD_URL="https://downloads.cursor.com/lab/2026.04.13-a9d7fb5/${OS}/${ARCH}/agent-cli-package.tar.gz"
+    >   FINAL_DIR="$HOME/.local/share/cursor-agent/versions/2026.04.13-a9d7fb5"
+    >   ln -s ~/.local/share/cursor-agent/versions/2026.04.13-a9d7fb5/cursor-agent ~/.local/bin/agent
+    >   ln -s ~/.local/share/cursor-agent/versions/2026.04.13-a9d7fb5/cursor-agent ~/.local/bin/cursor-agent
+
+
+    sed -i '
+        s/2026\.04\.13-a9d7fb5/2026.03.20-7da3412/
+        ' ~/install-cursor.sh
+
+    sed -n '
+        /7da3412/ p
+        ' ~/install-cursor.sh
+
+    >   TEMP_EXTRACT_DIR="$HOME/.local/share/cursor-agent/versions/.tmp-2026.03.20-7da3412-$(date +%s)"
+    >   DOWNLOAD_URL="https://downloads.cursor.com/lab/2026.03.20-7da3412/${OS}/${ARCH}/agent-cli-package.tar.gz"
+    >   FINAL_DIR="$HOME/.local/share/cursor-agent/versions/2026.03.20-7da3412"
+    >   ln -s ~/.local/share/cursor-agent/versions/2026.03.20-7da3412/cursor-agent ~/.local/bin/agent
+    >   ln -s ~/.local/share/cursor-agent/versions/2026.03.20-7da3412/cursor-agent ~/.local/bin/cursor-agent
+
+    #
+    # Run the install script.
+    source ~/install-cursor.sh
+
+    agent about
+
+    >   About Cursor CLI
+    >
+    >   CLI Version         2026.03.20-7da3412
+    >   Model               Opus 4.6 1M Thinking
+    >   OS                  linux (x64)
+    >   Terminal            unknown
+    >   Shell               unknown
+    >   User Email          Not logged in
+
+    #
+    # OK, we can run the older version.
+    # .. but it can't find our previous sessions.
+    # might be due to version change, might be due to damage by the indexing
+    # might be due to my hacking about
+    #
+    # Try the latest again, just to see.
+    #
+
+    #
+    # Tried the lates agent, still hangs at 100%cpu, but it can see my previous projects.
+    # So all is not lost.
+    # Go walk the dogs, touch grass.
+    # Come back later.
+    #
+    #
+    # Backup out Cursor directory sometimes.
+    #
+
+# -----------------------------------------------------
+
+    Need to know the version date and hash code.
+    Search Google for the one that we do know 'a9d7fb5'.
+
+    https://formulae.brew.sh/cask/cursor-cli
+
+    Looked like they had several versions, but they are all the same :-(
+
+        tahoe       2026.04.13-a9d7fb5
+        sequoia     2026.04.13-a9d7fb5
+        sonoma      2026.04.13-a9d7fb5
+        ventura     2026.04.13-a9d7fb5
+        monterey    2026.04.13-a9d7fb5
+        big sur     2026.04.13-a9d7fb5
+        catalina    2026.04.13-a9d7fb5
+
+    Found anouther version on the Cursor forum.
+    https://forum.cursor.com/t/bug-agent-acp-model-switching-updates-session-metadata-but-does-not-change-the-inference-backend/157312
+
+        2026.04.08-a41fba1
+
+# -----------------------------------------------------
+
+    source "${HOME:?}/calycopis.env"
+    source "${HOME:?}/heliophorus.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "SSH_AUTH_SOCK=/tmp/ssh-sock" \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${HOME}/.m2:/root/.m2:rw,Z" \
+        --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,Z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,Z" \
+        --volume "${SSH_AUTH_SOCK}:/tmp/ssh-sock:rw,Z" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2026.04.12 \
+            bash
+
+    #
+    # Download the Cursor install script.
+    curl https://cursor.com/install -o ~/install-cursor.sh
+
+    #
+    # Edit to replace the version number.
+    sed -i '
+        s/2026\.04\.13-a9d7fb5/2026.04.08-a41fba1/
+        ' ~/install-cursor.sh
+
+    #
+    # Run the install script.
+    source ~/install-cursor.sh
+
+    agent about
+
+    >   CLI Version         2026.04.08-a41fba1
+    >   Model               Opus 4.6 1M Thinking
+    >   OS                  linux (x64)
+    >   Terminal            unknown
+    >   Shell               unknown
+    >   User Email          Not logged in
+
+    #
+    # OK, try resuming our sesison ...
+    #
+
+

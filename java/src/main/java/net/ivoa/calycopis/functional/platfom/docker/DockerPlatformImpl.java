@@ -28,6 +28,16 @@
  *       "value": 1,
  *       "units": "%"
  *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-04-14T17:00:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 5,
+ *       "units": "%"
+ *       }
  *     }
  *   ]
  *
@@ -188,6 +198,14 @@ implements DockerPlatform
     public DockerClientFactory getDockerClientFactory()
         {
         return this.dockerClientFactory;
+        }
+
+    @Autowired
+    private DockerSettings dockerSettings;
+    @Override
+    public DockerSettings getDockerSettings()
+        {
+        return this.dockerSettings;
         }
 
 // Compute    
