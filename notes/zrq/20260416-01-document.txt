@@ -33,6 +33,7 @@
 
 # -----------------------------------------------------
 
+
     EB provides a common interface for job execution that is data aware,
     balancing the user requirements against the costs of performing the task.
 
@@ -41,6 +42,22 @@
 
     The same request-offer protocol enables a wide range of different options
     that can be incorporated into the basic interaction.
+
+
+Balancing costs
+Transfer time
+
+    The curent implementation represents the cost of data transfer
+    as time needed to prepare before the job can begin executing.
+
+    If the data and code are co-located at the same factility
+    the job can begin immediately.
+    If one or other of the components is not available at the facility,
+    then one or other of the components will need to be moved before the
+    job can be executed.
+
+
+
 
 User autonomy
 Enabling the user to make informed decisions.
@@ -137,11 +154,6 @@ Applying local and global access policies at the service level.
     service responds with offers. The level of resources available
     depend on the internal polices configured at the facility providing
     the service.
-
-
-
-
-
 
 Benchmarking
 
@@ -284,22 +296,6 @@ https://solana.com/x402/what-is-x402
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    Balancing costs and benefits
-
     The protocol represents the cost of data tranefr as delays.
 
 
@@ -342,18 +338,6 @@ https://solana.com/x402/what-is-x402
 
 
 
-
-    Costs
-
-        Transfer time
-
-            The curent implementation represents the cost of data transfer
-            as time needed to prepare before the job can begin executing.
-
-            If the data and code are co-located at the same factility
-            the job can begin immediately.
-            If one or other of the components is not available at the facility,
-            then the offer will include a delay before job can begin.
 
 
 
