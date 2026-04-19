@@ -1,0 +1,144 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Add details to the Newton-Raphson example.
+
+    Add access to stdin, stdio and stderr as access methods.
+
+        DockerInputStream
+            name: stdin
+            href: URL
+
+        DockerOutputStream
+            name: stdout | stderr
+            href: URL
+            expires: datetime
+
+    Add benchmarking
+        All components have benchmark list
+
+    Add async http get
+
+    Add data outputs
+
+        Is this just write mode data resources ?
+
+        READ-ONLY
+            DataResource is transferred during prepare and simply deleted on release.
+
+        WRITE-ONLY
+            DataResource is left empty during prepare and transferred out on release.
+            Prepare phase might validate that the platform can connect and the user has access.
+            How do we exptess those checks ?
+            checks:
+              - kind: uri:connect-test
+                required: true
+                result: true
+              - kind: uri:access-test
+                required: false
+                result: true
+
+        READ-WRITE
+            DataResource is transferred in during prepare and transferred out on release.
+
+
+        Http/https are read-only
+        VOS, webdav, S3, Rucio etc can be read/write.
+
+        Simple S3 buckets to work with ?
+        STFC Echo ?
+
+        https://www.s3compare.io/
+        https://www.storj.io/pricing
+
+    Use rclone for data transfers
+    https://rclone.org/install/
+
+    Create a WebDav service for testing.
+    https://wiki.archlinux.org/title/WebDAV
+
+    Refactor prepare and release time.
+
+    Refactor storage and/or data lifetime - pre and post execution.
+
+    Measure timings for everything.
+
+    Use recorded timings to estimate the prepare and release times.
+
+    Add OIDC login
+
+    Add local name:pass accounts
+
+    Add admin interface for managing accounts
+
+    Add user history
+
+    Create a payment portal
+
+    Create a test data service
+        Http GET/PUT
+
+# -----------------------------------------------------
+
+
+
+    storage 001
+    |<--preparing --|<---------------------------------- available ----------------------------------->|
+                    |                                                                                  |
+                    data 001                                                                           |
+                    |<-------- preparing ---------|<---- available -------------------->|- releasing ->|
+                                                  |
+              storage 002                         |
+              |<--preparing --|<---------------------------------- available ---------------------------------------->|
+                              |                   |                                                                   |
+                              data 002            |                                                                   |
+                              |<--- preparing ----|<------------------ available -------->|------- releasing -------->|
+                                                  |
+    storage 003                                   |
+    |<--preparing --|<---------------------------------- available -------------------------------------------->|
+                                                  |                                                             |
+                    data 003                      |                                                             |
+                    |<-------- preparing ---------|<---- available -------------------->|----- releasing ------>|
+                                                  |
+                                                  |
+                                                  |
+                                                  compute
+                                                  |<- preparing --|<---- available ---->|-- releasing ->|
+                                                                  |
+    execution                                                     |
+    |<---- preparing -------------------------------------------->|<---- available ---->|--------- releasing -------->|
+
+
+

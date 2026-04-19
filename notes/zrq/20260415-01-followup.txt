@@ -1,0 +1,171 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Followup following the Cursor changes (pull #381)
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Code style
+
+        Make method parameters final wherever possible.
+
+    Configuration
+
+        Make databasename and databasehost configurable.
+
+
+    General rules
+
+        Avoid putting binary files in the source code.
+        tests/python/ExecutionBroker-draft.pdf
+
+
+    LifecycleComponentEntity
+
+        Default delay is too large.
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/component/LifecycleComponentEntity.java#L402
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/component/LifecycleComponentEntity.java#L419
+
+        Need a generic PlatformSettings that all platforms provide.
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/component/LifecycleComponentEntity.java#L405
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/component/LifecycleComponentEntity.java#L422
+
+    MockDelayAction
+
+        Refactor to SimpleDelayAction.
+
+    MockEntitySettings
+
+        Refactor to PlatformSettings.
+
+        MockPlatformSettings extends PlatformSettings
+        DockerPlatformSettings extends PlatformSettings
+
+
+    MockMonitorAction
+    MockMonitorableComponent
+
+        Refactor monitoring to remove the loop and just have an overall duration.
+
+    DockerHttpResourceEntity
+
+        Better to set the FAILED phase in getPrepareAction, no need to wait until postProcess().
+        Add error message and set phase in getPrepareAction() and return NO_ACTION.
+        Should this also FAIL the session ?
+        https://github.com/Zarquan/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L134
+        https://github.com/Zarquan/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L144-L148
+
+        Better to set the FAILED phase in getPrepareAction, no need to wait until postProcess().
+        Should this also FAIL the session ?
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L185
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L195-L199
+
+        Change if to switch to catch multiple cases
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L153
+            case INITIALIZING:
+            case WAITING:
+            case PREPARING:
+                stay preparing
+            case: AVAILABLE
+            case: RUNNING <- shouldn't get here, but allowed
+                go for it
+
+            case: RELEASING
+            case: COMPLETED
+            case: FAILED
+            case: CANCELLED
+            default:
+                error - storage gone
+                Set the phase to FAILED and add a message
+                Should this FAIL the session ?
+
+        Set phase to FAILED and add messages to the component.
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L219
+
+        Use the dataresource name for the downloaded filename (dataresource.location, volume.filename)
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L294
+
+        Using blocking call awaitCompletion(...)
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L268
+
+        Using blocking call waitContainerCmd(...) to download data.
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L307
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L309
+
+        Split the if into two steps
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/data/docker/http/DockerHttpResourceEntity.java#L360-L366
+        if (nextPhase == FAILED)
+            if (errorMessage != null)
+                addError(.. errorMessage)
+            else
+                addError(.. "Download failed")
+            Should this FAIL the session ?
+
+    DockerVolumeMountStorageEntity
+
+        Errors like this should set the component phase to FAILED, add a message, and probably FAIL the session ?
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java#L136
+
+
+    UpdateSessionRequestEntity
+    SessionProcessingRequestFactoryImpl
+
+        We could add a triggerPhase parameter to createUpdateSessionRequest()
+        and shortcut over the lists if the trigger is FAILED.
+
+    DockerVolumeMountStorageEntity
+
+        Shouldn't this just be NO_ACTION ?
+        Or better still, actially check the volume state ?
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java#L219
+
+        This should not just set the phase to COMPLETED.
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java#L230
+
+        This should set nextPhase to FAILED.
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java#L254
+
+        This should set nextPhase to FAILED.
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java#L298
+
+        This should check nextPhase and choose between COMPLETED and FAILED
+        https://github.com/ivoa/Calycopis-broker/blob/ac358025546027ed96bda57f7443cd241d4ee519/java/src/main/java/net/ivoa/calycopis/datamodel/storage/docker/DockerVolumeMountStorageEntity.java#L310
+
+        (*) Add a nextPhase field to ComponentProcessingAction that is set in processing() and used in postProcess()
+        Common behavior, All actions have a nextPhase field.
+
+
+    Test data source.
+
+        Similar to MockServer
+        HTTP get with rules/parameters for slow downloads and checksums.
+
+
