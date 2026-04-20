@@ -33,36 +33,58 @@
 
 # -----------------------------------------------------
 
-
-    EB provides a common interface for job execution that is data aware,
-    balancing the user requirements against the costs of performing the task.
-
-    This means taking into account the costs of moving both data and code
-    when choosing which platform executes the job.
-
-    The same request-offer protocol enables a wide range of different options
-    that can be incorporated into the basic interaction.
-
-
+Design goals
 Balancing costs
+
+    Execution Broker is designed to provide a common interface for job execution
+    that is aware of the costs involved in executing tasks within a heterogeneous
+    environment of distributed compute platforms and data.
+
+
+Local policies
+
+    The request-offer pattern at the core of the protocol enables client and server
+    to take into account a range of different costs,
+    benefits, and policies, balancing user requirements and preferences
+    against the costs of performing the task.
+
+    * The user specifies their requirements in the request.
+    * The service evaluates the request and replies with some offers.
+    * The user evaluates the offers from different services and selects the one
+      that best meets their requirements and preferences.
+
+    The request-offer pattern enables both parties to apply their selection criteria
+    independently, without having to share the details of their policies
+    with a central
+
+
+
 Transfer time
 
-    The curent implementation represents the cost of data transfer
-    as time needed to prepare before the job can begin executing.
+    The request-offer pattern represents the cost of data transfer
+    as time needed to prepare a job before it can begin executing.
+
+    This enables the user to take into account the costs of moving
+    data and/or code when choosing which platform to use.
 
     If the data and code are co-located at the same factility
     the job can begin immediately.
-    If one or other of the components is not available at the facility,
-    then one or other of the components will need to be moved before the
-    job can be executed.
 
+    If either the data or the code are not available at the facility,
+    the system will calculate an estimate for the transfer time and add it
+    to the preparation time quoted in the offer.
 
+    The user will see a range of different prepare times in the offers from
+    different platforms, reflecting the time required to complete the data
+    transfers to the platform before the job can begin.
 
+    The user can minimise the data transfer costs of executing the job
+    by selecting the offer with the lowest prepare time.
 
 User autonomy
 Enabling the user to make informed decisions.
 
-    Requesting offers and passing them to the client gives the end user
+    The request-offer pattern gives the user, or their agent,
     control over what criteria they use the select which facility to use.
 
     The basic rule that every offer MUST meet the minimum criteria in the
