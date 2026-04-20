@@ -33,130 +33,158 @@
 
 # -----------------------------------------------------
 
-Design goals
+The IVOA Execution Broker is designed to provide a common interface for job execution
+that is aware of the costs involved in executing tasks within a distributed of environment
+of different compute platforms, code repositories, and data archives, managed by different
+service providers with different access rules and policies.
 
-    Execution Broker is designed to provide a common interface for job execution
-    that is aware of the costs involved in executing tasks within a heterogeneous
-    environment of distributed compute platforms and data.
+## Balancing costs
 
-Balancing costs
+The request-offer pattern at the core of the protocol enables both the client
+and service to take into account the different costs, benefits, and policies,
+involved. Balancing the user's requirements and preferences against the costs
+associated with performing the task.
 
-    The request-offer pattern at the core of the protocol enables both the client
-    and service to include a range of different costs, benefits, and policies,
-    balancing the user's requirements and preferences against the costs
-    associated with performing the task.
+* The user specifies their requirements in their request and sends it to the services.
+* The services evaluate the request and reply with offers.
+* The user evaluates the offers and selects the one that best meets their requirements.
 
-    * The user specifies their requirements in the request.
-    * The service evaluates the request and replies with some offers.
-    * The user evaluates the offers from different services and selects the one
-      that best meets their requirements and preferences.
+The request-offer pattern enables both parties to apply their selection criteria
+independently, avoiding the need to delegate the details and application of their
+rules, policies, and preferences, to a central coordinating service.
 
-    The request-offer pattern enables both parties to apply their selection criteria
-    independently, without having to share the details of their policies
-    with a central service.
+## Data transfers
+Minimising data transfers by modelling them as a cost.
 
+The request-offer pattern represents the cost of data transfer as time needed to prepare
+a job before it can begin executing.
 
-Transfer time
+This provides a simple way for the service to make the user aware of the data transfers
+required to move the data or code to the platform and enables the user to take this
+into account the  when choosing which platform to use.
 
-    The request-offer pattern represents the cost of data transfer
-    as time needed to prepare a job before it can begin executing.
+If the data and code are already available at the same facility
+the task can begin executing immediately.
 
-    This enables the user to take into account the costs of moving
-    data and/or code when choosing which platform to use.
+```
+ /-- minimal preparation time
+ |
+|-|<---- execution ---->|
+   |
+   \-- immediate start
+```
 
-    If the data and code are co-located at the same factility
-    the job can begin immediately.
+If either the data or the code are not already available locally,
+the platform calculates an estimate for the transfer time and adds it
+to the preparation time quoted in the offer.
 
-    ||<---- execution ---->|
+```
+            /-- data transfer
+            |
+|<---- preparation ---->|<---- execution ---->|
+                         |
+                         \-- delayed start time
+```
 
-    If either the data or the code are not already available locally,
-    the platform calculates an estimate for the transfer time and adds it
-    to the preparation time quoted in the offer.
+The user receives offers with different preparation times quoted by
+different platforms, reflecting the time required to transfer the
+data or code to each of the platforms.
 
-    |<---- data transfer ---->|<---- execution ---->|
+```
+|<-- preparation -->|<---- execution ---->|
+|<------------>|<---- execution ---->|
+|<---->|<---- execution ---->|
+```
 
-    The user will see a range of different preparation times quoted by
-    different platforms, reflecting the time required to transfer the
-    data or code to the platform before the job can begin.
+The user can choose to minimise their data transfer costs by selecting the offer
+with the shortest preparation time or earliest earliest start time.
 
-    |<-- transfer -->|<---- execution ---->|
-    |<------------>|<---- execution ---->|
-    |<---->|<---- execution ---->|
+```
+   /-- shortest preparation time
+   |
+|<---->|<---- execution ---->|
+        |
+        \--- earliest start time
+```
 
-    The user can minimise their data transfer costs by selecting the offer with
-    the lowest preparation time.
+## User autonomy
+Enabling the user to make informed decisions based on the current state of the system.
 
-    |<---->|<---- execution ---->|
+The request-offer protocol provides a mechanism for the service to
+describe the resources on offer, enabling the user, or their agent, to make
+an informed decision based on their priorities.
 
+For example, a service may offer to provide more compute resources than the
+minimum specified in the request.
+Platforms like Openstack or Kubernetes allocate resources based on a fixed
+set of templates, e.g. tiny, small, medium or large virtual machines.
+In which case the  platform will offer the nearest size that matches the request
+based on the resources available at the time.
+Resulting in an offer for a medium sized resource from one platform and a larger
+resource from another, allowing the user to select which one they prefer.
 
-User autonomy
-Enabling the user to make informed decisions.
+The size of resources and the preparation time required will be different for offers from different platforms.
+The 'best' offer would have the largest resources and shortest preparation time,
+but if that is not available, then the user's preference may depend on
+why they want to perform the task.
 
-    The request-offer protocol provides a mechanism for the service to
-    describe the resources on offer, enabling the user, or their agent, to make
-    an informed decsion based on their priorities.
+If the user is initiating tasks one after the other as a series of steps in an analysis,
+then start time may be a priority, preferring offers that start as soon as possible.
 
-    For example, a service may offer to provide more compute resources than the
-    minimum specified in the request.
-    This will often be the case where a platform
-    allocates resources based on a fixed set of templates, e.g. tiny, small,
-    medium or large virtual machines. The platform will offer the nearest
-    size that matches the request based on the resources available
-    at the time. Given the choice between a medium sized resource from one
-    platform and a large resource from another gives the user the choice
-    as to which one they prefer.
+If the user is intending to use an interactive notebook or visualization
+tool to explore different aspects of a large dataset, then they may prefer
+to wait for a short time to accept an offer that gives them more compute
+resources to work with.
 
-    The user's preference can vary from one task to another, and may depend on
-    why they want to perform the task.
+If the user wants to run a long running machine learning training session, then
+raw computational performance may be the priority, and the user may decide to
+select an offer that provides the maximum performance even if it requires more
+time to prepare beforehand.
 
-    If the user is initiating
-    individual tasks as a series of steps in an analysis, then start time
-    may be a priority, preferring offers that start as soon as possible.
+## Client complexity
 
-    If the user is intending to use an interactive notebook or visualization
-    tool to explore different aspects of the data, then they may prefer
-    to wait for a short time to accept an offer that gives them more compute
-    resources to work with.
+Although the request-offer protocol may include a lot of detail in
+the offers, the process of choosing which offer to accept can be simplified
+by the user interface.
 
-    If the task involves a long running machine learning training session, then
-    raw computational performance may be the priority, opting for the offer
-    that provides the maximum performance even if it requires more
-    time to prepare.
+The basic rule that every offer MUST meet the minimum criteria in the
+request guarantees that ALL of the offers are able to execute the job.
+This means that a very basic client interface can simply accept the first offer
+it receives, without having to look at the details.
+Equivalent to the '_buy now_' buttons available on commercial websites such as Amazon and eBay.
 
-    Note that although the request-offer protocol may include a lot of detail in
-    the offers, the process of choosing which offer to accept can be simplified
-    by the user interface.
+A more general client can provide short-cut buttons or command line options for requesting
+offers that start '_now_', '_in the next 5 minutes_', '_sometime this afternoon_', or '_anytime_'.
+It can also provide short-cut buttons or command line options for simply
+selecting the '_first offer_' that comes back, the offer with the '_earliest start_',
+'_most memory_' or '_best GPU_'.
 
-    The basic rule that every offer MUST meet the minimum criteria in the
-    request guarantees that ALL of the offers are able to execute the job.
-    This means that a simple client can just accept the first offer
-    it receives, without having to look at the details.
+A more complex client can enable the user to define a set of rules for prioritising
+how the offers are displayed, promoting offers that meet specific criteria and
+excluding others that fail specific limits.
 
-    A general use client can provide short-cut buttons or command line options for requesting
-    offers that start 'now', 'in the next 5min', 'today', or 'anytime'.
-    It can also provide short-cut buttons or command line options for simply
-    selecting the 'first offer' that comes back, the offer with the 'earliest start',
-    'most memory' or 'best GPU'.
+This level of customization may be particularly relevant given the adoption use of
+Large Language Models and AI agents.
+An AI enabled interface could enable the user to define their selection criteria and
+prioritization rules using natural language and then ask an AI agent to filter the offers accordingly.
 
-    A complex client can enable the user to define a set of rules for prioritising
-    how the offers are displayed, promoting ones that meet specific criteria and
-    excluding others that fail specific limits.
+* Prioritise start time for interactive notebook sessions
+* Prefer offers with the lowest carbon cost where possible
+* Automatically select offers from my local institute
+* Ask for confirmation before accepting data transfers larger than 10GiB
 
-    This level of customization may be particularly relevant given the
-    rapidly evolving field of LLM models and software agents.
-    The request-offers protocol allows the user to define their selection criteria
-    using natural language and then ask an AI agent to create the requests and filter
-    the responses accordingly.
+To achieve the same level of choice using a centralised system would require
+a series of separate calls to gather information about the hardware capabilities
+and availability of each service, along with details of their access policies.
+An equivalent set of service calls to discovery the current location
+and cost of transferring the data and code between platforms,
+and a mechanism for the user to submit their selection criteria and
+preferences.
 
-    To achieve the same level of choice using a centralised system would require
-    a series of separate calls to gather information about the hardware capabilities
-    and availablility of each service along with details of the local access policies,
-    and then combine this with knowledge about the current location and cost of
-    transfering data and code between platforms.
+The IVOA Execution Broker request-offer pattern wraps all of this up in a simple
+sequence of steps, which enable the user to make informed decisions based on
+the resources currently available from each platform.
 
-    A request-offer protocol wraps all of this up in a simple sequence of
-    steps, which enables the user to make an informed decision based on up to date
-    information about the servivces.
 
 
 Devolved policies
@@ -187,8 +215,6 @@ Applying local and global access policies at the service level.
     service responds with offers. The level of resources in the offers
     are determined by internal polices configured at the facility providing
     the service.
-
-
 
 
 Benchmarking
