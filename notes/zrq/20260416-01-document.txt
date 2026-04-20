@@ -188,23 +188,6 @@ Applying local and global access policies at the service level.
     are determined by internal polices configured at the facility providing
     the service.
 
-    A pull based protocol, where services pull the next available task
-    from a centrally managed queue, does allow services to apply local
-    policies to the tasks that it selects. Each service only pulls tasks that
-    it knows it can execute.
-    However, on its own, a queue based protocol does not provide a mechanism
-    for reporting why a task was not selected.
-    A task may get selected for execution by a platform because it meets a particular
-    local access policy, but if the policy changes, the same platform may no longer
-    select similar tasks in the future.
-
-    From a user's perspective, a task that worked last week now takes longer to be
-    selected, or is not selected at all, and remains stuck in the pending queue.
-    In which case it may be difficult for the user to find out why.
-    It would require a separate diagnostic tool to find out which platforms
-    accepted the tasks last week and why they are no longer accepting the same
-    kind of task this week.
-
 
 
 
