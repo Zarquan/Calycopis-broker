@@ -187,81 +187,88 @@ the resources currently available from each platform.
 
 
 
-Devolved policies
-Applying local and global access policies at the service level.
+Local policies
+Applying local access policies at the service level.
 
-    The request / offer process delegates control over what resources a facility
-    offers to the facility itself.
-    This allows the facility to apply both
-    global policies to provide resources for large multi-national projects
-    at the same time as appling local policies
-    that provide resources to local
-    users and projects.
+The request / offer process delegates control over what resources a facility
+offers to the facility itself.
+This allows the facility to apply both
+global policies to provide resources for large multi-national projects
+at the same time as appling local policies
+that provide resources to local
+users and projects.
 
-    Example would be a user sends a request authenticated using
-    a national level identity managment service which delegates the
-    actual authentication step to the users's institute.
+Example would be a user sends a request authenticated using
+a national level identity managment service which delegates the
+actual authentication step to the users's institute.
 
-    If the user is a member of an international project, the platform
-    would apply the relevant global policy to provide resources for the
-    international project. However, that particular user may also be eligible for
-    additional resources under a national scheme for researchers
-    in their field, or a local policy for staff at their institute.
-    The service can apply all three policies, global, national, and
-    local, when deciding what level of resources it is able to offer.
+If the user is a member of an international project, the platform
+would apply the relevant global policy to provide resources for the
+international project. However, that particular user may also be eligible for
+additional resources under a national scheme for researchers
+in their field, or a local policy for staff at their institute.
+The service can apply all three policies, global, national, and
+local, when deciding what level of resources it is able to offer.
 
-    All of this happens internally within the service, no additional
-    action is required by the user. The user sends the request and the
-    service responds with offers. The level of resources in the offers
-    are determined by internal polices configured at the facility providing
-    the service.
+All of this happens internally within the service, no additional
+action is required by the user. The user sends the request and the
+service responds with offers. The level of resources in the offers
+are determined by internal polices configured at the facility providing
+the service.
 
 
 Benchmarking
 
-    Quantifying compute requirements and performance.
+Quantifying compute requirements and performance.
 
-    Basic measurement of compute resources is the physical
-    number of cpu cores and amount of memory available for the
-    execution.
+Basic measurement of compute resources is the physical
+number of cpu cores and amount of memory available for the
+execution.
 
-    However this does not necesarily reflect the real performance
-    of a platform. A whole range of factors can influence the
-    actual preformance of a compute platform, the type of cpu,
-    the clock speed, the design of the motherboard,
-    the type and speed of the discs and the network can all
-    have an effect on the resulting performance.
+However this does not necesarily reflect the real performance
+of a platform. A whole range of factors can influence the
+actual preformance of a compute platform, the type of cpu,
+the clock speed, the design of the motherboard,
+the type and speed of the discs and the network can all
+have an effect on the resulting performance.
 
-    Benchmarking may be a better way to evaluate the performance,
-    evaluating the performance of the whole platform
-    at executing a task. Particularly if the benchmark task
-    is similar in nature to the required task.
+Benchmarking may be a better way to evaluate the performance,
+evaluating the performance of the whole platform
+at executing a task. Particularly if the benchmark task
+is similar in nature to the required task.
 
-    In the NR example, we can create a benchmark by applying the
-    executable to a specific data set.
-    If we create an input file of 10,000 rows
-    and run a range of benchmarks, a single threaded case using
-    a single cpu core, and a set of multithreaded cases using
-    multiple cores.
+In the NR example, we can create a benchmark by applying the
+executable to a specific data set.
+If we create an input file of 10,000 rows
+and run a range of benchmarks, a single threaded case using
+a single cpu core, and a set of multithreaded cases using
+multiple cores.
 
-    We can then use these as a benchmark to select compute platforms
-    based on previous performance. The user can request a platform that
-    is capable of a minimum of 10,000 calculations per second with 25 cores.
-    In response, the available platforms can offer compute resource that are
-    capable of 12,350, 11,500 and 15,015 calculations per second, based on
-    the previous benchmarking runs.
+We can then use these as a benchmark to select compute platforms
+based on previous performance. The user can request a platform that
+is capable of a minimum of 10,000 calculations per second with 25 cores.
+In response, the available platforms can offer compute resource that are
+capable of 12,350, 11,500 and 15,015 calculations per second, based on
+the previous benchmarking runs.
 
-    We could also factor in a carbon cost based on a 3rd party
-    evaluation of the facility's electricity consumprion, cooling methods
-    and energy recovery processes. Which could be used to estimate a carbon
-    cost per compute unit over time.
+Carbon costs
 
-    Combining the two metrics would present the user with the choice of
-    12,350, 11,500 and 15,015 calculations per second with an associated carbon
-    cost of 400, 200 and 600 units of C02 per second.
+We could also factor in a carbon cost based on a 3rd party
+evaluation of the facility's electricity consumprion, cooling methods
+and energy recovery processes. Which could be used to estimate a carbon
+cost per compute unit over time.
 
-    The user gets to choose which one they want to select. The high performance, high carbon cost
-    option, or one of the lower performance lower carbon cost options.
+Combining the two metrics would present the user with the choice of
+12,350, 11,500 and 15,015 calculations per second with an associated carbon
+cost of 400, 200 and 600 units of C02 per second.
+
+The user gets to choose which one they want to select. The high performance, high carbon cost
+option, or one of the lower performance lower carbon cost options.
+
+
+
+
+
 
     Sounds very nice, but how do we encourage users to accept
     the performance hit and select one of the more economic options.
@@ -391,21 +398,6 @@ https://solana.com/x402/what-is-x402
     How to represent data outputs ?
     Do we change data resources to inputs and outputs ?
     Existing DataResources
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    then
 
 
 
