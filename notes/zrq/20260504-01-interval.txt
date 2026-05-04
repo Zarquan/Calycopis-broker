@@ -1,0 +1,182 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Split ISO8601Interval into Instant and Duration.
+
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Create new branches to work in.
+#[user@desktop]
+
+    branchname=interval
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Update the schema.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        ....
+        ....
+
+    popd
+
+
+# -----------------------------------------------------
+
+    Why do we want to do this ?
+    Been on the TODO list for sooo long.
+
+    .. because we wanted to bring the OpenAPI schema closer to the database schema.
+    Java code handles the start Interval as an Interval.
+
+    Entity API has
+        public long getPrepareStartInstantSeconds()
+        public long getPrepareDurationSeconds()
+
+        public Instant getPrepareStartInstant()
+        public Duration getPrepareDuration()
+
+# -----------------------------------------------------
+
+    OK, bigger problems.
+    Looks like the start times from ComputeResourceOffer are ignored ?
+    Do we have tests to verify the offer schedule ?
+    Looks like not.
+
+    So long ago, so many changes layerd ontop.
+    Looks like we have lost the scheduling part of the offered sessions.
+
+    My guess is this happend when we were splitting SimpleSession and ScheduledSession in the schema.
+    We moved the scheduling code into ScheduledSession, and then didn't restore it when we moved back.
+
+# -----------------------------------------------------
+
+    Schema has 2 Session classes.
+
+        SimpleExecutionSession
+            phase
+            expires
+            executable
+            compute
+            storage
+            data
+            connectors
+
+        ScheduledExecutionSession
+            SimpleExecutionSession
+            schedule
+                preparing
+                    start    - instant
+                    duration - duration
+                available
+                    start    - interval
+                    duration - duration
+                releasing
+                    start    - instant
+                    duration - duration
+
+    Java code implements SimpleExecutionSession
+    Java code ignores ScheduledExecutionSession
+
+# -----------------------------------------------------
+
+    ComputeResourceOfferFactoryImpl uses timing data from SimpleExecutionSessions
+
+        SimpleExecutionSessions.available_start_instant_seconds  / :blockstep AS BlockStart,
+        SimpleExecutionSessions.available_duration_seconds / :blockstep AS BlockLength,
+
+    but there isn't any code that sets these values on the OFFERED sessions
+
+# -----------------------------------------------------
+
+    OK, this isn't a small issue.
+    Need time and space to figure out what bits are broken and how to fix them.
+
+# -----------------------------------------------------
+
+    Reasons for removing intervals in the schema ..
+    Because String parsing is fragile.
+
+    String parsing in Java is pretty robust.
+    Using the Interval, Instant and Duration classes.
+
+    One of the reasons was to bring the schema closer to the database.
+    So that generating JPA entities from the VODML would create the right things.
+
+        available:
+          start:
+            ISO8601Interval
+          duration:
+            ISO8601Duration
+
+        available:
+          start:
+            start: long
+            range: long
+          duration:
+            long
+
+    BUT .. it looks like we probably aren't going to generate core JPA entities from the VODML.
+    so why do we need this now ?
+
+# -----------------------------------------------------
+
+    Leave this for now.
+    Re-visit it if/when users file issues complaining about the String values.
+
+    More important to fix the timing data in OFFERED sessions.
+    https://github.com/ivoa/Calycopis-broker/issues/384
+
+
+
