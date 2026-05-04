@@ -1,0 +1,262 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+calycopis-schema
+
+    Change the names of the OpenAPI generated packages
+
+        calycopis-schema-client - generated code (was calycopis-client)
+        calycopis-schema-spring - generated code (was calycopis-spring)
+
+        packages
+            net.ivoa.calycopis.schema.client..
+            net.ivoa.calycopis.schema.spring..
+
+
+# -----------------------------------------------------
+calycopis-schema
+
+    Split ISO8601Interval into Instant and Duration.
+
+# -----------------------------------------------------
+calycopis-broker
+
+    Split the interface and engine classes by java package path
+
+        calycopis-broker-api     - interface only, minimal beans
+        calycopis-broker-engine  - business logic and JPA entities
+
+        packages
+            net.ivoa.calycopis.broker.api.datamodel..
+            net.ivoa.calycopis.broker.api.functional..
+
+        packages
+            net.ivoa.calycopis.broker.engine.datamodel..
+            net.ivoa.calycopis.broker.engine.functional..
+
+# -----------------------------------------------------
+
+    SpringBoot/OpenAPI service
+
+        calycopis-broker-spring
+        depends on
+            calycopis-broker-api
+            calycopis-broker-engine
+            calycopis-schema-spring
+
+        packages
+            net.ivoa.calycopis.broker.spring.datamodel..
+            net.ivoa.calycopis.broker.spring.functional..
+
+    Quarkus/VODML service
+
+        calycopis-broker-quarkus
+        depends on
+            calycopis-broker-api
+            calycopis-broker-engine
+            calycopis-vodml-quarkus
+
+        packages
+            net.ivoa.calycopis.broker.quarkus.datamodel..
+            net.ivoa.calycopis.broker.quarkus.functional..
+
+    Docker platform components
+
+        calycopis-broker-docker
+        depends on
+            calycopis-broker-api
+            calycopis-broker-engine
+
+        packages
+            net.ivoa.calycopis.broker.docker.datamodel..
+            net.ivoa.calycopis.broker.docker.functional..
+
+    Slurm platform components
+
+        calycopis-broker-slurm
+        depends on
+            calycopis-broker-api
+            calycopis-broker-engine
+
+        packages
+            net.ivoa.calycopis.broker.slurm.datamodel..
+            net.ivoa.calycopis.broker.slurm.functional..
+
+    Change the names of the OpenAPI generated packages
+
+        calycopis-schema-client - generated code (was calycopis-client)
+        calycopis-schema-spring - generated code (was calycopis-spring)
+
+        packages
+            net.ivoa.calycopis.schema.client..
+            net.ivoa.calycopis.schema.spring..
+
+
+    Leaving space for a new set of packages
+
+        something-client   - generated code
+        something-quarkus  - generated code
+
+        packages
+            net.ivoa.something.client..
+            net.ivoa.something.quarkus..
+
+
+    3rd party contributions
+
+        local-platform-validators
+            calycopis-broker-api
+
+        local-platform-connectors
+            calycopis-broker-api
+            calycopis-broker-engine
+
+
+# -----------------------------------------------------
+
+    Iterators and cross references.
+
+    Used to create the beans, but we only need a list of uuid, not entities.
+    getVolumeMountUuids() --> Iterable<UUID>
+    getStorageUuids() --> Iterable<UUID>
+
+    Business logic is all internal to the engine, which has the entities.
+    getVolumeMountEntities() --> Iterable<AbstractVolumeMountEntity>
+    getStorageEntities() --> Iterable<AbstractStorageEntity>
+
+
+    Avoid using the same name for different things.
+
+    currently
+
+        interface AbstractStorageResource
+        class AbstractStorageResourceEntity
+
+    migrated, two levels of interface and an Impl class
+
+    API package has the interfaces with UUID references
+    calycopis-broker-api
+
+        interface AbstractStorageResource
+
+    engine package has the entity interface and implementation
+    question - do we need the entity interface ?
+    calycopis-broker-engine
+
+        interface AbstractStorageResourceEntity
+        class AbstractStorageResourceEntityImpl
+
+    Drop the use of Optional, it gets in the way for generics and interfaces.
+
+# -----------------------------------------------------
+
+    Separate package - validation.
+
+    Validation chain deals with the API package interfaces with UUID references.
+    Validation chain calls context to lookup UUID references.
+    Much like factory select(UUID)
+
+    At the end, validation Result has a Builder.
+    Builder creates an Entity.
+        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session);
+
+    Builder has a link to the context, which has the lists of other results.
+    Results have getEntity() to get the entity.
+    Which links validation to engine.
+
+    So we want a factory for ResultBeans that is pulled in from engine ?
+    Validator could use Platform to get the EntityFactories ?
+    Result.getEntity() is used to link data, storage, and volume mounts, during the build step.
+    Can we move the build() part into engine ?
+
+        AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+            Validator.ResultEnum.ACCEPTED,
+            validated
+            ){
+            @Override
+            public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session)
+                {
+                this.entity = IvoaDataResourceValidatorImpl.this.entityFactory.create(
+                    session,
+                    storage.getEntity(),
+                    this
+                    );
+                return this.entity;
+                }
+
+    Engine provides a ResultBeanFactory
+    Platform.getAbstractDataResourceValidatorResultFactory
+    => new AbstractDataResourceValidator.ResultBean(
+        ....
+        ){
+        @Override
+        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session)
+            {}
+        }
+
+    I think we can get rid of the getEntity() method if we include a factory for finding them instead.
+    Rather than
+                this.entity = IvoaDataResourceValidatorImpl.this.entityFactory.create(
+                    session,
+                    storage.getEntity(),
+                    this
+                    );
+
+                this.entity = IvoaDataResourceValidatorImpl.this.entityFactory.create(
+                    session,
+                    storageResolver.select(storage.getUuid()),
+                    this
+                    );
+
+
+    OK, we can do this, but do we need to do it now ?
+    Keep validation, entities, and business logic in engine for now.
+
+    The target is to separate out the spring components.
+    Separating the validation can come later.
+
+    -- leave validation for later --
+
+    * Validation stays in calycopis-broker-engine but uses calycopis-broker-api for the beans.
+    * Inbound, calycopis-broker-spring deserialises requests into beans that implement the API.
+    * Validation operates on the API bean from calycopis-broker-spring and factories from calycopis-broker-engine to create validated beans and then entities.
+    * Outbound, calycopis-broker-engine provides entities that implement the API,
+      and then calycopis-broker-spring provides a factory that serialises API beans into responses.
+
+    We probably need to look at the build() stage of validation in more detail.
+
+
+# -----------------------------------------------------
+
+
