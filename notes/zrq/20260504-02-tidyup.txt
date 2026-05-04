@@ -1,0 +1,346 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Run an instance of our development environment.
+#[user@desktop]
+
+# -----------------------------------------------------
+# Build a new version of the dev-tools container.
+# Updaing the Fedora version and adding Podman.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd docker
+
+            ./bin/clean.sh
+
+            ./bin/build.sh
+
+            ./bin/push.sh
+
+        popd
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Run an instance of our development environment.
+#[user@desktop]
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    # WARNING - this exposes the user's Podman socket to the container.
+    # WARNING - exposing the user's Podman socket requires a patch to the SELinux rules.
+    # WARNING - this exposes the user's SSH agent to the container.
+    # WARNING - exposing the user's SSH agent requires a patch to the SELinux rules.
+
+    source "${HOME:?}/calycopis.env"
+    source "${HOME:?}/heliophorus.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "SSH_AUTH_SOCK=/tmp/ssh-sock" \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${HOME}/.m2:/root/.m2:rw,Z" \
+        --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,Z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,Z" \
+        --volume "${SSH_AUTH_SOCK}:/tmp/ssh-sock:rw,Z" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2026.05.04 \
+            bash
+
+            podman ps
+
+    >   CONTAINER ID  IMAGE                                              COMMAND     CREATED         STATUS         PORTS       NAMES
+    >   8763c6f4f3d8  localhost/podman-pause:5.4.2-1743552000                        21 minutes ago  Up 19 minutes              a0f09bda0de9-infra
+    >   a6412a9becb9  ghcr.io/ivoa/calycopis/developer-tools:2026.05.04  bash        19 minutes ago  Up 19 minutes              calycopis-dev
+
+
+# -----------------------------------------------------
+# Create out database config.
+#[root@calycopis-dev]
+
+    mkdir /etc/calycopis
+
+    cat > /etc/calycopis/database.yaml << EOF
+spring:
+    datasource:
+        url: jdbc:postgresql://postgresql:5432/calycopis
+        username: $(pwgen 32 1)
+        password: $(pwgen 32 1)
+        driverClassName: org.postgresql.Driver
+        initialize: true
+EOF
+
+
+# -----------------------------------------------------
+# Start our PostgreSQL database.
+#[root@calycopis-dev]
+
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=$(yq '.spring.datasource.username' /etc/calycopis/database.yaml)" \
+        --env "POSTGRES_PASSWORD=$(yq '.spring.datasource.password' /etc/calycopis/database.yaml)" \
+        docker.io/library/postgres:latest
+
+    >   ....
+    >   ....
+
+
+    podman inspect \
+        postgresql \
+    | jq '.[0].Config.Env'
+
+    >   [
+    >     "container=podman",
+    >     "PG_MAJOR=18",
+    >     "POSTGRES_USER=eechoh4uaraimeiKah3Michahyahghoh",
+    >     "GOSU_VERSION=1.19",
+    >     "POSTGRES_DB=calycopis",
+    >     "POSTGRES_PASSWORD=eef1nohm3ohn8ooBoh4IeM2uaRauphia",
+    >     "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+    >     "LANG=en_US.utf8",
+    >     "PG_VERSION=18.3-1.pgdg13+1",
+    >     "PGDATA=/var/lib/postgresql/18/docker",
+    >     "HOME=/root",
+    >     "HOSTNAME=calycopis-pod"
+    >   ]
+
+
+# -----------------------------------------------------
+# Build our schema generated components.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-schema/github-zrq
+
+        source bin/buildscripts.sh
+
+        buildschema
+
+        installgenerator
+
+        buildpythonclient
+
+    >   ....
+    >   ....
+    >   adding 'calycopis_client-1.0.4.dist-info/METADATA'
+    >   adding 'calycopis_client-1.0.4.dist-info/WHEEL'
+    >   adding 'calycopis_client-1.0.4.dist-info/top_level.txt'
+    >   adding 'calycopis_client-1.0.4.dist-info/RECORD'
+    >   removing build/bdist.linux-x86_64/wheel
+    >   Successfully built calycopis_client-1.0.4.tar.gz and calycopis_client-1.0.4-py3-none-any.whl
+
+
+        buildjavaclient
+
+    >   ....
+    >   ....
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] BUILD SUCCESS
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] Total time:  13.513 s
+    >   [INFO] Finished at: 2026-05-04T13:13:35Z
+    >   [INFO] ------------------------------------------------------------------------
+
+
+        buildjavaspring
+
+    >   ....
+    >   ....
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] BUILD SUCCESS
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] Total time:  13.101 s
+    >   [INFO] Finished at: 2026-05-04T13:14:08Z
+    >   [INFO] ------------------------------------------------------------------------
+
+    popd
+
+
+# -----------------------------------------------------
+# Launch our service with the mock platform.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq
+        pushd java
+
+            ./mvnw clean spring-boot:run -D calycopis-platform=mock
+
+        popd
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Start another terminal and run our Python tests.
+#[user@desktop]
+
+    testdata=/home/Zarquan/temp
+
+    podman exec \
+        --tty \
+        --env "TESTDATA=${testdata}" \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    pip install pytest
+    pip install docker
+
+    pip install --edit /calycopis/Calycopis-schema/github-zrq/codegen/python/client/build
+
+    >   ....
+    >   ....
+    >   Installing collected packages:
+    >       typing-extensions,
+    >       annotated-types,
+    >       typing-inspection,
+    >       pydantic-core,
+    >       pydantic,
+    >       calycopis_client
+    >   Successfully installed
+    >       annotated-types-0.7.0
+    >       calycopis_client-1.0.4
+    >       pydantic-2.13.3
+    >       pydantic-core-2.46.3
+    >       typing-extensions-4.15.0
+    >       typing-inspection-0.4.2
+
+
+# -----------------------------------------------------
+# Run the mock tests.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq
+        pushd tests/python/
+
+            pytest test_resource_registration.py
+
+            pytest test_mock_validators.py
+
+            pytest test_mock_direct_execution.py
+
+            pytest test_mock_stress.py
+
+        popd
+    popd
+
+    >   ....
+    >   ....
+    >   ======== 11 passed in 3.14s ========
+
+    >   ....
+    >   ....
+    >   ======== 38 passed in 3.34s ========
+
+    >   ....
+    >   test_mock_direct_execution.py: 22 warnings
+    >     /calycopis/Calycopis-schema/github-zrq/codegen/python/client/build/calycopis_client/wrappers/execution_client.py:219:
+    >     DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version.
+    >     Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    >       while datetime.utcnow() < deadline:
+    >   ....
+    >   ======== 10 passed, 23 warnings in 107.86s (0:01:47) ========
+
+
+# -----------------------------------------------------
+# Re-start our service with the docker platform.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq
+        pushd java
+
+            ./mvnw clean spring-boot:run -D calycopis-platform=docker
+
+        popd
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Run the docker tests.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq
+        pushd tests/python/
+
+            pytest test_docker_platform.py
+
+            pytest test_docker_direct_execution.py
+
+            pytest test_docker_bind_mount.py
+
+            pytest test_docker_stress.py
+
+        popd
+    popd
+
+    >   ....
+    >   ....
+    >   ======== 18 passed, 117 warnings in 528.65s (0:08:48) ========
+    >   ....
+    >   ....
+    >   ======== 13 passed, 63 warnings in 258.02s (0:04:18) ========
+    >   ....
+    >   ....
+    >   ======== 7 passed, 28 warnings in 138.72s (0:02:18) ========
+    >   ....
+    >   ....
+    >   ======== 1 passed in 241.85s (0:04:01) ========
+
+
+

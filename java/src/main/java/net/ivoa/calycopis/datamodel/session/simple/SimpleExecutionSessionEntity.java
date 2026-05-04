@@ -273,6 +273,9 @@ public class SimpleExecutionSessionEntity
         return null;
         }
 
+/*
+ * Looks like this isn't used.
+ *
     public void init(final IvoaScheduledExecutionSchedule schedule)
         {
         if (schedule != null)
@@ -309,6 +312,8 @@ public class SimpleExecutionSessionEntity
                 }
             }
         }
+ *     
+ */
         
     @Column(name = "prepare_start_instant_seconds")
     protected long prepareStartInstantSeconds;
