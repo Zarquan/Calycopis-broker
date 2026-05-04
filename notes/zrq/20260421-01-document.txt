@@ -1,0 +1,324 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        New sections for the document.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+#Load balancing
+Prioritising platforms based on transfer costs
+
+Expressing transfer costs as the time needed to prepare the platform before it can
+execute a task can help to balance the distribution of data across the system.
+
+If we start with three platforms, A, B and C, with three 1 GiB data sets
+a, b, and c, all initially located at platform A.
+
+```
+platform A :
+    data:
+      - data-a (1GiB)
+      - data-b (1GiB)
+      - data-c (1GiB)
+
+platform B :
+    data:
+
+platform C :
+    data:
+```
+
+and the data transfer times between the three nodes are:
+1hr/GiB to transfer from A to B, and 2hr/GiB to transfer from A to C
+
+```
+A -> B = 1hr/GiB
+
+A -> C = 2hr/GiB
+```
+
+If we send a request to perform a task on data-a to each platform,
+platform A will respond with an offer that starts immediatley,
+and platforms B and C will respond with offers that start at
+1hrs and 2hrs from now, reflecting the time needed to transfer the data
+from platform A.
+
+
+```
+platform A:
+  offer:
+    data: data-a
+    start: now
+
+platform B:
+  offer:
+    data: data-a
+    start: now + 1hr
+
+platform C:
+  offer:
+    data: data-a
+    start: now + 2hr
+
+```
+
+If another user sends a similar request to perform a task on data-b,
+the three platforms will produce a similar set of offers with similar
+delays.
+
+```
+platform A:
+  offer:
+    data: data-b
+    start: now
+
+
+platform B:
+  offer:
+    data: data-b
+    start: now + 1hr
+
+platform C:
+  offer:
+    data: data-b
+    start: now + 2hr
+
+```
+
+Assuming both users chooses the offers with the earliest start time,
+this means that platform A will now be running 2 tasks, one for
+the first user analysing data-a and one for the second user
+analysing data-b.
+
+```
+platform A:
+  executions:
+    - user: 001
+      data: data-a
+
+    - user: 002
+      data: data-b
+
+platform B:
+  executions:
+    -
+
+platform C:
+  executions:
+    -
+```
+
+If the platforms are only have enough resources to be able to handle 2
+of these tasks at a time, then if a third user sends a request to
+perform a task on data-c, platform A will not be able to offer to run
+the task immediatley.
+
+What happens next depends on how long the two existing tasks
+are expected to take.
+
+If the existing tasks are only expected to take 30 min,
+then platform A can offer to perform the third request
+once one of the existing tasks completes in 30 minuites time.
+The other two platforms will still quote offers with 1hr and
+2hr preparation time respectivley based on the time needed
+to transfer data-c to their locations.
+
+```
+platform A:
+  offer:
+    data: data-c
+    start: now + 30min
+
+platform B:
+  offer:
+    data: data-c
+    start: now + 1hr
+
+platform C:
+  offer:
+    data: data-c
+    start: now + 2hr
+
+```
+
+From the user's perspective, they receive three offers starting
+in 30min, 1hr and 2hrs. In which case, all other factors being
+equal, the offer starting in 30 min from platform A looks
+like the best option.
+
+If the user accepts the offer from platform A, then the new task
+will be added to the queue on platform A, to be executed once
+one of the existing tasks completes.
+
+```
+platform A:
+  executions:
+    - user: 001
+      data: data-a
+      phase: RUNNING
+
+    - user: 002
+      data: data-b
+      phase: RUNNING
+
+    - user: 003
+      data: data-c
+      phase: WAITING
+
+platform B:
+  executions:
+    -
+
+platform C:
+  executions:
+    -
+```
+
+On the other hand, if the exsting tasks are expected to take
+1hr 30 min then the offers look a bit different. Platforms B and C
+still offer 1hr and 2hrs, but platform A can only offer to start
+the next execution in 1hr 30min. Making the offer from
+platform B the best option.
+
+```
+platform A:
+  offer:
+    data: data-c
+    start: now + 1hr 30min
+
+platform B:
+  offer:
+    data: data-c
+    start: now + 1hr
+
+platform C:
+  offer:
+    data: data-c
+    start: now + 2hr
+
+```
+
+If the user accepts the offer from platform B, then platform B will
+transfer a copy of data-c from platform A as part of the steps
+to prepare to execute the task on data-c.
+
+```
+platform A:
+  executions:
+    - user: 001
+      data: data-a
+      phase: RUNNING
+
+    - user: 002
+      data: data-b
+      phase: RUNNING
+
+platform B:
+  executions:
+    - user: 003
+      data: data-c
+      phase: PREPARING
+
+platform C:
+  executions:
+    -
+```
+
+The end result after all of the tasks have completed is platform A
+still has copies of all three data sets, but an additional copy of
+data-c has been transferred to platform B because the time cost
+of transferring it was less than the time cost of waiting for
+the existing tasks on platform A to complete.
+
+How long platforms A and B continue to keep a copies of data-c
+will depend on the data replication policies at each of the platforms.
+However, while both platforms still hold copies
+then a new request to process data-c will receive offers
+from both platforms offering to start execution immediatley.
+
+The emergent behavior is to spread the load away from the
+conjested platform by transferring copies of the data that
+is in demand to other platforms that have more compute
+resources available.
+
+Execution Broker's role is to provide the user
+with information about the relative costs of waiting to use
+platform A or transferring a copy of the data to one of
+the other platforms.
+It is then up to the user to decide which one to select.
+
+Note that the quoted timings do not have to be accurate.
+In fact there is oppertunity for the platform administrators
+to influence the user's behaviour by weighting the timing
+values quoted in the offers.
+
+If the system adminstrators want to encourage users to select
+the options that move the data away from a conjested
+platform and spread the load across the other platforms,
+they can increase the estimate of how long it
+will take before the conjested is able to process
+another task. This this example, adding another +30 min to
+the offers from platform A would make platforms
+B and C preferrable options.
+
+On the other hand, if the system adminstrators want to encourage users to
+avoid data transfers where possible, then adding another +30 min
+to the transfer time estimates to each of the
+platforms would make waiting for platform A to become available
+the better option.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

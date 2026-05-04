@@ -1,0 +1,213 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Priority #1 deployment
+
+        Fix security issues
+            Limit filesystem mounts
+            Code review
+
+        Add user login
+
+
+    Priority #1 (also)
+
+        Interface only API
+        Study Paul's AI generated branch
+            Identify and fix the things that don't interface well
+        core/engine
+        Spring based version
+        What happenes to the Docker and Mock implementations
+        Can we split the Docker implementations into a separate jar ?
+        Can we put more through the Platform API ?
+
+# -----------------------------------------------------
+
+    Add details to the Newton-Raphson example.
+        Couple of days just on this.
+        Not required for deployment.
+        Required for documentation before the meetings.
+
+    Add access to stdout and stderr as access methods.
+    These are just HTTP GET access URLs.
+
+        DockerOutputStream
+            name: stdout | stderr
+            href: URL
+            expires: datetime
+
+    Don't know how to handle stdin yet.
+
+        DockerInputStream
+            name: stdin
+            href: URL
+
+# -----------------------------------------------------
+
+    Add async http get
+        Create a plan for Cursor to implement.
+
+# -----------------------------------------------------
+
+    Add benchmarking to the model
+        All components have metrics list
+
+    Add costs to the model
+        All components have costs list
+
+# -----------------------------------------------------
+
+    Add OIDC login
+
+    Add local name:pass accounts
+
+    Add admin interface for managing accounts
+
+    Add user history
+
+# -----------------------------------------------------
+
+    Add data outputs
+
+        READ-ONLY
+            DataResource is transferred during prepare and simply deleted on release.
+
+        WRITE-ONLY
+            DataResource is left empty during prepare and transferred out on release.
+            Prepare phase might validate that the platform can connect and the user has access.
+            How do we exptess those checks ?
+            checks:
+              - kind: uri:connect-test
+                required: true
+                result: true
+              - kind: uri:access-test
+                required: false
+                result: true
+
+        READ-WRITE
+            DataResource is transferred in during prepare and transferred out on release.
+
+# -----------------------------------------------------
+
+    S3, Webdav, VOS, Rucio can be read/write.
+    Http/https can be read/write if we always use PUT.
+
+    Use an rclone container for data transfers
+    https://rclone.org/install/
+        This replaces curl/wget for better transfer handling.
+        - later
+
+# -----------------------------------------------------
+
+    Remote acces methods.
+    - later
+
+    Staged - data is copied locally
+        Required for random file access
+        Required for high value compute
+        Requires prepare time to stage the data
+
+    Streamed - data streamed when used
+        Suitable for sequential access
+        Suitable for generic compute platforms
+        Short prepare time, but slow access
+        ** Suitable for in-house data **
+        Internal S3 storage for read-only science data
+        Fuse mount of an S3 bucket
+        Ideal for eMerlin data
+
+    Leave implementation for later
+    Do we need to add anything now ?
+    Access mode [staged|streamed]
+
+    Is this up to the local platform to decide ?
+    For eMerlin data, yes.
+
+    What matters to the application is the access mode.
+    READ-ONLY, READ-WRITE, WRITE-ONLY
+    Sequential, random access.
+
+    Then the platform works out the best way to implement.
+    Local/internal streaming makes sense.
+
+    Remote streaming has short prepare time but slow access.
+    This should show up in the prepare time and metrics.
+    Needs more work on how we present this to the user.
+
+    Local/internal streaming for specific local datasets.
+    Local filter re-writes the data access.
+    Not visble to the outside user.
+
+# -----------------------------------------------------
+
+    Create a test service for HTTP GET/PUT
+        Speed and size is in the URL
+        http://.../?speed=100&size=1024
+        Ask Cursor to create this
+
+    Deploy test data on STFC Echo for testing S3
+        Dig up notes from work on Gaia DMP
+
+    Deploy a WebDav service for testing.
+        https://wiki.archlinux.org/title/WebDAV
+
+    Cloud storage for testing
+    - later
+        https://www.s3compare.io/
+        https://www.storj.io/pricing
+
+# -----------------------------------------------------
+
+    Refactor prepare and release time.
+    - later
+
+    Refactor storage and/or data lifetime - pre and post execution.
+    - later
+
+    Measure timings for everything.
+    - later
+
+    Use recorded timings to estimate the prepare and release times.
+    - later
+
+# -----------------------------------------------------
+
+    Create a payment portal
+    Add payment-required redirect.
+    Demonstrate how payments would work.
+
+    This would be cool to have for the all hands.
+    Worth one or two days to build a demo.
+

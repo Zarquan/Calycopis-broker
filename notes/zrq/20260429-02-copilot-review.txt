@@ -1,0 +1,376 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Review the CoPilot initiated changes to separate spring dependencies from the core engine.
+        https://github.com/ivoa/Calycopis-broker/pull/382
+
+        376 files, a lot going on at the same time.
+
+    Result:
+
+        Work in progress ...
+        Many of the files just move across, no changes needed.
+        Some of the factory methods could be handled better.
+        Some of the entities could be interfaced better.
+        Need to look at how the processing is handled.
+
+# -----------------------------------------------------
+
+    Step 1 – Multi-module Maven structure
+
+        Created java/calycopis-engine/pom.xml — no Spring, no calycopis-spring.
+        Created java/calycopis-broker/pom.xml — depends on calycopis-engine + Spring Boot + calycopis-spring.
+
+    OK, but might need more specific names.
+    We are doing this so that we can support different frameworks and different front-ends.
+
+    Paul wants to use Quarkus as the JPA framework.
+    Paul wants to use an interface defined by VODML.
+
+    Existing code base uses Spring Boot as the JPA framework.
+    Existing code base uses an interface defined by OpenAPI.
+
+    The business logic goes in calycopis-broker-engine.
+    The foundation of the business logic is the broker functionality.
+    We are splitting things into multiple jars, so need to keep track of where they come from.
+    So everything that is a sub-project of calycopis-broker, starts with 'calycopis-broker'.
+
+    Provide an interface only package calycopis-broker-api
+    All of the components use these interfaces.
+    The back-end business logic, both front-end packages, and the 3rd party components
+    are all developed against these interfaces.
+
+    Interface and engine
+
+        calycopis-broker-api     - interface only, minimal beans
+        calycopis-broker-engine  - business logic and JPA entities
+
+    SpringBoot/OpenAPI service
+
+        calycopis-broker-spring
+        depends on
+            calycopis-broker-api
+            calycopis-broker-engine
+            calycopis-schema-spring
+
+    Quarkus/VODML service
+
+        calycopis-broker-quarkus
+        depends on
+            calycopis-broker-api
+            calycopis-broker-engine
+            calycopis-vodml-quarkus
+
+    Docker platform components
+
+        calycopis-broker-docker
+        depends on
+            calycopis-broker-api
+            calycopis-broker-engine
+
+    Slurm platform components
+
+        calycopis-broker-slurm
+        depends on
+            calycopis-broker-api
+            calycopis-broker-engine
+
+    Change the names of the OpenAPI generated packages
+
+        calycopis-schema-client - generated code (was calycopis-client)
+        calycopis-schema-spring - generated code (was calycopis-spring)
+
+    Leaving space for a new set of packages
+
+        calycopis-vodml-client   - generated code
+        calycopis-vodml-quarkus  - generated code
+
+    3rd party contributions
+
+        local-platform-validators
+            calycopis-broker-api
+
+        local-platform-connectors
+            calycopis-broker-api
+            calycopis-broker-engine
+
+    The CoPilot changes are OK, but, some things to do before we go for it.
+
+    * Changes to the broker package names, calycopis-broker-api and calycopis-broker-engine
+    * Changes to the schema package names.
+
+    * Needs a separate package for the API interfaces.
+    * Needs code changes to support the API interfaces.
+
+    There is already work in progress to migrate interfaces into calycopis-broker-api.
+    Finish the interfaces first before we try to split.
+
+# -----------------------------------------------------
+
+    Step 2 – Move lifecycle enums to engine
+
+    Yes, but enums should move to the API package
+
+# -----------------------------------------------------
+
+    Step 3 – ComponentMetadata POJO
+
+    Start with an interface, then create the POJO if we need one.
+    Missing some properties
+        UUID
+        URL
+        created
+        modified
+        options
+
+# -----------------------------------------------------
+
+    Step 4a – MessageLevel enum
+
+    Yes, but enums should move to the API package
+
+# -----------------------------------------------------
+
+    Step 4b – Engine interfaces and broker assembler stub
+
+    Need to see how ComponentMetadataAssembler works.
+
+# -----------------------------------------------------
+
+    Steps 5+7 – Resource type interfaces and infrastructure
+
+    Yes, but interfaces should move to the API package
+
+# -----------------------------------------------------
+
+    Step 6 – Move processing/ to engine; update ProcessingServiceImpl in broker
+
+    Need to review these, any changes or did they just move ?
+
+
+        Why remove the licence header from
+        net.ivoa.calycopis.functional.platfom.Platform
+
+        ProcessingRequestFactory
+        default method in an interface - would this work in the API package ?
+        Weird class cast delegation.
+        If it depends on both classes - why the extra code.
+        probably OK, but I'd like to understand why.
+
+
+        ProcessingService extends ProcessingService
+        Using the same name for interfaces from different packages.
+        Similar pattern used in several places.
+        Better to change the name of one of them slightly - less confusing.
+
+
+        net.ivoa.calycopis.engine.component.ComponentMetadata
+
+            "Timestamps and message lists are maintained on the entity itself
+            (via JPA columns) and are therefore not included here."
+
+            Would this be better wrapped as an interface, with the
+            timestamps and message lists included ?
+
+
+        net.ivoa.calycopis.engine.compute.AbstractComputeResource
+
+            Missing the list of volumes.
+            public List<AbstractVolumeMountEntity> getVolumeMounts();
+
+            This is where an interface with a wrapped iterable would be better.
+            Interesting to see how the business logic works without this.
+
+        net.ivoa.calycopis.engine.data.AbstractDataResource
+
+            Missing storage reference and list of volumes.
+            public AbstractStorageResource getStorage();
+            public List<AbstractVolumeMountEntity> getVolumeMounts();
+
+            This is where an interface with a wrapped iterable would be better.
+            Interesting to see how the business logic works without this.
+
+
+        net.ivoa.calycopis.engine.factory.FactoryBaseImpl
+
+            Code says public constructor.
+            Comment says protected constructor.
+
+
+        Package path
+        net.ivoa.calycopis.functional.factory
+        becomes
+        net.ivoa.calycopis.engine.factory
+        loosing the datamodel/functional split ?
+
+
+
+        net.ivoa.calycopis.engine.lifecycle.LifecycleComponent
+
+            "Framework-independent interface for a component that participates in the
+            lifecycle state machine (preparing → available → releasing → completed)."
+
+            "This is the engine-layer replacement for the broker's
+            {@code net.ivoa.calycopis.datamodel.component.LifecycleComponent} interface.
+            It carries no dependency on Spring, calycopis-spring, or any other
+            framework-specific type."
+
+            "The {@code getPrepareAction}, {@code getMonitorAction} etc. methods are
+            omitted here because they return broker-specific types
+            ({@code ProcessingAction}, {@code Platform}).  Those methods are defined in
+            the broker interface which extends this one."
+
+            Again - same interface name, different functionality.
+            net.ivoa.calycopis.engine.lifecycle.LifecycleComponent <-- business logic 'engine'
+            net.ivoa.calycopis.broker.lifecycle.LifecycleComponent <-- Spring broker implementation
+
+            I don't think the business logic will work without these.
+            Ho hum, we will see.
+
+        net.ivoa.calycopis.engine.platform.Platform
+
+            "Framework-independent interface for an execution platform."
+
+            "A platform provides a family of factories, validators, and repositories
+            that supply platform-specific implementations for the core engine types
+            (sessions, compute resources, executables, storage, data, volumes)."
+
+            "This is the engine-layer replacement for the broker's
+            {@code net.ivoa.calycopis.functional.platfom.Platform} interface.
+            Concrete broker implementations (e.g. {@code MockPlatformImpl},
+            {@code DockerPlatformImpl}) extend the broker-layer {@code Platform}
+            interface, which in turn extends this engine interface."
+
+            "Additional factory accessor methods (e.g. for sessions, compute, storage)
+            are defined in the broker-layer {@code Platform} interface because they
+            return broker-specific factory types.  Those types will be replaced by
+            engine interfaces in a later migration step once the entity and validator
+            hierarchies have been fully moved to the engine module."
+
+            OK - this is where the real migration work happens.
+
+
+
+        net.ivoa.calycopis.engine.processing.mock.MockEntitySettings
+        Modifying the AI metrics, replacing previous entry ?
+        Adding spaces and blank lines ?
+        Convert to long, multiply and then truncate back to int ??
+        Looks like slop to me.
+
+
+        net.ivoa.calycopis.engine.processing.mock.MockMonitorableComponent
+        net.ivoa.calycopis.engine.processing.mock.MockMonitorAction
+
+            @Deprecate this and just have a simple duration for the mock actions.
+            If the timout hasn't been reached, put it back on the queue.
+            Closer match to the way we expect to handle real actions.
+
+
+        net.ivoa.calycopis.engine.processing.ProcessingRequestFactory
+
+            "Framework-independent interface for the processing request factory."
+
+            "Defines the minimum contract required by the engine's {@link ProcessingRequestEntity}
+            to delete a completed request.  The broker-layer extension adds session- and
+            component-specific factory methods that return broker entity types, and provides
+            a bridge default method that adapts the engine-typed {@code delete(ProcessingRequest)}
+            call to the broker's concrete repository-backed deletion logic."
+
+            "Concrete implementations live in the broker module
+            ({@code ProcessingRequestFactoryImpl}) and use a JPA repository to remove the
+            entity from the database.  The engine interface carries no dependency on Spring,
+            calycopis-spring, or any other framework-specific type."
+
+
+            Again -
+            * Different interface, same name.
+            * Better interfacing on the original would make this cleaner.
+
+            Why are these moved out, they are interface based ?
+            SessionProcessingRequestFactory getSessionProcessingRequestFactory();
+            ComponentProcessingRequestFactory getComponentProcessingRequestFactory();
+
+        Aside - in exsiting code base
+        SimpleExecutionSessionEntityFactoryImpl constructor has unused ProcessingRequestFactory parameter.
+
+
+    net.ivoa.calycopis.engine.storage.AbstractStorageResource
+
+        Again - missing some important methods
+        public List<AbstractDataResourceEntity> getDataResources();
+        public List<AbstractVolumeMountEntity> getVolumeMounts();
+
+
+
+    net.ivoa.calycopis.engine.validator.Validator
+
+        Result is missing the entity
+        public EntityType getEntity();
+
+        Would this still work ?
+
+
+    net.ivoa.calycopis.engine.volume.AbstractVolumeMount
+
+        Missing the references to other entities.
+        Would this still work ?
+
+            public AbstractComputeResourceEntity getComputeResource();
+            public AbstractDataResource getDataResource();
+            public AbstractStorageResource getStorageResource();
+
+
+# -----------------------------------------------------
+
+    Looking at the classes again, I don't think it has done what was wanted.
+
+    calycopis-engine just contains some beans and interfaces
+    calycopis-broker contains all of the entities
+
+    PR comment :
+    "This PR implements Steps 1–6 (and 7) of the multi-step plan to extract core business logic
+    from the Spring Boot calycopis-broker into a new Maven module calycopis-engine that has zero
+    dependencies on Spring, Spring Boot, or the net.ivoa.calycopis:calycopis-spring schema package."
+
+    Yes, but .. calycopis-engine is not-functional.
+    No business logic in it, no entities in it, just some empty shells.
+
+    calycopis-broker contains all of the entities and business logic.
+    calycopis-broker depends on calycopis-schema for beans
+
+        package net.ivoa.calycopis.datamodel.compute.simple.docker;
+        DockerSimpleComputeResourceEntity.java
+        import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
+        import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount.ModeEnum;
+
+# -----------------------------------------------------
+
+
+
+
+
+

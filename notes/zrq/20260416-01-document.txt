@@ -1,0 +1,406 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        New sections for the document.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+The IVOA Execution Broker is designed to provide a common interface for job execution
+that is aware of the costs involved in executing tasks within a distributed of environment
+of different compute platforms, code repositories, and data archives, managed by different
+service providers with different access rules and policies.
+
+## Balancing costs
+
+The request-offer pattern at the core of the protocol enables both the client
+and service to take into account the different costs, benefits, and policies,
+involved. Balancing the user's requirements and preferences against the costs
+associated with performing the task.
+
+* The user specifies their requirements in their request and sends it to the services.
+* The services evaluate the request and reply with offers.
+* The user evaluates the offers and selects the one that best meets their requirements.
+
+The request-offer pattern enables both parties to apply their selection criteria
+independently, avoiding the need to delegate the details and application of their
+rules, policies, and preferences, to a central coordinating service.
+
+## Data transfers
+Minimising data transfers by modelling them as a cost.
+
+The request-offer pattern represents the cost of data transfer as time needed to prepare
+a job before it can begin executing.
+
+This provides a simple way for the service to make the user aware of the data transfers
+required to move the data or code to the platform and enables the user to take this
+into account the  when choosing which platform to use.
+
+If the data and code are already available at the same facility
+the task can begin executing immediately.
+
+```
+ /-- minimal preparation time
+ |
+|-|<---- execution ---->|
+   |
+   \-- immediate start
+```
+
+If either the data or the code are not already available locally,
+the platform calculates an estimate for the transfer time and adds it
+to the preparation time quoted in the offer.
+
+```
+            /-- data transfer
+            |
+|<---- preparation ---->|<---- execution ---->|
+                         |
+                         \-- delayed start time
+```
+
+The user receives offers with different preparation times quoted by
+different platforms, reflecting the time required to transfer the
+data or code to each of the platforms.
+
+```
+|<-- preparation -->|<---- execution ---->|
+|<------------>|<---- execution ---->|
+|<---->|<---- execution ---->|
+```
+
+The user can choose to minimise their data transfer costs by selecting the offer
+with the shortest preparation time or earliest earliest start time.
+
+```
+   /-- shortest preparation time
+   |
+|<---->|<---- execution ---->|
+        |
+        \--- earliest start time
+```
+
+## User autonomy
+Enabling the user to make informed decisions based on the current state of the system.
+
+The request-offer protocol provides a mechanism for the service to
+describe the resources on offer, enabling the user, or their agent, to make
+an informed decision based on their priorities.
+
+For example, a service may offer to provide more compute resources than the
+minimum specified in the request.
+Platforms like Openstack or Kubernetes allocate resources based on a fixed
+set of templates, e.g. tiny, small, medium or large virtual machines.
+In which case the  platform will offer the nearest size that matches the request
+based on the resources available at the time.
+Resulting in an offer for a medium sized resource from one platform and a larger
+resource from another, allowing the user to select which one they prefer.
+
+The size of resources and the preparation time required will be different for offers from different platforms.
+The 'best' offer would have the largest resources and shortest preparation time,
+but if that is not available, then the user's preference may depend on
+why they want to perform the task.
+
+If the user is initiating tasks one after the other as a series of steps in an analysis,
+then start time may be a priority, preferring offers that start as soon as possible.
+
+If the user is intending to use an interactive notebook or visualization
+tool to explore different aspects of a large dataset, then they may prefer
+to wait for a short time to accept an offer that gives them more compute
+resources to work with.
+
+If the user wants to run a long running machine learning training session, then
+raw computational performance may be the priority, and the user may decide to
+select an offer that provides the maximum performance even if it requires more
+time to prepare beforehand.
+
+## Client complexity
+
+Although the request-offer protocol may include a lot of detail in
+the offers, the process of choosing which offer to accept can be simplified
+by the user interface.
+
+The basic rule that every offer MUST meet the minimum criteria in the
+request guarantees that ALL of the offers are able to execute the job.
+This means that a very basic client interface can simply accept the first offer
+it receives, without having to look at the details.
+Equivalent to the '_buy now_' buttons available on commercial websites such as Amazon and eBay.
+
+A more general client can provide short-cut buttons or command line options for requesting
+offers that start '_now_', '_in the next 5 minutes_', '_sometime this afternoon_', or '_anytime_'.
+It can also provide short-cut buttons or command line options for simply
+selecting the '_first offer_' that comes back, the offer with the '_earliest start_',
+'_most memory_' or '_best GPU_'.
+
+A more complex client can enable the user to define a set of rules for prioritising
+how the offers are displayed, promoting offers that meet specific criteria and
+excluding others that fail specific limits.
+
+This level of customization may be particularly relevant given the adoption use of
+Large Language Models and AI agents.
+An AI enabled interface could enable the user to define their selection criteria and
+prioritization rules using natural language and then ask an AI agent to filter the offers accordingly.
+
+* Prioritise start time for interactive notebook sessions
+* Prefer offers with the lowest carbon cost where possible
+* Automatically select offers from my local institute
+* Ask for confirmation before accepting data transfers larger than 10GiB
+
+To achieve the same level of choice using a centralised system would require
+a series of separate calls to gather information about the hardware capabilities
+and availability of each service, along with details of their access policies.
+An equivalent set of service calls to discovery the current location
+and cost of transferring the data and code between platforms,
+and a mechanism for the user to submit their selection criteria and
+preferences.
+
+The IVOA Execution Broker request-offer pattern wraps all of this up in a simple
+sequence of steps, which enable the user to make informed decisions based on
+the resources currently available from each platform.
+
+
+
+Local policies
+Applying local access policies at the service level.
+
+The request / offer process delegates control over what resources a facility
+offers to the facility itself.
+This allows the facility to apply both
+global policies to provide resources for large multi-national projects
+at the same time as appling local policies
+that provide resources to local
+users and projects.
+
+Example would be a user sends a request authenticated using
+a national level identity managment service which delegates the
+actual authentication step to the users's institute.
+
+If the user is a member of an international project, the platform
+would apply the relevant global policy to provide resources for the
+international project. However, that particular user may also be eligible for
+additional resources under a national scheme for researchers
+in their field, or a local policy for staff at their institute.
+The service can apply all three policies, global, national, and
+local, when deciding what level of resources it is able to offer.
+
+All of this happens internally within the service, no additional
+action is required by the user. The user sends the request and the
+service responds with offers. The level of resources in the offers
+are determined by internal polices configured at the facility providing
+the service.
+
+
+Benchmarking
+
+Quantifying compute requirements and performance.
+
+Basic measurement of compute resources is the physical
+number of cpu cores and amount of memory available for the
+execution.
+
+However this does not necesarily reflect the real performance
+of a platform. A whole range of factors can influence the
+actual preformance of a compute platform, the type of cpu,
+the clock speed, the design of the motherboard,
+the type and speed of the discs and the network can all
+have an effect on the resulting performance.
+
+Benchmarking may be a better way to evaluate the performance,
+evaluating the performance of the whole platform
+at executing a task. Particularly if the benchmark task
+is similar in nature to the required task.
+
+In the NR example, we can create a benchmark by applying the
+executable to a specific data set.
+If we create an input file of 10,000 rows
+and run a range of benchmarks, a single threaded case using
+a single cpu core, and a set of multithreaded cases using
+multiple cores.
+
+We can then use these as a benchmark to select compute platforms
+based on previous performance. The user can request a platform that
+is capable of a minimum of 10,000 calculations per second with 25 cores.
+In response, the available platforms can offer compute resource that are
+capable of 12,350, 11,500 and 15,015 calculations per second, based on
+the previous benchmarking runs.
+
+Carbon costs
+
+We could also factor in a carbon cost based on a 3rd party
+evaluation of the facility's electricity consumprion, cooling methods
+and energy recovery processes. Which could be used to estimate a carbon
+cost per compute unit over time.
+
+Combining the two metrics would present the user with the choice of
+12,350, 11,500 and 15,015 calculations per second with an associated carbon
+cost of 400, 200 and 600 units of C02 per second.
+
+The user gets to choose which one they want to select. The high performance, high carbon cost
+option, or one of the lower performance lower carbon cost options.
+
+
+
+
+
+
+    Sounds very nice, but how do we encourage users to accept
+    the performance hit and select one of the more economic options.
+
+    One method which doesn't need any functionality added to the broker
+    is simply to save a record of all the executions that a user performs.
+    A separate process can harvest these records and add up the total costs
+    per month for each user account which can then be evaluated against
+    an overall target cost for the project.
+
+    A more complex method would be to apply micro payments to the offers.
+    There are a number of different methods of applying some form of payment
+    mechanism ontop of the request-offer pattern.
+
+    The offer can simply include a numeric cost, assigned by the platform,
+    and accepting the offer means that the user agrees to pay the quoted cost.
+    The platform will debit the user's account via a separate system that manages
+    user accounts and balance.
+
+    This could be managed on a per project basis or on a national level.
+    For example, a national funding body may require that all the projects
+    it funds keep track of and produce regular reports on carbon use.
+    To facilitate they they provide a carbon-budget service that
+    keeps track of per user or per project carbon costs.
+    The compute facilities provided by the national funding body use the
+    request-offer pattern to quote the costs for an execution, and accepting
+    an offer debits the user's carbon account when it executes the job.
+
+    The same pattern could be used to apply real financial costs and payments
+    to the process.
+    In this scenario an execution offer would quote a financial costs
+    for performing an execution, and the user is required to make a payment
+    before the execution is allowed to proceed.
+
+    This can be integrated into the request-offer pattern by applying the
+    x402 payment protocol ontop.
+    The offers quotes a price for performing the execution, with some
+    kind of invoice number, and the user needs to pay the invoice
+    before the execution is allowed to proceed.
+    This is enforced by applying the x402 PaymentRequired redirect to the
+    call that accepts an offer. If the invoice has not been paid, the
+    service response with a HTTP 402 PaymentRequired response
+    which redirects the client to the appropriate payment gateway.
+
+https://www.x402.org/
+https://github.com/coinbase/x402
+https://solana.com/x402/what-is-x402
+
+    The same mechanism can be used to 'pay' carbon cost tokens
+    for an institutioanl level environmental impact schema,
+    micro payments at a national funding agency level,
+    or independent blockchain based financial micro payments.
+
+    A blockchain based micro payment system
+    could be the answer to the problem now facing many data providers
+    in the age of AI. With AI agents swamping resources with
+    orders of magnitude more requests than before, putting
+    unsustainable costs on the service providers.
+
+    All of these possibilities stem from the initial step of adopting
+    a request-offer based protocol.
+
+    An offer may include more than one payment invoice.
+    For example,
+    A university may require all of its users to make a carbon-tax
+    payment for using their facilities.
+    This applies only to internal university users and projects.
+    In which case, internal services provided ny the univerisity
+    would add this as a cost to the offers it makes in response
+    to requests from user accounts and projects from the university.
+    The internal carbon cots would not be applied to requests
+    from users and projects outside the university.
+
+    The same service may apply different payment mechanisms
+    for national funding body level access and international
+    level access.
+    Requests from user accounts registered via a national identity
+    system may be charged a different fee via a different mechanism
+    than users registered via a different identity system.
+
+    Using a request-offer based protocol enables the service
+    to apply a combination of local policies for internal,
+    national and international users. Quoting different costs
+    and requiring different payment mechanisms for each.
+    The protocol provides the mechanism for the service to
+    quote the costs and the user to make an informed choice as
+    to which ones to accept.
+    The actual pament mechanism is handled out of band via
+    separate services and protocols.
+
+    TODO - setup a simple carbon cost payment portal and apply x402
+    to redirect to it.
+
+
+
+
+    The protocol represents the cost of data tranefr as delays.
+
+
+
+
+
+    The protocol can be extended to represent a range of different costs.
+
+    Carbon costs can be added to the mix, calculated by the
+
+    The request/offer pattern
+    principle
+
+
+
+
+# -----------------------------------------------------
+
+    costs:
+        - kind: uri:carbon-cost
+          requested:
+            max:
+          offered:
+            max:
+            min:
+          measured:
+            value:
+
+# -----------------------------------------------------
+
+    How to represent data outputs ?
+    Do we change data resources to inputs and outputs ?
+    Existing DataResources
+
+
+
+
+
+

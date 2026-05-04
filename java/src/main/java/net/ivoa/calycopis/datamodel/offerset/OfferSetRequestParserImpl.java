@@ -397,6 +397,7 @@ public class OfferSetRequestParserImpl
 
                 //
                 // Add our compute resources.
+                // TODO nasty hack - context has multiple compute resources, we only track the last one.
                 AbstractComputeResourceEntity computeResourceEntity = null;
                 for (AbstractComputeResourceValidator.Result result : offersetContext.getComputeValidatorResults())
                     {
