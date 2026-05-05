@@ -49,7 +49,7 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
-import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * A session-level processing request that checks whether all components

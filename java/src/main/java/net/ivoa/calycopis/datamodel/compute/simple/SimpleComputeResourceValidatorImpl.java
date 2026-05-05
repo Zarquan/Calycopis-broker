@@ -64,9 +64,9 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
-import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeResource;
 
 /**
  * A validator implementation to handle simple data resources.

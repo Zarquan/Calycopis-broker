@@ -26,7 +26,7 @@ package net.ivoa.calycopis.datamodel.message;
 import java.time.Instant;
 import java.util.Map;
 
-import net.ivoa.calycopis.spring.model.IvoaMessageItem;
+import net.ivoa.calycopis.schema.spring.model.IvoaMessageItem;
 
 /**
  * 

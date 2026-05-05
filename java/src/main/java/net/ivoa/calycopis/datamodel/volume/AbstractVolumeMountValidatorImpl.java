@@ -25,7 +25,7 @@ package net.ivoa.calycopis.datamodel.volume;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
-import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractVolumeMount;
 
 /**
  * 

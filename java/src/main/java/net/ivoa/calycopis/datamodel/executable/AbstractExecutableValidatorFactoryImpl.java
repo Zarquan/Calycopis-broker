@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
-import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
 
 /**
  * A factory for IvoaAbstractExecutable validators.

@@ -34,7 +34,7 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
-import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.schema.spring.model.IvoaLifecyclePhase;
 
 /**
  * A processing request that releases a component by setting its phase

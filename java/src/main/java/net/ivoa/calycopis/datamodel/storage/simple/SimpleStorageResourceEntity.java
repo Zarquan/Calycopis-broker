@@ -41,8 +41,8 @@ import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.spring.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleStorageResource;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**

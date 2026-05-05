@@ -34,8 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
-import net.ivoa.calycopis.spring.model.IvoaDockerContainer;
-import net.ivoa.calycopis.spring.model.IvoaDockerImageSpec;
+import net.ivoa.calycopis.schema.spring.model.IvoaDockerContainer;
+import net.ivoa.calycopis.schema.spring.model.IvoaDockerImageSpec;
 
 /**
  * Docker platform specific validator for DockerContainer executables.

@@ -35,7 +35,7 @@
 package net.ivoa.calycopis.datamodel.data;
 
 import net.ivoa.calycopis.functional.validator.ValidatorFactory;
-import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 
 /**
  * Public interface for a DataResource ValidatorFactory.

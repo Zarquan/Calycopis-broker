@@ -26,7 +26,7 @@ package net.ivoa.calycopis.datamodel.volume.simple;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMount;
-import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount.ModeEnum;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleVolumeMount.ModeEnum;
 
 /**
  * Public interface for a SimpleVolumeMount.

@@ -48,7 +48,7 @@ package net.ivoa.calycopis.datamodel.volume;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractVolumeMount;
 
 /**
  * Public interface for VolumeMount validators and results.

@@ -35,7 +35,7 @@
 package net.ivoa.calycopis.datamodel.storage;
 
 import net.ivoa.calycopis.functional.validator.ValidatorFactory;
-import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractStorageResource;
 
 /**
  * Public interface for a StorageResource ValidatorFactory.

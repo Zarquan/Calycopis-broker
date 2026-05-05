@@ -23,7 +23,7 @@ package net.ivoa.calycopis.datamodel.offerset;
 
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
+import net.ivoa.calycopis.schema.spring.model.IvoaExecutionRequest;
 
 /**
  *

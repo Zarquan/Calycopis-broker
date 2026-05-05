@@ -49,9 +49,9 @@ import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
-import net.ivoa.calycopis.spring.model.IvoaSimpleComputeCores;
-import net.ivoa.calycopis.spring.model.IvoaSimpleComputeMemory;
-import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeCores;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeMemory;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**

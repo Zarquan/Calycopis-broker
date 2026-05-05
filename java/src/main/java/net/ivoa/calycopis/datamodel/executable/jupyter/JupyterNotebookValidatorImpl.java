@@ -53,8 +53,8 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.spring.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.schema.spring.model.IvoaJupyterNotebook;
 
 /**
  * A validator implementation to handle JupyterNotebooks.

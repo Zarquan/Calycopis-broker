@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
-import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractStorageResource;
 
 /**
  * A factory for storage resource validators.

@@ -49,12 +49,12 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.spring.model.IvoaSkaoChecksumItem;
-import net.ivoa.calycopis.spring.model.IvoaSkaoDataResource;
-import net.ivoa.calycopis.spring.model.IvoaSkaoDataResourceBlock;
-import net.ivoa.calycopis.spring.model.IvoaSkaoDataResourceBlock.ObjecttypeEnum;
-import net.ivoa.calycopis.spring.model.IvoaSkaoReplicaItem;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaSkaoChecksumItem;
+import net.ivoa.calycopis.schema.spring.model.IvoaSkaoDataResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaSkaoDataResourceBlock;
+import net.ivoa.calycopis.schema.spring.model.IvoaSkaoDataResourceBlock.ObjecttypeEnum;
+import net.ivoa.calycopis.schema.spring.model.IvoaSkaoReplicaItem;
 import net.ivoa.calycopis.util.ListWrapper;
 import net.ivoa.calycopis.util.URIBuilder;
 

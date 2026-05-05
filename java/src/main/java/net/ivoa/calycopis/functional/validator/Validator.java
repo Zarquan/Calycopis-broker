@@ -36,7 +36,7 @@ package net.ivoa.calycopis.functional.validator;
 
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.schema.spring.model.IvoaComponentMetadata;
 
 /**
  * Public interface for a Validator.

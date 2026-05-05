@@ -41,9 +41,9 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
-import net.ivoa.calycopis.spring.model.IvoaSimpleComputeCores;
-import net.ivoa.calycopis.spring.model.IvoaSimpleComputeMemory;
-import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeCores;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeMemory;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeResource;
 
 /**
  * A validator implementation to handle SimpleComputeResources.

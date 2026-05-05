@@ -51,7 +51,7 @@ import net.ivoa.calycopis.functional.processing.mock.MockEntitySettings;
 import net.ivoa.calycopis.functional.processing.mock.MockMonitorAction;
 import net.ivoa.calycopis.functional.processing.mock.MockPrepareAction;
 import net.ivoa.calycopis.functional.processing.mock.MockReleaseAction;
-import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeResource;
 
 /**
  * A Simple compute resource.

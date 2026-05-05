@@ -2,7 +2,7 @@ package net.ivoa.calycopis.functional.processing.mock;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
-import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.schema.spring.model.IvoaLifecyclePhase;
 
 @Slf4j
 public class MockMonitorAction extends MockDelayAction

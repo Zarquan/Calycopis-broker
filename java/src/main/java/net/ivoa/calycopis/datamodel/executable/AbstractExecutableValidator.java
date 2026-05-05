@@ -38,7 +38,7 @@ package net.ivoa.calycopis.datamodel.executable;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
 
 /**
  * Public interface for Executable validators.

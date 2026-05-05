@@ -50,10 +50,10 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityUpdateHandler;
-import net.ivoa.calycopis.spring.api.SessionsApiDelegate;
-import net.ivoa.calycopis.spring.model.IvoaAbstractExecutionSession;
-import net.ivoa.calycopis.spring.model.IvoaAbstractUpdate;
-import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
+import net.ivoa.calycopis.schema.spring.api.SessionsApiDelegate;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutionSession;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractUpdate;
+import net.ivoa.calycopis.schema.spring.model.IvoaExecutionRequest;
 
 @Slf4j
 @Service

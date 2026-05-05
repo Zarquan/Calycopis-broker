@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.datamodel.executable;
 
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
-import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
 
 /**
  * 

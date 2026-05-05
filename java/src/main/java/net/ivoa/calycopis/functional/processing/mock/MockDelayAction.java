@@ -28,7 +28,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
-import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.schema.spring.model.IvoaLifecyclePhase;
 
 /**
  * A ProcessingAction that simply waits for a specified time before completing.

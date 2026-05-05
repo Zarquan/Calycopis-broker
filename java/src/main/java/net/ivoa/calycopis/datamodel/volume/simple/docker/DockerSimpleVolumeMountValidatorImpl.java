@@ -28,7 +28,7 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntityFactory;
 import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidatorImpl;
-import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleVolumeMount;
 
 /**
  * A Validator implementation for mock volume mounts.

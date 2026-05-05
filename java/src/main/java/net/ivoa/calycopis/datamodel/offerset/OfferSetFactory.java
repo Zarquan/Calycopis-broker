@@ -30,7 +30,7 @@ import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
+import net.ivoa.calycopis.schema.spring.model.IvoaExecutionRequest;
 
 /**
  * Service for responding to OfferSet requests.

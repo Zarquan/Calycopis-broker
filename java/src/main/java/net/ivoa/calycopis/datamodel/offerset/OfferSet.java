@@ -28,7 +28,7 @@ import java.util.List;
 
 import net.ivoa.calycopis.datamodel.component.Component;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
-import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse.ResultEnum;
+import net.ivoa.calycopis.schema.spring.model.IvoaOfferSetResponse.ResultEnum;
 
 /**
  * 

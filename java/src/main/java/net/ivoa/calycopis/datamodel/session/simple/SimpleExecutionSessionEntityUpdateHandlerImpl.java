@@ -34,9 +34,9 @@ import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
-import net.ivoa.calycopis.spring.model.IvoaAbstractUpdate;
-import net.ivoa.calycopis.spring.model.IvoaEnumValueUpdate;
-import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractUpdate;
+import net.ivoa.calycopis.schema.spring.model.IvoaEnumValueUpdate;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * 

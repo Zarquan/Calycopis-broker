@@ -25,7 +25,7 @@ package net.ivoa.calycopis.datamodel.compute;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
-import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaAbstractComputeResource;
 
 /**
  * 

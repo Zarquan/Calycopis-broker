@@ -49,7 +49,7 @@ import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAct
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.functional.processing.mock.MockDelayAction;
 import net.ivoa.calycopis.functional.processing.mock.MockReleaseAction;
-import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.schema.spring.model.IvoaLifecyclePhase;
 
 /**
  * Docker platform specific DockerContainer entity.

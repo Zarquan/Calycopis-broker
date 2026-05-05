@@ -28,7 +28,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.spring.model.IvoaSimpleDataResource;
+import net.ivoa.calycopis.schema.spring.model.IvoaSimpleDataResource;
 
 /**
  * 
