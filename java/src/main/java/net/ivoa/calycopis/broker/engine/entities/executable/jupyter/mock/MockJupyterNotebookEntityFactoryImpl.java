@@ -1,0 +1,59 @@
+/**
+ *
+ */
+package net.ivoa.calycopis.broker.engine.entities.executable.jupyter.mock;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidator;
+import net.ivoa.calycopis.broker.engine.entities.executable.jupyter.JupyterNotebookEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
+
+/**
+ *
+ */
+@Slf4j
+@Component
+public class MockJupyterNotebookEntityFactoryImpl
+extends JupyterNotebookEntityFactoryImpl
+implements MockJupyterNotebookEntityFactory
+    {
+
+    private final MockJupyterNotebookEntityRepository repository;
+
+    @Autowired
+    public MockJupyterNotebookEntityFactoryImpl(
+        final MockJupyterNotebookEntityRepository repository
+        ){
+        super();
+        this.repository = repository;
+        }
+
+    @Override
+    public Optional<AbstractExecutableEntityImpl> select(final UUID uuid)
+        {
+        return Optional.of(
+            this.repository.findById(uuid).get()
+            );
+        }
+
+    @Override
+    public MockJupyterNotebookEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
+        final AbstractExecutableValidator.Result result
+        ){
+        MockJupyterNotebookEntityImpl entity = this.repository.save(
+            new MockJupyterNotebookEntityImpl(
+                session,
+                result
+                )
+            );
+        return entity;
+        }
+    }
