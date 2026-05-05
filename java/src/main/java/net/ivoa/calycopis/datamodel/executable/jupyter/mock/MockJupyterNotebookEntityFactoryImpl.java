@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactoryImpl;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 
 /**
  *
@@ -36,7 +36,7 @@ implements MockJupyterNotebookEntityFactory
         }
 
     @Override
-    public Optional<AbstractExecutableEntity> select(final UUID uuid)
+    public Optional<AbstractExecutableEntityImpl> select(final UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()
@@ -44,12 +44,12 @@ implements MockJupyterNotebookEntityFactory
         }
 
     @Override
-    public MockJupyterNotebookEntity create(
-        final SimpleExecutionSessionEntity session,
+    public MockJupyterNotebookEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractExecutableValidator.Result result
         ){
-        MockJupyterNotebookEntity entity = this.repository.save(
-            new MockJupyterNotebookEntity(
+        MockJupyterNotebookEntityImpl entity = this.repository.save(
+            new MockJupyterNotebookEntityImpl(
                 session,
                 result
                 )

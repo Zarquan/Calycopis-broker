@@ -37,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  */
 public interface ProcessingRequestRepository
-extends JpaRepository<ProcessingRequestEntity, UUID>
+extends JpaRepository<ProcessingRequestEntityImpl, UUID>
     {
 
     public UUID findByUuid(@Param("uuid") final UUID uuid) ;

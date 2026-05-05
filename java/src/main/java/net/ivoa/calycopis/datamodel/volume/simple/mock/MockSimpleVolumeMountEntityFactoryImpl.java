@@ -42,10 +42,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntityImpl;
 import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntityFactoryImpl;
 import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidator;
 
@@ -70,13 +70,13 @@ implements MockSimpleVolumeMountEntityFactory
         this.repository = repository;
         }
 
-    public MockSimpleVolumeMountEntity create(
-        final AbstractComputeResourceEntity computeResource,
+    public MockSimpleVolumeMountEntityImpl create(
+        final AbstractComputeResourceEntityImpl computeResource,
         final AbstractDataResourceEntity    dataResource,
         final SimpleVolumeMountValidator.Result result
         ){
         return this.repository.save(
-            new MockSimpleVolumeMountEntity(
+            new MockSimpleVolumeMountEntityImpl(
                 computeResource,
                 dataResource,
                 result
@@ -84,13 +84,13 @@ implements MockSimpleVolumeMountEntityFactory
             );
         }
 
-    public MockSimpleVolumeMountEntity create(
-        final AbstractComputeResourceEntity computeResource,
-        final AbstractStorageResourceEntity storageResource,
+    public MockSimpleVolumeMountEntityImpl create(
+        final AbstractComputeResourceEntityImpl computeResource,
+        final AbstractStorageResourceEntityImpl storageResource,
         final SimpleVolumeMountValidator.Result result
         ){
         return this.repository.save(
-            new MockSimpleVolumeMountEntity(
+            new MockSimpleVolumeMountEntityImpl(
                 computeResource,
                 storageResource,
                 result
@@ -99,7 +99,7 @@ implements MockSimpleVolumeMountEntityFactory
         }
 
     @Override
-    public Optional<SimpleVolumeMountEntity> select(UUID uuid)
+    public Optional<SimpleVolumeMountEntityImpl> select(UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()

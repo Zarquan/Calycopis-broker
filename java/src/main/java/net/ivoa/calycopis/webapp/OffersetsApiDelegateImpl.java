@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
+import net.ivoa.calycopis.datamodel.offerset.OfferSetEntityImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetFactory;
 import net.ivoa.calycopis.schema.spring.api.OffersetsApiDelegate;
 import net.ivoa.calycopis.schema.spring.model.IvoaExecutionRequest;
@@ -62,7 +62,7 @@ public class OffersetsApiDelegateImpl
     @Override
     public ResponseEntity<IvoaOfferSetResponse> offerSetGet(final UUID uuid)
         {
-        final Optional<OfferSetEntity> found = offersetFactory.select(
+        final Optional<OfferSetEntityImpl> found = offersetFactory.select(
             uuid
             );
         if (found.isPresent())
@@ -85,7 +85,7 @@ public class OffersetsApiDelegateImpl
     public ResponseEntity<IvoaOfferSetResponse> offerSetPost(
         @RequestBody IvoaExecutionRequest request
         ){
-        OfferSetEntity entity = offersetFactory.create(
+        OfferSetEntityImpl entity = offersetFactory.create(
             request
             );
         IvoaOfferSetResponse response = entity.makeBean(

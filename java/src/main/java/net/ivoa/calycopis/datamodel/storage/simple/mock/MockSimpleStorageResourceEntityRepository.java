@@ -22,6 +22,6 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository
  *
  */
 public interface MockSimpleStorageResourceEntityRepository
-extends LifecycleComponentEntityRepository<MockSimpleStorageResourceEntity>
+extends LifecycleComponentEntityRepository<MockSimpleStorageResourceEntityImpl>
     {
     }

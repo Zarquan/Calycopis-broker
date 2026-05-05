@@ -38,7 +38,7 @@ public interface MessageSubject
      * Get the List of messages about this thing.
      * 
      */
-    public List<MessageEntity> getMessages();
+    public List<MessageEntityImpl> getMessages();
 
     /**
      * Add a message with a value map.

@@ -65,7 +65,7 @@ implements AbstractExecutableEntityFactory
     // because the DockerContainer and JupyterNotebook factories
     // can implement the AbstractExecutableEntityFactory interface.
     @Override
-    public Optional<AbstractExecutableEntity> select(UUID uuid)
+    public Optional<AbstractExecutableEntityImpl> select(UUID uuid)
         {
         return repository.findById(uuid);
         }

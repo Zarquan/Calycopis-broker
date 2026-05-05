@@ -97,8 +97,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactory;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceValidatorImpl;
@@ -381,7 +381,7 @@ implements MockPlatform
         }
     
     @Override
-    public LifecycleComponentEntity select(final URI kind, final UUID uuid)
+    public LifecycleComponentEntityImpl select(final URI kind, final UUID uuid)
         {
         LifecycleComponentEntityFactory<?> factory = this.registry.get(kind);
         if (factory != null)

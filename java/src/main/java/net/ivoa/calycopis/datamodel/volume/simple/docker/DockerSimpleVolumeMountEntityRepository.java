@@ -31,6 +31,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  */
 public interface DockerSimpleVolumeMountEntityRepository
-extends JpaRepository<DockerSimpleVolumeMountEntity, UUID>
+extends JpaRepository<DockerSimpleVolumeMountEntityImpl, UUID>
     {
     }

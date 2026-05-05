@@ -71,7 +71,7 @@ implements AbstractStorageResourceEntityFactory
         }
 
     @Override
-    public Optional<AbstractStorageResourceEntity> select(UUID uuid)
+    public Optional<AbstractStorageResourceEntityImpl> select(UUID uuid)
         {
         return repository.findById(uuid);
         }

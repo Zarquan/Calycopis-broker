@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactoryImpl;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 
 /**
  *
@@ -36,7 +36,7 @@ implements MockDockerContainerEntityFactory
         }
 
     @Override
-    public Optional<AbstractExecutableEntity> select(final UUID uuid)
+    public Optional<AbstractExecutableEntityImpl> select(final UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()
@@ -44,12 +44,12 @@ implements MockDockerContainerEntityFactory
         }
 
     @Override
-    public MockDockerContainerEntity create(
-        final SimpleExecutionSessionEntity session,
+    public MockDockerContainerEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractExecutableValidator.Result result
         ){
-        MockDockerContainerEntity entity = this.repository.save(
-            new MockDockerContainerEntity(
+        MockDockerContainerEntityImpl entity = this.repository.save(
+            new MockDockerContainerEntityImpl(
                 session,
                 result
                 )

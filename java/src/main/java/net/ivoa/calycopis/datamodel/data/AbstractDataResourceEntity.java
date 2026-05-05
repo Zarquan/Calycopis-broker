@@ -49,11 +49,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityImpl;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntityImpl;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.schema.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.URIBuilder;
@@ -70,7 +70,7 @@ import net.ivoa.calycopis.util.URIBuilder;
     strategy = InheritanceType.JOINED
     )
 public abstract class AbstractDataResourceEntity
-extends LifecycleComponentEntity
+extends LifecycleComponentEntityImpl
 implements AbstractDataResource
     {
     /**
@@ -89,8 +89,8 @@ implements AbstractDataResource
      * 
      */
     protected AbstractDataResourceEntity(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceEntity storage,
+        final SimpleExecutionSessionEntityImpl session,
+        final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaComponentMetadata meta
         ){
@@ -129,22 +129,22 @@ implements AbstractDataResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private SimpleExecutionSessionEntity session;
+    private SimpleExecutionSessionEntityImpl session;
     @Override
-    public SimpleExecutionSessionEntity getSession()
+    public SimpleExecutionSessionEntityImpl getSession()
         {
         return this.session ;
         }
     
     @JoinColumn(name = "storage", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AbstractStorageResourceEntity storage;
+    private AbstractStorageResourceEntityImpl storage;
     @Override
     public AbstractStorageResource getStorage()
         {
         return this.storage;
         }
-    public void setStorage(final AbstractStorageResourceEntity storage)
+    public void setStorage(final AbstractStorageResourceEntityImpl storage)
         {
         this.storage = storage;
         }
@@ -155,15 +155,15 @@ implements AbstractDataResource
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<AbstractVolumeMountEntity> volumeMounts = new ArrayList<AbstractVolumeMountEntity>();
+    List<AbstractVolumeMountEntityImpl> volumeMounts = new ArrayList<AbstractVolumeMountEntityImpl>();
 
     @Override
-    public List<AbstractVolumeMountEntity> getVolumeMounts()
+    public List<AbstractVolumeMountEntityImpl> getVolumeMounts()
         {
         return volumeMounts;
         }
 
-    public void addVolumeMount(final AbstractVolumeMountEntity volume)
+    public void addVolumeMount(final AbstractVolumeMountEntityImpl volume)
         {
         volume.setDataResource(
             this

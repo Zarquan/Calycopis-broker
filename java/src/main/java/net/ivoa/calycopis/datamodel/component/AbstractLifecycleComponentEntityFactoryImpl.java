@@ -52,7 +52,7 @@ implements AbstractLifecycleComponentEntityFactory
         }
 
     @Override
-    public LifecycleComponentEntity select(URI kind, UUID uuid)
+    public LifecycleComponentEntityImpl select(URI kind, UUID uuid)
         {
         // TODO Auto-generated method stub
         return null;

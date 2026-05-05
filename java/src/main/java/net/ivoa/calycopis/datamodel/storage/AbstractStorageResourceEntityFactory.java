@@ -24,21 +24,21 @@
 package net.ivoa.calycopis.datamodel.storage;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 
 /**
  *
  */
 public interface AbstractStorageResourceEntityFactory
-extends LifecycleComponentEntityFactory<AbstractStorageResourceEntity>
+extends LifecycleComponentEntityFactory<AbstractStorageResourceEntityImpl>
     {
 
     /**
      * Create a new AbstractStorageResourceEntity based on a validation result.
      *
      */
-    public AbstractStorageResourceEntity create(
-        final SimpleExecutionSessionEntity session,
+    public AbstractStorageResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceValidator.Result result
         );
 

@@ -36,7 +36,7 @@
 package net.ivoa.calycopis.datamodel.data;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 
@@ -59,7 +59,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
          * Build an entity based on a validation result. 
          *
          */
-        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session);
+        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session);
         }
 
     /**
@@ -106,7 +106,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
 
         @Override
         // Here because we need to create Results with just a status and no entity
-        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session)
+        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session)
             {
             return null;
             }

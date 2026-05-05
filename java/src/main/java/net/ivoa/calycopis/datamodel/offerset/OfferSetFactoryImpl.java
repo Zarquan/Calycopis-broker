@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
@@ -79,7 +79,7 @@ public class OfferSetFactoryImpl
      *
      */
     @Override
-    public Optional<OfferSetEntity> select(final UUID uuid)
+    public Optional<OfferSetEntityImpl> select(final UUID uuid)
 		{
         log.debug("select(UUID)");
         log.debug("UUID [{}]", uuid);
@@ -89,7 +89,7 @@ public class OfferSetFactoryImpl
 		}
 
     @Override
-    public OfferSetEntity create(final IvoaExecutionRequest offersetRequest)
+    public OfferSetEntityImpl create(final IvoaExecutionRequest offersetRequest)
     	{
         //
         // Validate the request. 
@@ -106,11 +106,11 @@ public class OfferSetFactoryImpl
     	}
 
     @Override
-    public OfferSetEntity create(final OfferSetRequestParserContext offersetContext, int offerCount)
+    public OfferSetEntityImpl create(final OfferSetRequestParserContext offersetContext, int offerCount)
     	{
         //
         // Create a new OfferSetEntity.
-    	OfferSetEntity offersetEntity = new OfferSetEntity(
+    	OfferSetEntityImpl offersetEntity = new OfferSetEntityImpl(
     	    // tempfix    
 	        // offersetRequest.getName(),
             // offersetRequest.getDescription(),
@@ -142,7 +142,7 @@ public class OfferSetFactoryImpl
     	}
 
     @Override
-    public SimpleExecutionSessionEntity direct(final IvoaExecutionRequest executionRequest)
+    public SimpleExecutionSessionEntityImpl direct(final IvoaExecutionRequest executionRequest)
         {
         //
         // Validate the request.
@@ -155,20 +155,20 @@ public class OfferSetFactoryImpl
         // If the request is valid, create a new OfferSetEntity and return the first offer.
         if (offersetContext.valid())
             {
-            OfferSetEntity offerSetEntity = this.create(
+            OfferSetEntityImpl offerSetEntityImpl = this.create(
                 offersetContext,
                 1
                 );
             //
             // If the OfferSetEntity is valid.
-            if (offerSetEntity.getResult() == ResultEnum.YES)
+            if (offerSetEntityImpl.getResult() == ResultEnum.YES)
                 {
                 //
                 // If the OfferSetEntity has at least one offer.
-                if (offerSetEntity.getOffers().size() > 0)
+                if (offerSetEntityImpl.getOffers().size() > 0)
                     {
                     // TODO Get rid of the nasty class casts.
-                    SimpleExecutionSessionEntity offer = (SimpleExecutionSessionEntity) offerSetEntity.getOffers().getFirst();
+                    SimpleExecutionSessionEntityImpl offer = (SimpleExecutionSessionEntityImpl) offerSetEntityImpl.getOffers().getFirst();
                     //
                     // Set the phase to ACCEPTED and schedule a PrepareSessionRequest for the offer.
                     offer.setPhase(
@@ -183,7 +183,7 @@ public class OfferSetFactoryImpl
             }
         //
         // If the request is not valid, return a FAILED ExecutionSessionEntity. 
-        SimpleExecutionSessionEntity failed = new SimpleExecutionSessionEntity();
+        SimpleExecutionSessionEntityImpl failed = new SimpleExecutionSessionEntityImpl();
         failed.setPhase(
             IvoaSimpleExecutionSessionPhase.FAILED
             );

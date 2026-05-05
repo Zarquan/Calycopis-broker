@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.datamodel.compute.simple.docker;
 
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 
 /**
@@ -39,8 +39,8 @@ extends SimpleComputeResourceEntityFactory
      * Create and save a new DockerSimpleComputeResourceEntity based on a template and an offer.
      *
      */
-    public DockerSimpleComputeResourceEntity create(
-        final SimpleExecutionSessionEntity session,
+    public DockerSimpleComputeResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final DockerSimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         );

@@ -30,7 +30,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
@@ -59,20 +59,20 @@ implements DockerBindMountStorageEntityFactory
         }
 
     @Override
-    public Optional<DockerBindMountStorageEntity> select(UUID uuid)
+    public Optional<DockerBindMountStorageEntityImpl> select(UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()
             );
         }
 
-    public DockerBindMountStorageEntity create(
-        final SimpleExecutionSessionEntity session,
+    public DockerBindMountStorageEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceValidator.Result result,
         final String path
         ){
-        DockerBindMountStorageEntity entity = this.repository.save(
-            new DockerBindMountStorageEntity(
+        DockerBindMountStorageEntityImpl entity = this.repository.save(
+            new DockerBindMountStorageEntityImpl(
                 session,
                 result,
                 path

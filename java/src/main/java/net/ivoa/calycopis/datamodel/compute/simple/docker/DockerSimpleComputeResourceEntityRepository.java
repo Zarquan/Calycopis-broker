@@ -29,6 +29,6 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository
  *
  */
 public interface DockerSimpleComputeResourceEntityRepository
-extends LifecycleComponentEntityRepository<DockerSimpleComputeResourceEntity>
+extends LifecycleComponentEntityRepository<DockerSimpleComputeResourceEntityImpl>
     {
     }

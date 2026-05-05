@@ -13,7 +13,7 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository
  */
 @Repository
 public interface AbstractExecutableEntityRepository
-extends LifecycleComponentEntityRepository<AbstractExecutableEntity>
+extends LifecycleComponentEntityRepository<AbstractExecutableEntityImpl>
     {
 
     }

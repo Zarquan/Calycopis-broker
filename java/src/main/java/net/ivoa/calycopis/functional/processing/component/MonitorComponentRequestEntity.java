@@ -30,7 +30,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
@@ -49,7 +49,7 @@ import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
     strategy = InheritanceType.JOINED
     )
 public class MonitorComponentRequestEntity
-extends ComponentProcessingRequestEntity
+extends ComponentProcessingRequestEntityImpl
 implements ComponentProcessingRequest
     {
 
@@ -60,7 +60,7 @@ implements ComponentProcessingRequest
         super();
         }
 
-    protected MonitorComponentRequestEntity(final LifecycleComponentEntity component)
+    protected MonitorComponentRequestEntity(final LifecycleComponentEntityImpl component)
         {
         super(component);
         }
@@ -68,7 +68,7 @@ implements ComponentProcessingRequest
     @Override
     public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
         {
-        LifecycleComponentEntity component = this.getComponent(
+        LifecycleComponentEntityImpl component = this.getComponent(
             platform
             );
         log.debug(
@@ -125,7 +125,7 @@ implements ComponentProcessingRequest
     @Override
     public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ComponentProcessingAction action)
         {
-        LifecycleComponentEntity component = this.getComponent(
+        LifecycleComponentEntityImpl component = this.getComponent(
             platform
             );
         log.debug(

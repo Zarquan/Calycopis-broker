@@ -30,9 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityFactoryImpl;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 
 /**
@@ -56,7 +56,7 @@ implements MockSimpleComputeResourceEntityFactory
         }
 
     @Override
-    public Optional<AbstractComputeResourceEntity> select(UUID uuid)
+    public Optional<AbstractComputeResourceEntityImpl> select(UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()
@@ -64,13 +64,13 @@ implements MockSimpleComputeResourceEntityFactory
         }
 
     @Override
-    public MockSimpleComputeResourceEntity create(
-        final SimpleExecutionSessionEntity session,
+    public MockSimpleComputeResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final MockSimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         ){
         return this.repository.save(
-            new MockSimpleComputeResourceEntity(
+            new MockSimpleComputeResourceEntityImpl(
                 session,
                 result,
                 offer

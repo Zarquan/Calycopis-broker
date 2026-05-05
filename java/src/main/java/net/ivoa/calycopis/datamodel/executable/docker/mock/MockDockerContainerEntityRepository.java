@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MockDockerContainerEntityRepository
-    extends JpaRepository<MockDockerContainerEntity, UUID>
+    extends JpaRepository<MockDockerContainerEntityImpl, UUID>
     {
 
     }

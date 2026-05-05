@@ -47,10 +47,10 @@ package net.ivoa.calycopis.datamodel.executable.jupyter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
@@ -62,7 +62,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaJupyterNotebook;
  */
 @Slf4j
 public abstract class JupyterNotebookValidatorImpl
-extends AbstractValidatorImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
+extends AbstractValidatorImpl<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
 implements JupyterNotebookValidator
     {
     
@@ -136,7 +136,7 @@ implements JupyterNotebookValidator
                     validated
                     ){
                     @Override
-                    public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
+                    public AbstractExecutableEntityImpl build(final SimpleExecutionSessionEntityImpl session)
                         {
                         this.entity = JupyterNotebookValidatorImpl.this.entityFactory.create(
                             session,

@@ -33,8 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntityFactoryImpl;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 
 /**
  * 
@@ -65,13 +65,13 @@ implements DockerHttpResourceEntityFactory
         }
 
     @Override
-    public DockerHttpResourceEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceEntity storage,
+    public DockerHttpResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
+        final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
         ){
         return this.repository.save(
-            new DockerHttpResourceEntity(
+            new DockerHttpResourceEntityImpl(
                 session,
                 storage,
                 result

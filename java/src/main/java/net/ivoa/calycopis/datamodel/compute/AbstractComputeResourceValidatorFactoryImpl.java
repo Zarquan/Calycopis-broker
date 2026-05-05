@@ -36,7 +36,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractComputeResource;
 @Slf4j
 @Component
 public class AbstractComputeResourceValidatorFactoryImpl
-extends ValidatorFactoryImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+extends ValidatorFactoryImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl>
 implements AbstractComputeResourceValidatorFactory
     {
 

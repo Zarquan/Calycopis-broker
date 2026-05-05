@@ -31,8 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntityFactoryImpl;
 
@@ -62,7 +62,7 @@ implements DockerVolumeMountStorageEntityFactory
         }
 
     @Override
-    public Optional<AbstractStorageResourceEntity> select(final UUID uuid)
+    public Optional<AbstractStorageResourceEntityImpl> select(final UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()
@@ -70,7 +70,7 @@ implements DockerVolumeMountStorageEntityFactory
         }
 
     public DockerVolumeMountStorageEntity create(
-        final SimpleExecutionSessionEntity session,
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceValidator.Result result
         ){
         log.debug(

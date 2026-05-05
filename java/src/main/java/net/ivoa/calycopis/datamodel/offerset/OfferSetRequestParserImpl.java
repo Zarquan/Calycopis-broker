@@ -45,12 +45,12 @@ import org.springframework.stereotype.Component;
 import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResource;
-import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
@@ -329,7 +329,7 @@ public class OfferSetRequestParserImpl
 
     
     @Override
-    public OfferSetEntity stageTwo(final Platform platform, final OfferSetEntity offersetEntity, final OfferSetRequestParserContext offersetContext, int offerCount)
+    public OfferSetEntityImpl stageTwo(final Platform platform, final OfferSetEntityImpl offersetEntity, final OfferSetRequestParserContext offersetContext, int offerCount)
         {
         log.debug("stageTwo(Platform , OfferSetEntity, OfferSetRequestParserContext)");
         log.debug("Context valid [{}]", offersetContext.valid());
@@ -380,7 +380,7 @@ public class OfferSetRequestParserImpl
                 // Needed because the platform returns an AbstractExecutionSessionEntityFactory, which creates an AbstractExecutionSessionEntity.
                 // To make this work we need to go down the rabbit hole and change all the things that use SimpleExecutionSessionEntity to use AbstractExecutionSessionEntity.
                 // TODO Later ...
-                SimpleExecutionSessionEntity executionSessionEntity = (SimpleExecutionSessionEntity) platform.getExecutionSessionFactory().create(
+                SimpleExecutionSessionEntityImpl executionSessionEntity = (SimpleExecutionSessionEntityImpl) platform.getExecutionSessionFactory().create(
                     offersetEntity,
                     offersetContext,
                     computeOffer
@@ -398,7 +398,7 @@ public class OfferSetRequestParserImpl
                 //
                 // Add our compute resources.
                 // TODO nasty hack - context has multiple compute resources, we only track the last one.
-                AbstractComputeResourceEntity computeResourceEntity = null;
+                AbstractComputeResourceEntityImpl computeResourceEntity = null;
                 for (AbstractComputeResourceValidator.Result result : offersetContext.getComputeValidatorResults())
                     {
                     computeResourceEntity = result.build(
@@ -424,7 +424,7 @@ public class OfferSetRequestParserImpl
                     }
                 //
                 // Add our volume mounts to the compute resource.
-                if (computeResourceEntity instanceof SimpleComputeResourceEntity simpleCompute)
+                if (computeResourceEntity instanceof SimpleComputeResourceEntityImpl simpleCompute)
                     {
                     for (AbstractVolumeMountValidator.Result result : offersetContext.getVolumeValidatorResults())
                         {

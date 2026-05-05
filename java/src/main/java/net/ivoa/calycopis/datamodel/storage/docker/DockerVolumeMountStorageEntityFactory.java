@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.storage.docker;
 
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntityFactory;
 
@@ -32,7 +32,7 @@ extends SimpleStorageResourceEntityFactory
     {
 
     public DockerVolumeMountStorageEntity create(
-        final SimpleExecutionSessionEntity session,
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceValidator.Result result
         );
 

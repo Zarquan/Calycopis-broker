@@ -36,7 +36,7 @@
 package net.ivoa.calycopis.datamodel.compute;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractComputeResource;
@@ -45,7 +45,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractComputeResource;
  * 
  */
 public interface AbstractComputeResourceValidator
-extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl>
     {
    
     /**
@@ -53,13 +53,13 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
      * 
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> 
+    extends Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl> 
         {
         /**
          * Build an entity based on our validation result.
          * 
          */
-        public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer);
+        public AbstractComputeResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session, final ComputeResourceOffer offer);
 
         }
 
@@ -77,7 +77,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
      * 
      */
     public abstract static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+    extends Validator.ResultBean<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl>
     implements Result
         {
         /**
@@ -106,7 +106,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
 
         @Override
         // Here because we need to create Results with just a status and no entity
-        public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer)
+        public AbstractComputeResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session, final ComputeResourceOffer offer)
             {
             return null;
             }

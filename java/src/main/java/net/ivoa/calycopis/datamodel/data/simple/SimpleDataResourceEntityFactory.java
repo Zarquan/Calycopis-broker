@@ -25,8 +25,8 @@ package net.ivoa.calycopis.datamodel.data.simple;
 
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 
 /**
  * A SimpleDataResource Factory.
@@ -40,9 +40,9 @@ extends AbstractDataResourceEntityFactory
      * Create a new SimpleDataResource based on a template.
      *
      */
-    public SimpleDataResourceEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceEntity storage,
+    public SimpleDataResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
+        final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
         );
 

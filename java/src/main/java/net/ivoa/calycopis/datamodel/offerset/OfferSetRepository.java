@@ -36,7 +36,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface OfferSetRepository
-    extends JpaRepository<OfferSetEntity, UUID>
+    extends JpaRepository<OfferSetEntityImpl, UUID>
     {
     }
 

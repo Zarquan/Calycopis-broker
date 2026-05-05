@@ -36,7 +36,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractVolumeMount;
 @Slf4j
 @Component
 public class AbstractVolumeMountValidatorFactoryImpl
-extends ValidatorFactoryImpl<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
+extends ValidatorFactoryImpl<IvoaAbstractVolumeMount, AbstractVolumeMountEntityImpl>
 implements AbstractVolumeMountValidatorFactory
     {
 

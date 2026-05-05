@@ -47,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.message.MessageEntity;
+import net.ivoa.calycopis.datamodel.message.MessageEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -894,10 +894,10 @@ extends ValidatorBase
         return this.totalPrepareTime ;
         }
 
-    private List<MessageEntity> messages = new ArrayList<MessageEntity>();
+    private List<MessageEntityImpl> messages = new ArrayList<MessageEntityImpl>();
     
     @Override
-    public List<MessageEntity> getMessages()
+    public List<MessageEntityImpl> getMessages()
         {
         return this.messages;
         }
@@ -906,7 +906,7 @@ extends ValidatorBase
     public void addMessage(LevelEnum level, String type, String template, Map<String, Object> values)
         {
         this.messages.add(
-            new MessageEntity(
+            new MessageEntityImpl(
                 null,
                 level,
                 type,

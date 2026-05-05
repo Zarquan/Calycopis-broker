@@ -24,22 +24,22 @@
 package net.ivoa.calycopis.datamodel.compute;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 
 /**
  * 
  */
 public interface AbstractComputeResourceEntityFactory
-extends LifecycleComponentEntityFactory<AbstractComputeResourceEntity>
+extends LifecycleComponentEntityFactory<AbstractComputeResourceEntityImpl>
     {
 
     /**
      * Create a new AbstractComputeResourceEntity based on a validation result.
      *
      */
-    public AbstractComputeResourceEntity create(
-        final SimpleExecutionSessionEntity session,
+    public AbstractComputeResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         );

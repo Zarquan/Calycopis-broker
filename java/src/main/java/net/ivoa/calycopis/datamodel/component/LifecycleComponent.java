@@ -28,7 +28,7 @@ import java.time.Instant;
 
 import org.threeten.extra.Interval;
 
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
@@ -55,7 +55,7 @@ extends Component
      * Get the parent Session.  
      *
      */
-    public SimpleExecutionSessionEntity getSession();
+    public SimpleExecutionSessionEntityImpl getSession();
 
    /**
     *

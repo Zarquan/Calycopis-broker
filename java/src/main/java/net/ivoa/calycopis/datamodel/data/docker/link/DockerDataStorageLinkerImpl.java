@@ -30,8 +30,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator.Result;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator.ResultBean;
@@ -202,7 +202,7 @@ implements DockerDataStorageLinker
             template
             ){
             @Override
-            public AbstractStorageResourceEntity build(final SimpleExecutionSessionEntity session)
+            public AbstractStorageResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session)
                 {
                 this.entity = DockerDataStorageLinkerImpl.this.bindMountFactory.create(
                     session,
@@ -258,7 +258,7 @@ implements DockerDataStorageLinker
             template
             ){
             @Override
-            public AbstractStorageResourceEntity build(final SimpleExecutionSessionEntity session)
+            public AbstractStorageResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session)
                 {
                 log.debug(
                     "Building storage resource [{}]",

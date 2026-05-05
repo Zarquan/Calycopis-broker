@@ -47,13 +47,13 @@ package net.ivoa.calycopis.datamodel.volume.simple;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntityImpl;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -237,8 +237,8 @@ implements SimpleVolumeMountValidator
                     validated
                     ){
                     @Override
-                    public SimpleVolumeMountEntity build(
-                        final AbstractComputeResourceEntity computeResource
+                    public SimpleVolumeMountEntityImpl build(
+                        final AbstractComputeResourceEntityImpl computeResource
                         ){
                         return volumeMountFactory.create(
                             computeResource,
@@ -278,8 +278,8 @@ implements SimpleVolumeMountValidator
                     validated
                     ){
                     @Override
-                    public AbstractVolumeMountEntity build(
-                        final AbstractComputeResourceEntity computeResource
+                    public AbstractVolumeMountEntityImpl build(
+                        final AbstractComputeResourceEntityImpl computeResource
                         ){
                         this.entity = SimpleVolumeMountValidatorImpl.this.volumeMountFactory.create(
                             computeResource,

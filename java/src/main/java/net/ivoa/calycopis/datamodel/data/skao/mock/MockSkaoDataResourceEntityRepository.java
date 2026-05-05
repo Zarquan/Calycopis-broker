@@ -42,6 +42,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  */
 public interface MockSkaoDataResourceEntityRepository
-extends JpaRepository<MockSkaoDataResourceEntity, UUID>
+extends JpaRepository<MockSkaoDataResourceEntityImpl, UUID>
     {
     }

@@ -27,8 +27,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
@@ -43,15 +43,15 @@ public interface AmazonS3DataResourceEntityFactory
      * Select a SimpleDataResource based on UUID.
      *
      */
-    public Optional<AmazonS3DataResourceEntity> select(final UUID uuid);
+    public Optional<AmazonS3DataResourceEntityImpl> select(final UUID uuid);
 
     /**
      * Create and save a new SimpleDataResource based on a template.
      *
      */
-    public AmazonS3DataResourceEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceEntity storage,
+    public AmazonS3DataResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
+        final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
         );
 

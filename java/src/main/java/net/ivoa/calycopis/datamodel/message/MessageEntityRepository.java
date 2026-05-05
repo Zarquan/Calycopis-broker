@@ -28,7 +28,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /**
  * 
  */
-public interface MessageEntityRepository extends JpaRepository<MessageEntity, Long>
+public interface MessageEntityRepository extends JpaRepository<MessageEntityImpl, Long>
     {
 
     }

@@ -41,10 +41,10 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntity;
+import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntityFactoryImpl;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 
 /**
  *
@@ -67,7 +67,7 @@ implements MockIvoaDataResourceEntityFactory
         }
 
     @Override
-    public Optional<IvoaDataResourceEntity> select(final UUID uuid)
+    public Optional<IvoaDataResourceEntityImpl> select(final UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()
@@ -75,13 +75,13 @@ implements MockIvoaDataResourceEntityFactory
         }
 
     @Override
-    public IvoaDataResourceEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceEntity storage,
+    public IvoaDataResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
+        final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
         ){
         return this.repository.save(
-            new MockIvoaDataResourceEntity(
+            new MockIvoaDataResourceEntityImpl(
                 session,
                 storage,
                 result

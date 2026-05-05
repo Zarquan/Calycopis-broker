@@ -41,10 +41,10 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceEntity;
+import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceEntityFactoryImpl;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 
 /**
  *
@@ -67,7 +67,7 @@ implements MockSkaoDataResourceEntityFactory
         }
 
     @Override
-    public Optional<SkaoDataResourceEntity> select(final UUID uuid)
+    public Optional<SkaoDataResourceEntityImpl> select(final UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()
@@ -75,13 +75,13 @@ implements MockSkaoDataResourceEntityFactory
         }
 
     @Override
-    public SkaoDataResourceEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceEntity storage,
+    public SkaoDataResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
+        final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
         ){
         return this.repository.save(
-            new MockSkaoDataResourceEntity(
+            new MockSkaoDataResourceEntityImpl(
                 session,
                 storage,
                 result

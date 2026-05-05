@@ -38,7 +38,7 @@ package net.ivoa.calycopis.datamodel.volume;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.Component;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 
@@ -58,7 +58,7 @@ public interface AbstractVolumeMount
      * Get the parent ComputeResource.
      *
      */
-    public AbstractComputeResourceEntity getComputeResource();
+    public AbstractComputeResourceEntityImpl getComputeResource();
 
     /**
      * Reference to the DataResource mounted in this volume.

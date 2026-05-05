@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
@@ -50,55 +50,55 @@ implements SessionProcessingRequestFactory
         }
 
     @Override
-    public PrepareSessionRequestEntity createPrepareSessionRequest(final SimpleExecutionSessionEntity session)
+    public PrepareSessionRequestEntityImpl createPrepareSessionRequest(final SimpleExecutionSessionEntityImpl session)
         {
         log.debug("Creating PrepareSessionRequest for session [{}]", session.getUuid());
         return repository.save(
-            new PrepareSessionRequestEntity(
+            new PrepareSessionRequestEntityImpl(
                 session
                 )
             );
         }
 
     @Override
-    public UpdateSessionRequestEntity createUpdateSessionRequest(final SimpleExecutionSessionEntity session)
+    public UpdateSessionRequestEntityImpl createUpdateSessionRequest(final SimpleExecutionSessionEntityImpl session)
         {
         log.debug("Creating MonitorSessionRequest for session [{}]", session.getUuid());
         return repository.save(
-            new UpdateSessionRequestEntity(
+            new UpdateSessionRequestEntityImpl(
                 session
                 )
             );
         }
 
     @Override
-    public ReleaseSessionRequestEntity createReleaseSessionRequest(final SimpleExecutionSessionEntity session)
+    public ReleaseSessionRequestEntityImpl createReleaseSessionRequest(final SimpleExecutionSessionEntityImpl session)
         {
         log.debug("Creating ReleaseSessionRequest for session [{}]", session.getUuid());
         return repository.save(
-            new ReleaseSessionRequestEntity(
+            new ReleaseSessionRequestEntityImpl(
                 session
                 )
             );
         }
     
     @Override
-    public CancelSessionRequestEntity createCancelSessionRequest(final SimpleExecutionSessionEntity session)
+    public CancelSessionRequestEntityImpl createCancelSessionRequest(final SimpleExecutionSessionEntityImpl session)
         {
         log.debug("Creating CancelSessionRequest for session [{}]", session.getUuid());
         return repository.save(
-            new CancelSessionRequestEntity(
+            new CancelSessionRequestEntityImpl(
                 session
                 )
             );
         }
 
     @Override
-    public FailSessionRequestEntity createFailSessionRequest(final SimpleExecutionSessionEntity session)
+    public FailSessionRequestEntityImpl createFailSessionRequest(final SimpleExecutionSessionEntityImpl session)
         {
         log.debug("Creating FailSessionRequest for session [{}]", session.getUuid());
         return repository.save(
-            new FailSessionRequestEntity(
+            new FailSessionRequestEntityImpl(
                 session
                 )
             );

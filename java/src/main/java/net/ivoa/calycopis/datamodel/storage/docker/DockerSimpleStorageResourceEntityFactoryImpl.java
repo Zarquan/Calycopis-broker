@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResource;
-import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntityRepository;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
@@ -76,7 +76,7 @@ implements DockerSimpleStorageResourceEntityFactory
         }
 
     @Override
-    public Optional<SimpleStorageResourceEntity> select(final UUID uuid)
+    public Optional<SimpleStorageResourceEntityImpl> select(final UUID uuid)
         {
         return this.repository.findById(uuid);
         }

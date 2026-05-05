@@ -44,10 +44,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageLinker;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntityImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
 import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
@@ -68,7 +68,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaLifecyclePhase;
     value="uri:docker-volume-storage"
     )
 public class DockerVolumeMountStorageEntity
-extends SimpleStorageResourceEntity
+extends SimpleStorageResourceEntityImpl
 implements DockerVolumeMountStorage
     {
 
@@ -84,7 +84,7 @@ implements DockerVolumeMountStorage
      * 
      */
     public DockerVolumeMountStorageEntity(
-        final SimpleExecutionSessionEntity session,
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceValidator.Result result
         ){
         super(

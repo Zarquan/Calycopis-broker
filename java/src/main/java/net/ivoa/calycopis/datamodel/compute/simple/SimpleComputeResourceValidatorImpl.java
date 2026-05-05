@@ -55,12 +55,12 @@
 package net.ivoa.calycopis.datamodel.compute.simple;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -188,7 +188,7 @@ implements SimpleComputeResourceValidator
                     validated
                     ){
                     @Override
-                    public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer)                
+                    public AbstractComputeResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session, final ComputeResourceOffer offer)                
                         {
                         this.entity = SimpleComputeResourceValidatorImpl.this.entityFactory.create(
                             session,

@@ -43,7 +43,7 @@ import net.ivoa.calycopis.functional.factory.FactoryBase;
 /**
  * 
  */
-public interface LifecycleComponentEntityFactory<EntityType extends LifecycleComponentEntity>
+public interface LifecycleComponentEntityFactory<EntityType extends LifecycleComponentEntityImpl>
 extends FactoryBase
     {
 

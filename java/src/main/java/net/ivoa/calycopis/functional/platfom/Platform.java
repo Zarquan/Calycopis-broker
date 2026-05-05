@@ -27,7 +27,7 @@ import java.net.URI;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactory;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
@@ -58,7 +58,7 @@ extends FactoryBase
      * Get a LifecycleComponentEntity using the appropriate factory for the kind.
      *  
      */
-    public LifecycleComponentEntity select(final URI kind, final UUID uuid);
+    public LifecycleComponentEntityImpl select(final URI kind, final UUID uuid);
     
     /**
      * Get the ExecutionSessionEntityFactory for this platform.

@@ -26,7 +26,7 @@ package net.ivoa.calycopis.datamodel.session;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.Component;
-import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
+import net.ivoa.calycopis.datamodel.offerset.OfferSetEntityImpl;
 
 /**
  * Public interface for an execution session.
@@ -45,7 +45,7 @@ public interface AbstractExecutionSession
      * Get the parent OfferSet.
      *
      */
-    public OfferSetEntity getOfferSet();
+    public OfferSetEntityImpl getOfferSet();
 
     }
 

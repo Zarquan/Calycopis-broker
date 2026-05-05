@@ -38,9 +38,9 @@ package net.ivoa.calycopis.datamodel.volume.simple;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
@@ -55,14 +55,14 @@ public interface SimpleVolumeMountEntityFactory
      * Select a SimpleVolumeMount based UUID.
      *
      */
-    public Optional<SimpleVolumeMountEntity> select(final UUID uuid);
+    public Optional<SimpleVolumeMountEntityImpl> select(final UUID uuid);
 
     /**
      * Create a new SimpleVolumeMountEntity linking a ComputeResource and DataResource.
      *
      */
-    public SimpleVolumeMountEntity create(
-        final AbstractComputeResourceEntity computeResource,
+    public SimpleVolumeMountEntityImpl create(
+        final AbstractComputeResourceEntityImpl computeResource,
         final AbstractDataResourceEntity    dataResource,
         final SimpleVolumeMountValidator.Result result
         );
@@ -71,9 +71,9 @@ public interface SimpleVolumeMountEntityFactory
      * Create a new SimpleVolumeMountEntity linking a ComputeResource and StorageResource.
      *
      */
-    public SimpleVolumeMountEntity create(
-        final AbstractComputeResourceEntity computeResource,
-        final AbstractStorageResourceEntity storageResource,
+    public SimpleVolumeMountEntityImpl create(
+        final AbstractComputeResourceEntityImpl computeResource,
+        final AbstractStorageResourceEntityImpl storageResource,
         final SimpleVolumeMountValidator.Result result
         );
     

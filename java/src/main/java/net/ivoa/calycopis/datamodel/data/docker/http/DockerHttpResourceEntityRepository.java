@@ -31,6 +31,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * 
  */
 public interface DockerHttpResourceEntityRepository
-extends JpaRepository<DockerHttpResourceEntity, UUID>
+extends JpaRepository<DockerHttpResourceEntityImpl, UUID>
     {
     }

@@ -30,9 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityFactoryImpl;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 
 /**
@@ -57,7 +57,7 @@ implements DockerSimpleComputeResourceEntityFactory
         }
 
     @Override
-    public Optional<AbstractComputeResourceEntity> select(UUID uuid)
+    public Optional<AbstractComputeResourceEntityImpl> select(UUID uuid)
         {
         return Optional.of(
             repository.findById(uuid).get()
@@ -65,13 +65,13 @@ implements DockerSimpleComputeResourceEntityFactory
         }
 
     @Override
-    public DockerSimpleComputeResourceEntity create(
-        final SimpleExecutionSessionEntity session,
+    public DockerSimpleComputeResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final DockerSimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         ){
-        DockerSimpleComputeResourceEntity entity = this.repository.save(
-            new DockerSimpleComputeResourceEntity(
+        DockerSimpleComputeResourceEntityImpl entity = this.repository.save(
+            new DockerSimpleComputeResourceEntityImpl(
                 session,
                 result,
                 offer

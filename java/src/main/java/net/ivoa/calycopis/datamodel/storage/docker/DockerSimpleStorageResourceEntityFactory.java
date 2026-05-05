@@ -36,7 +36,7 @@
 package net.ivoa.calycopis.datamodel.storage.docker;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
-import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntityImpl;
 
 /**
  * A factory that can select any SimpleStorageResourceEntity subtype
@@ -46,6 +46,6 @@ import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntity;
  *
  */
 public interface DockerSimpleStorageResourceEntityFactory
-extends LifecycleComponentEntityFactory<SimpleStorageResourceEntity>
+extends LifecycleComponentEntityFactory<SimpleStorageResourceEntityImpl>
     {
     }

@@ -29,6 +29,6 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository
  *
  */
 public interface AbstractStorageResourceEntityRepository
-extends LifecycleComponentEntityRepository<AbstractStorageResourceEntity>
+extends LifecycleComponentEntityRepository<AbstractStorageResourceEntityImpl>
     {
     }

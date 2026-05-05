@@ -24,18 +24,18 @@
 package net.ivoa.calycopis.datamodel.storage.docker;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 
 /**
  * 
  */
 public interface DockerBindMountStorageEntityFactory
-extends LifecycleComponentEntityFactory<DockerBindMountStorageEntity>
+extends LifecycleComponentEntityFactory<DockerBindMountStorageEntityImpl>
     {
 
-    public DockerBindMountStorageEntity create(
-        final SimpleExecutionSessionEntity session,
+    public DockerBindMountStorageEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceValidator.Result result,
         final String path
         );

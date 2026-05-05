@@ -42,6 +42,6 @@ public interface OfferSetRequestParser
      * Populate an OfferSetEntity based on the contents of a ParserContext.
      *
      */
-    public OfferSetEntity stageTwo(final Platform platform, final OfferSetEntity offersetEntity, final OfferSetRequestParserContext offersetContext, int offerCount);
+    public OfferSetEntityImpl stageTwo(final Platform platform, final OfferSetEntityImpl offersetEntity, final OfferSetRequestParserContext offersetContext, int offerCount);
     
     }

@@ -29,7 +29,7 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
  *
  */
 public interface AbstractExecutableEntityFactory
-extends LifecycleComponentEntityFactory<AbstractExecutableEntity>
+extends LifecycleComponentEntityFactory<AbstractExecutableEntityImpl>
     {
 
     }

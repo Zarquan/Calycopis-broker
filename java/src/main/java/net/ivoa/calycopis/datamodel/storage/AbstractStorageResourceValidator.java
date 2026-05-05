@@ -41,7 +41,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractStorageResource;
 
@@ -50,14 +50,14 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractStorageResource;
  * 
  */
 public interface AbstractStorageResourceValidator
-extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntityImpl>
     {
     /**
      * Public interface for a validator result.
      * 
      */
     public interface Result
-    extends Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> 
+    extends Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntityImpl> 
         {
 
         /**
@@ -76,7 +76,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          * Build an entity based on our validation result.
          * 
          */
-        public AbstractStorageResourceEntity build(final SimpleExecutionSessionEntity session);
+        public AbstractStorageResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session);
 
         }
 
@@ -96,7 +96,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
      */
     @Slf4j
     public static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+    extends Validator.ResultBean<IvoaAbstractStorageResource, AbstractStorageResourceEntityImpl>
     implements Result
         {
         /**
@@ -157,7 +157,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
         
         @Override
         // Here because we need to create Results with just a status and no entity.
-        public AbstractStorageResourceEntity build(final SimpleExecutionSessionEntity session)
+        public AbstractStorageResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session)
             {
             return null ;
             }

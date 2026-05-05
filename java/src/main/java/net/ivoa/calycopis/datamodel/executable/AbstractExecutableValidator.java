@@ -36,7 +36,7 @@
 package net.ivoa.calycopis.datamodel.executable;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
 
@@ -45,7 +45,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
  * 
  */
 public interface AbstractExecutableValidator
-extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
+extends Validator<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
     {
     
     /**
@@ -53,13 +53,13 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
      * 
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> 
+    extends Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntityImpl> 
         {
         /**
          * Build an entity based on a validation result. 
          *
          */
-        public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session);
+        public AbstractExecutableEntityImpl build(final SimpleExecutionSessionEntityImpl session);
         }
 
     /**
@@ -76,7 +76,7 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
      * 
      */
     public static abstract class ResultBean
-    extends Validator.ResultBean<IvoaAbstractExecutable, AbstractExecutableEntity>
+    extends Validator.ResultBean<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
     implements Result
         {
         /**
@@ -105,7 +105,7 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
 
         @Override
         // Here because we need to create Results with just a status and no entity
-        public AbstractExecutableEntity build(SimpleExecutionSessionEntity session)
+        public AbstractExecutableEntityImpl build(SimpleExecutionSessionEntityImpl session)
             {
             return null;
             }

@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
+import net.ivoa.calycopis.datamodel.offerset.OfferSetEntityImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
@@ -62,7 +62,7 @@ public class SimpleExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public Optional<SimpleExecutionSessionEntity> select(UUID uuid)
+    public Optional<SimpleExecutionSessionEntityImpl> select(UUID uuid)
         {
         return this.sessionEntityRepository.findById(
             uuid
@@ -70,10 +70,10 @@ public class SimpleExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public SimpleExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer)
+    public SimpleExecutionSessionEntityImpl create(final OfferSetEntityImpl parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer)
         {
         return this.sessionEntityRepository.save(
-            new SimpleExecutionSessionEntity(
+            new SimpleExecutionSessionEntityImpl(
                 parent,
                 context,
                 offer
@@ -82,7 +82,7 @@ public class SimpleExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public List<SimpleExecutionSessionEntity> select(final IvoaSimpleExecutionSessionPhase phase)
+    public List<SimpleExecutionSessionEntityImpl> select(final IvoaSimpleExecutionSessionPhase phase)
         {
         return sessionEntityRepository.findByPhase(
             phase
@@ -90,7 +90,7 @@ public class SimpleExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public SimpleExecutionSessionEntity save(final SimpleExecutionSessionEntity entity)
+    public SimpleExecutionSessionEntityImpl save(final SimpleExecutionSessionEntityImpl entity)
         {
         return sessionEntityRepository.save(
             entity

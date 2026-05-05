@@ -45,7 +45,7 @@
 
 package net.ivoa.calycopis.datamodel.volume;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractVolumeMount;
@@ -55,7 +55,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractVolumeMount;
  *
  */
 public interface AbstractVolumeMountValidator
-extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
+extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntityImpl>
     {
 
     /**
@@ -63,13 +63,13 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
      *
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
+    extends Validator.Result<IvoaAbstractVolumeMount, AbstractVolumeMountEntityImpl>
         {
         /**
          * Build an entity based on a validation result.
          *
          */
-        public AbstractVolumeMountEntity build(final AbstractComputeResourceEntity computeResource);
+        public AbstractVolumeMountEntityImpl build(final AbstractComputeResourceEntityImpl computeResource);
         }
 
     /**
@@ -86,7 +86,7 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
      *
      */
     public abstract static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
+    extends Validator.ResultBean<IvoaAbstractVolumeMount, AbstractVolumeMountEntityImpl>
     implements Result
         {
         /**

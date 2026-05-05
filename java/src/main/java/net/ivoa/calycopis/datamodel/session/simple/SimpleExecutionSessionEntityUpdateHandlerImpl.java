@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
@@ -66,13 +66,13 @@ implements SimpleExecutionSessionEntityUpdateHandler
         }
 
     @Override
-    public Optional<SimpleExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
+    public Optional<SimpleExecutionSessionEntityImpl> update(final UUID uuid, final IvoaAbstractUpdate update)
         {
         log.debug("update(UUID)");
         log.debug("UUID   [{}]", uuid);
         log.debug("Update [{}]", update.getClass());
 
-        Optional<SimpleExecutionSessionEntity> result = this.sessionRepository.findById(
+        Optional<SimpleExecutionSessionEntityImpl> result = this.sessionRepository.findById(
             uuid
             );
         if (result.isEmpty())
@@ -81,7 +81,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
             return result ;
             }
         else {
-            SimpleExecutionSessionEntity entity = update(
+            SimpleExecutionSessionEntityImpl entity = update(
                 result.get(),
                 update
                 );  
@@ -96,7 +96,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
             }
         }
 
-    protected SimpleExecutionSessionEntity update(SimpleExecutionSessionEntity entity , final IvoaAbstractUpdate update)
+    protected SimpleExecutionSessionEntityImpl update(SimpleExecutionSessionEntityImpl entity , final IvoaAbstractUpdate update)
         {
         log.debug("update(Entity, Update)");
         log.debug("Entity [{}]", entity.getUuid());
@@ -119,7 +119,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SimpleExecutionSessionEntity update(SimpleExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
+    protected SimpleExecutionSessionEntityImpl update(SimpleExecutionSessionEntityImpl entity , final IvoaEnumValueUpdate update)
         {
         log.debug("update(Entity, EnumValueUpdate)");
         log.debug("Entity [{}][{}]", entity.getUuid(), entity.getPhase());
@@ -151,7 +151,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SimpleExecutionSessionEntity update(SimpleExecutionSessionEntity entity , final IvoaSimpleExecutionSessionPhase newphase)
+    protected SimpleExecutionSessionEntityImpl update(SimpleExecutionSessionEntityImpl entity , final IvoaSimpleExecutionSessionPhase newphase)
         {
         log.debug("update(Entity, Phase) [{}][{}][{}]", entity.getUuid(), entity.getPhase(), newphase);
         switch(newphase)
@@ -185,7 +185,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SimpleExecutionSessionEntity accept(SimpleExecutionSessionEntity entity)
+    protected SimpleExecutionSessionEntityImpl accept(SimpleExecutionSessionEntityImpl entity)
         {
         log.debug("accept(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -196,14 +196,14 @@ implements SimpleExecutionSessionEntityUpdateHandler
                     );
                 //
                 // REJECT the other Sessions in the offer.
-                for (AbstractExecutionSessionEntity sibling : entity.getOfferSet().getOffers())
+                for (AbstractExecutionSessionEntityImpl sibling : entity.getOfferSet().getOffers())
                     {
                     if (sibling.getUuid().equals(entity.getUuid()) == false)
                         {
-                        if (sibling instanceof SimpleExecutionSessionEntity)
+                        if (sibling instanceof SimpleExecutionSessionEntityImpl)
                             {
                             reject(
-                                (SimpleExecutionSessionEntity) sibling
+                                (SimpleExecutionSessionEntityImpl) sibling
                                 );
                             }
                         }
@@ -224,7 +224,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SimpleExecutionSessionEntity reject(SimpleExecutionSessionEntity entity)
+    protected SimpleExecutionSessionEntityImpl reject(SimpleExecutionSessionEntityImpl entity)
         {
         log.debug("reject(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -243,7 +243,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SimpleExecutionSessionEntity cancel(SimpleExecutionSessionEntity entity)
+    protected SimpleExecutionSessionEntityImpl cancel(SimpleExecutionSessionEntityImpl entity)
         {
         log.debug("cancel(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -269,7 +269,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         }
 
     // TODO This should require a reason.
-    protected SimpleExecutionSessionEntity fail(SimpleExecutionSessionEntity entity)
+    protected SimpleExecutionSessionEntityImpl fail(SimpleExecutionSessionEntityImpl entity)
         {
         log.debug("fail(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())

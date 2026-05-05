@@ -28,7 +28,7 @@ import java.util.List;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
-import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntityImpl;
 
 /**
  * 
@@ -52,6 +52,6 @@ public interface AbstractDataResource
      * Get the list of volume mounts this resource is attached to.
      *
      */
-    public List<AbstractVolumeMountEntity> getVolumeMounts();
+    public List<AbstractVolumeMountEntityImpl> getVolumeMounts();
     
     }

@@ -30,10 +30,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactoryImpl;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 
 /**
  * Factory implementation for DockerDockerContainerEntity.
@@ -57,7 +57,7 @@ implements DockerDockerContainerEntityFactory
         }
 
     @Override
-    public Optional<AbstractExecutableEntity> select(final UUID uuid)
+    public Optional<AbstractExecutableEntityImpl> select(final UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()
@@ -65,12 +65,12 @@ implements DockerDockerContainerEntityFactory
         }
 
     @Override
-    public DockerDockerContainerEntity create(
-        final SimpleExecutionSessionEntity session,
+    public DockerDockerContainerEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractExecutableValidator.Result result
         ){
-        DockerDockerContainerEntity entity = this.repository.save(
-            new DockerDockerContainerEntity(
+        DockerDockerContainerEntityImpl entity = this.repository.save(
+            new DockerDockerContainerEntityImpl(
                 session,
                 result
                 )

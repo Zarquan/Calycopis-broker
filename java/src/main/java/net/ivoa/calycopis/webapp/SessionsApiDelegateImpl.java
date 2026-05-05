@@ -47,7 +47,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetFactory;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityUpdateHandler;
 import net.ivoa.calycopis.schema.spring.api.SessionsApiDelegate;
@@ -83,7 +83,7 @@ public class SessionsApiDelegateImpl
     public ResponseEntity<IvoaAbstractExecutionSession> executionSessionGet(
         final UUID uuid
         ){
-        final Optional<SimpleExecutionSessionEntity> found = sessionFactory.select(
+        final Optional<SimpleExecutionSessionEntityImpl> found = sessionFactory.select(
             uuid
             );
         if (found.isPresent())
@@ -107,7 +107,7 @@ public class SessionsApiDelegateImpl
         final UUID uuid,
         final IvoaAbstractUpdate request
         ){
-       final Optional<SimpleExecutionSessionEntity> found = updateHandler.update(
+       final Optional<SimpleExecutionSessionEntityImpl> found = updateHandler.update(
             uuid,
             request
             );
@@ -134,7 +134,7 @@ public class SessionsApiDelegateImpl
         log.debug("directExecutionPost(IvoaExecutionRequest)");
         //
         // Process the request to create a new execution session.
-        SimpleExecutionSessionEntity entity = offersetFactory.direct(request);
+        SimpleExecutionSessionEntityImpl entity = offersetFactory.direct(request);
         log.debug("Session entity [{}][{}][{}]", entity.getUuid(), entity.getPhase(), entity.getClass().getSimpleName());
 
         IvoaAbstractExecutionSession bean = entity.makeBean(

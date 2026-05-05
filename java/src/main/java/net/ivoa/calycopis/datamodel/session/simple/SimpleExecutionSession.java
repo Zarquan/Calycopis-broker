@@ -42,11 +42,11 @@ import java.util.List;
 
 import org.threeten.extra.Interval;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -85,13 +85,13 @@ public interface SimpleExecutionSession
      * Get the Executable entity.
      *
      */
-    public AbstractExecutableEntity getExecutable();
+    public AbstractExecutableEntityImpl getExecutable();
 
     /**
      * Get the ComputeResource.
      *
      */
-    public AbstractComputeResourceEntity getComputeResource();
+    public AbstractComputeResourceEntityImpl getComputeResource();
 
     /**
      * Get a list of the DataResources.
@@ -103,7 +103,7 @@ public interface SimpleExecutionSession
      * Get a list of the StorageResources.
      *
      */
-    public List<AbstractStorageResourceEntity> getStorageResources();
+    public List<AbstractStorageResourceEntityImpl> getStorageResources();
 
     /**
      * Get a list of the connectors.

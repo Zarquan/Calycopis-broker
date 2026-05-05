@@ -31,6 +31,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  */
 public interface AmazonS3DataResourceEntityRepository
-extends JpaRepository<AmazonS3DataResourceEntity, UUID>
+extends JpaRepository<AmazonS3DataResourceEntityImpl, UUID>
     {
     }

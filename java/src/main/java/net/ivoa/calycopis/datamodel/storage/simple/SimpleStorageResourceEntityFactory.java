@@ -26,8 +26,8 @@ package net.ivoa.calycopis.datamodel.storage.simple;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 
@@ -43,14 +43,14 @@ extends AbstractStorageResourceEntityFactory
      * Select a SimpleStorageResource based UUID.
      *
      */
-    public Optional<AbstractStorageResourceEntity> select(final UUID uuid);
+    public Optional<AbstractStorageResourceEntityImpl> select(final UUID uuid);
 
     /**
      * Create a new SimpleStorageResourceEntity based on a template.
      *
      */
-    public SimpleStorageResourceEntity create(
-        final SimpleExecutionSessionEntity session,
+    public SimpleStorageResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceValidator.Result result
         );
 

@@ -28,7 +28,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
@@ -45,7 +45,7 @@ import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
     strategy = InheritanceType.JOINED
     )
 public class CancelComponentRequestEntity
-extends ComponentProcessingRequestEntity
+extends ComponentProcessingRequestEntityImpl
 implements ComponentProcessingRequest
     {
 
@@ -54,7 +54,7 @@ implements ComponentProcessingRequest
         super();
         }
 
-    protected CancelComponentRequestEntity(final LifecycleComponentEntity component)
+    protected CancelComponentRequestEntity(final LifecycleComponentEntityImpl component)
         {
         super(component);
         }

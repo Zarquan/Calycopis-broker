@@ -62,7 +62,7 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
@@ -170,7 +170,7 @@ implements IvoaDataResourceValidator
                 validated
                 ){
                 @Override
-                public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session)
+                public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session)
                     {
                     this.entity = IvoaDataResourceValidatorImpl.this.entityFactory.create(
                         session,

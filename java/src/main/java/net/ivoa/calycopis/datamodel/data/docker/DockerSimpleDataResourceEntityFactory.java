@@ -36,7 +36,7 @@
 package net.ivoa.calycopis.datamodel.data.docker;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
-import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntity;
+import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntityImpl;
 
 /**
  * A factory that can select any SimpleDataResourceEntity subtype
@@ -46,6 +46,6 @@ import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntity;
  *
  */
 public interface DockerSimpleDataResourceEntityFactory
-extends LifecycleComponentEntityFactory<SimpleDataResourceEntity>
+extends LifecycleComponentEntityFactory<SimpleDataResourceEntityImpl>
     {
     }

@@ -29,6 +29,6 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository
  * 
  */
 public interface DockerBindMountStorageEntityRepository
-extends LifecycleComponentEntityRepository<DockerBindMountStorageEntity>
+extends LifecycleComponentEntityRepository<DockerBindMountStorageEntityImpl>
     {
     }

@@ -28,7 +28,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.message.MessageEntity;
+import net.ivoa.calycopis.datamodel.message.MessageEntityImpl;
 import net.ivoa.calycopis.datamodel.message.MessageSubject;
 
 /**
@@ -80,6 +80,6 @@ extends MessageSubject
      * TODO Split this into a separate MessageList interface.
      *
      */
-    public List<MessageEntity> getMessages();
+    public List<MessageEntityImpl> getMessages();
 
     }

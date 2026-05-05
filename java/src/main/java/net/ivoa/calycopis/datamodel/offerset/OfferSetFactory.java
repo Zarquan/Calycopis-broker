@@ -28,7 +28,7 @@ package net.ivoa.calycopis.datamodel.offerset;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 import net.ivoa.calycopis.schema.spring.model.IvoaExecutionRequest;
 
@@ -49,26 +49,26 @@ public interface OfferSetFactory
      * Select an OfferSet based on its identifier.
      *
      */
-    public Optional<OfferSetEntity> select(final UUID uuid);
+    public Optional<OfferSetEntityImpl> select(final UUID uuid);
 
     /**
      * Create a new OfferSet based on an ExecutionRequest.
      *
      */
-    public OfferSetEntity create(final IvoaExecutionRequest request);
+    public OfferSetEntityImpl create(final IvoaExecutionRequest request);
 
     /**
      * Create a new OfferSet based on a ParserContext.
      *
      */
-    public OfferSetEntity create(final OfferSetRequestParserContext offersetContext, int offerCount);
+    public OfferSetEntityImpl create(final OfferSetRequestParserContext offersetContext, int offerCount);
 
     /**
      * Create a new ExecutionSessionEntity based on a direct ExecutionRequest.
      * This is here rather than in SimpleExecutionSessionEntityFactory because of complications with circular references.
      *
      */
-    public SimpleExecutionSessionEntity direct(final IvoaExecutionRequest request);
+    public SimpleExecutionSessionEntityImpl direct(final IvoaExecutionRequest request);
     
     }
 

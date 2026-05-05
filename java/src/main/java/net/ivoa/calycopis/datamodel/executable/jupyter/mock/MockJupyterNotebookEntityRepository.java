@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MockJupyterNotebookEntityRepository
-    extends JpaRepository<MockJupyterNotebookEntity, UUID>
+    extends JpaRepository<MockJupyterNotebookEntityImpl, UUID>
     {
 
     }

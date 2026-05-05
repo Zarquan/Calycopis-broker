@@ -27,8 +27,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
@@ -43,15 +43,15 @@ public interface IvoaDataResourceEntityFactory
      * Select an IvoaDataResource based on UUID.
      *
      */
-    public Optional<IvoaDataResourceEntity> select(final UUID uuid);
+    public Optional<IvoaDataResourceEntityImpl> select(final UUID uuid);
 
     /**
      * Create a new IvoaDataResource based on a template.
      *
      */
-    public IvoaDataResourceEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceEntity storage,
+    public IvoaDataResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
+        final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
         );
 

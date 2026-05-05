@@ -31,7 +31,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  */
 public interface ComponentProcessingRequestRepository
-extends JpaRepository<ComponentProcessingRequestEntity, UUID>
+extends JpaRepository<ComponentProcessingRequestEntityImpl, UUID>
     {
     
     }
