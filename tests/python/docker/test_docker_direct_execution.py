@@ -58,7 +58,7 @@ https://github.com/Zarquan/Heliophorus-cantliei
 Requires:
   - A running Calycopis broker service with the 'docker' profile active.
   - The CONTAINER_HOST environment variable set in the broker environment.
-  - The calycopis_client Python package installed.
+  - The calycopis_schema_client Python package installed.
   - Network access to ghcr.io to pull the test container image.
 
 Usage:
@@ -71,18 +71,18 @@ import time
 
 import pytest
 
-from calycopis_client.wrappers.execution_client import ExecutionBrokerClient
-from calycopis_client.models import (
+from calycopis_schema_client.wrappers.execution_client import ExecutionBrokerClient
+from calycopis_schema_client.models import (
     ExecutionRequest,
     AbstractExecutionSession,
     SimpleExecutionSessionPhase,
 )
-from calycopis_client.models.docker_container import DockerContainer
-from calycopis_client.models.docker_image_spec import DockerImageSpec
-from calycopis_client.models.simple_compute_resource import SimpleComputeResource
-from calycopis_client.models.simple_compute_cores import SimpleComputeCores
-from calycopis_client.models.simple_compute_memory import SimpleComputeMemory
-from calycopis_client.models.component_metadata import ComponentMetadata
+from calycopis_schema_client.models.docker_container import DockerContainer
+from calycopis_schema_client.models.docker_image_spec import DockerImageSpec
+from calycopis_schema_client.models.simple_compute_resource import SimpleComputeResource
+from calycopis_schema_client.models.simple_compute_cores import SimpleComputeCores
+from calycopis_schema_client.models.simple_compute_memory import SimpleComputeMemory
+from calycopis_schema_client.models.component_metadata import ComponentMetadata
 
 
 # ---------------------------------------------------------------------------

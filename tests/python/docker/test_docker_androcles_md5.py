@@ -20,7 +20,7 @@
 #
 # AIMetrics: [
 #     {
-#     "timestamp": "2026-04-14T17:00:00",
+#     "timestamp": "2026-04-13T12:00:00",
 #     "name": "Cursor CLI",
 #     "version": "2026.02.13-41ac335",
 #     "model": "Claude 4.6 Opus (Thinking)",
@@ -33,20 +33,23 @@
 #
 
 """
-Integration test for Docker volume mounts with remote HTTP data.
+Integration test for the Heliophorus-androcles checksum container.
 
-Submits an execution request that uses an http:// data resource,
-which the broker should download into a Docker volume via a helper
-container, then mount on the application container.
+Submits an execution request that runs the androcles container
+against a local file:// data resource mounted at /input, then
+captures the container's stdout via docker-py and verifies that
+the reported MD5 matches the locally computed value.
 
 Requires:
   - A running Calycopis broker service with the 'docker' profile active.
-  - The calycopis_client Python package installed.
+  - The calycopis_schema_client Python package installed.
   - The docker Python package installed (docker-py).
-  - Network access to download the test data URL.
+  - A local test file at BIND_MOUNT_TEST_FILE (default:
+    /home/Zarquan/temp/random.txt) accessible to the broker.
 
 Usage:
-  pytest tests/python/test_docker_volume_mount.py -v
+  pytest tests/python/test_docker_androcles_md5.py -v
+  BIND_MOUNT_TEST_FILE=/path/to/file.txt pytest tests/python/test_docker_androcles_md5.py -v
 """
 
 import json
@@ -57,17 +60,17 @@ from time import sleep as _sleep
 import docker
 import pytest
 
-from calycopis_client.wrappers.execution_client import ExecutionBrokerClient
-from calycopis_client.models import (
+from calycopis_schema_client.wrappers.execution_client import ExecutionBrokerClient
+from calycopis_schema_client.models import (
     ExecutionRequest,
     SimpleExecutionSessionPhase,
 )
-from calycopis_client.models.docker_container import DockerContainer
-from calycopis_client.models.docker_image_spec import DockerImageSpec
-from calycopis_client.models.simple_compute_resource import SimpleComputeResource
-from calycopis_client.models.simple_data_resource import SimpleDataResource
-from calycopis_client.models.simple_volume_mount import SimpleVolumeMount
-from calycopis_client.models.component_metadata import ComponentMetadata
+from calycopis_schema_client.models.docker_container import DockerContainer
+from calycopis_schema_client.models.docker_image_spec import DockerImageSpec
+from calycopis_schema_client.models.simple_compute_resource import SimpleComputeResource
+from calycopis_schema_client.models.simple_data_resource import SimpleDataResource
+from calycopis_schema_client.models.simple_volume_mount import SimpleVolumeMount
+from calycopis_schema_client.models.component_metadata import ComponentMetadata
 
 
 # ---------------------------------------------------------------------------
@@ -76,7 +79,12 @@ from calycopis_client.models.component_metadata import ComponentMetadata
 
 CALYCOPIS_URL = os.environ.get("CALYCOPIS_URL", "http://localhost:8082")
 
-PHASE_TIMEOUT = float(os.environ.get("PHASE_TIMEOUT", "300"))
+BIND_MOUNT_TEST_FILE = os.environ.get(
+    "BIND_MOUNT_TEST_FILE",
+    "/home/Zarquan/temp/random.txt",
+)
+
+PHASE_TIMEOUT = float(os.environ.get("PHASE_TIMEOUT", "180"))
 
 DOCKER_SOCKET = os.environ.get(
     "DOCKER_SOCKET",
@@ -99,11 +107,6 @@ SIMPLE_VOLUME_KIND = (
 ANDROCLES_IMAGE = "ghcr.io/zarquan/heliophorus-androcles:sha-9a2513b"
 ANDROCLES_DIGEST = (
     "sha256:0dfeaad1f37ab8cd506f3a16d1ade56d035694a34e0ff28be51b97f1924c4df3"
-)
-
-HTTP_TEST_URL = os.environ.get(
-    "HTTP_TEST_URL",
-    "https://github.com/ivoa-std/ExecutionBroker/releases/download/auto-pdf-preview/ExecutionBroker-draft.pdf",
 )
 
 
@@ -144,20 +147,24 @@ def docker_client() -> docker.DockerClient:
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _compute_expected_md5(docker_client: docker.DockerClient, url: str) -> str:
-    """Download a URL inside a container and compute the MD5.
+def _compute_expected_md5(docker_client: docker.DockerClient, filepath: str) -> str:
+    """Compute the MD5 of a file as seen through a Podman/Docker bind mount.
 
-    Uses the same Docker/Podman API path as the broker, so the result
-    reflects the file content as seen through the container runtime.
+    Rootless Podman may see different file content from the host when
+    running under a different user namespace, so we compute the
+    reference hash through the same bind mount mechanism that the
+    broker will use.
     """
-    output = docker_client.containers.run(
-        "alpine:3",
-        command=["sh", "-c", f"wget -q -O /tmp/data '{url}' && md5sum /tmp/data"],
+    container = docker_client.containers.run(
+        "alpine:3.23",
+        command=["md5sum", "/input"],
+        volumes={filepath: {"bind": "/input", "mode": "ro"}},
         remove=True,
         stdout=True,
         stderr=False,
     )
-    return output.decode("utf-8", errors="replace").strip().split()[0]
+    output = container.decode("utf-8", errors="replace").strip()
+    return output.split()[0]
 
 
 def _find_container_by_image(
@@ -167,6 +174,7 @@ def _find_container_by_image(
 ):
     """Find the most recently created container whose image name
     contains *image_substr* and that was created after *created_after*.
+    Searches running and exited containers.
     """
     for container in docker_client.containers.list(all=True):
         tags = container.image.tags if container.image.tags else []
@@ -184,18 +192,18 @@ def _find_container_by_image(
     return None
 
 
-def _make_http_volume_request(
-    name: str = "http-vol",
-    data_url: str = None,
+def _make_androcles_request(
+    name: str = "androcles-md5",
+    file_url: str = None,
 ) -> ExecutionRequest:
     """Build an ExecutionRequest that runs the androcles container
-    with an http:// data resource mounted via a Docker volume at /input.
+    with a file:// data resource bind-mounted at /input.
 
-    The androcles container computes the MD5 of /input/content
-    (the filename used by the broker's wget helper).
+    The default CMD ["md5sum", "json"] tells androcles to compute
+    the MD5 of /input and emit the result as JSON on stdout.
     """
-    if data_url is None:
-        data_url = HTTP_TEST_URL
+    if file_url is None:
+        file_url = f"file://{BIND_MOUNT_TEST_FILE}"
 
     return ExecutionRequest(
         executable=DockerContainer(
@@ -206,13 +214,12 @@ def _make_http_volume_request(
                 digest=ANDROCLES_DIGEST,
             ),
             command=["md5sum", "json"],
-            environment={"INPUT": "/input/content"},
         ),
         data=[
             SimpleDataResource(
                 kind=SIMPLE_DATA_KIND,
                 meta=ComponentMetadata(name=f"{name}-data"),
-                location=data_url,
+                location=file_url,
             ),
         ],
         compute=SimpleComputeResource(
@@ -234,14 +241,15 @@ def _make_http_volume_request(
 # Tests
 # ===========================================================================
 
-class TestDockerVolumeMount:
+class TestAndroclesMd5:
     """
-    Test Docker volume mounts for remote HTTP data resources.
+    Run the Heliophorus-androcles container to compute the MD5 of a
+    local file, then verify the result by capturing the container logs.
     """
 
     def test_session_completes(self, client):
-        """An HTTP data resource session should reach COMPLETED."""
-        request = _make_http_volume_request("http-vol-lifecycle")
+        """The androcles session should reach COMPLETED."""
+        request = _make_androcles_request("androcles-lifecycle")
         response = client.submit_execution(request, follow_redirect=True)
         assert response.result == "YES", f"Expected YES, got {response.result}"
         assert len(response.offers) > 0
@@ -267,17 +275,19 @@ class TestDockerVolumeMount:
             f"Session should reach COMPLETED, got {result.phase}"
         )
 
-    def test_md5_matches(self, client, docker_client):
+    def test_md5_matches_local(self, client, docker_client):
         """
-        Download the same URL in a reference container, run androcles
-        via the broker with an http:// data resource, capture stdout,
-        and verify the MD5 matches.
+        Compute the expected MD5 locally, run androcles via the broker,
+        capture the container stdout, and verify the hash matches.
+
+        The test polls for the container via docker-py so that it can
+        read the logs before the broker's release action removes it.
         """
-        expected_md5 = _compute_expected_md5(docker_client, HTTP_TEST_URL)
+        expected_md5 = _compute_expected_md5(docker_client, BIND_MOUNT_TEST_FILE)
 
         test_start = datetime.now(timezone.utc)
 
-        request = _make_http_volume_request("http-vol-md5")
+        request = _make_androcles_request("androcles-md5")
         response = client.submit_execution(request, follow_redirect=True)
         assert response.result == "YES", f"Expected YES, got {response.result}"
         assert len(response.offers) > 0
@@ -290,6 +300,10 @@ class TestDockerVolumeMount:
             SimpleExecutionSessionPhase.ACCEPTED,
         )
 
+        # Poll for the androcles container and capture its stdout.
+        # The container exits quickly after computing the hash, but
+        # remains in the exited state until the broker's release
+        # action removes it — giving us a window to read the logs.
         container_stdout = None
         deadline = datetime.now(timezone.utc).timestamp() + PHASE_TIMEOUT
 
@@ -307,13 +321,16 @@ class TestDockerVolumeMount:
                         stdout=True, stderr=False,
                     ).decode("utf-8", errors="replace")
                     break
+                # Container exists but still running — grab logs anyway
+                # in case we don't get another chance.
                 container_stdout = container.logs(
                     stdout=True, stderr=False,
                 ).decode("utf-8", errors="replace")
                 if container_stdout.strip():
                     break
-            _sleep(5.0)
+            _sleep(3.0)
 
+        # Also wait for the session to complete.
         result = client.wait_for_phase(
             offer_uuid,
             target_phases=[
@@ -327,18 +344,21 @@ class TestDockerVolumeMount:
             f"Session should reach COMPLETED, got {result.phase}"
         )
 
+        # Verify we captured the container's stdout.
         assert container_stdout is not None and container_stdout.strip(), (
             "Failed to capture container stdout via docker-py. "
             "The container may have been removed before logs could be read."
         )
 
+        # Parse the jc --hashsum JSON output.
+        # Expected format: [{"hash": "<md5hex>", "filename": "/input"}]
         parsed = json.loads(container_stdout.strip())
         assert isinstance(parsed, list), (
             f"Expected JSON array, got {type(parsed).__name__}: "
             f"{container_stdout[:200]}"
         )
         assert len(parsed) > 0, (
-            "Expected at least one hash entry, got empty array"
+            f"Expected at least one hash entry, got empty array"
         )
 
         actual_md5 = parsed[0].get("hash")
@@ -347,5 +367,10 @@ class TestDockerVolumeMount:
         )
         assert actual_md5 == expected_md5, (
             f"MD5 mismatch: container reported {actual_md5}, "
-            f"expected {expected_md5}"
+            f"local file has {expected_md5}"
+        )
+
+        actual_filename = parsed[0].get("filename")
+        assert actual_filename == "/input", (
+            f"Expected filename '/input', got '{actual_filename}'"
         )

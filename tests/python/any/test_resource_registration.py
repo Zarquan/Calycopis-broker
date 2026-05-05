@@ -11,7 +11,7 @@ and verify the responses.
 
 Requires:
   - A running Calycopis broker service (default: http://localhost:8082)
-  - The calycopis_client Python package installed
+  - The calycopis_schema_client Python package installed
 
 Usage:
   pytest tests/test_resource_registration.py -v
@@ -21,17 +21,17 @@ Usage:
 import os
 import pytest
 
-from calycopis_client.wrappers.execution_client import ExecutionBrokerClient
-from calycopis_client.models import (
+from calycopis_schema_client.wrappers.execution_client import ExecutionBrokerClient
+from calycopis_schema_client.models import (
     ExecutionRequest,
     OfferSetResponse,
 )
-from calycopis_client.models.docker_container import DockerContainer
-from calycopis_client.models.docker_image_spec import DockerImageSpec
-from calycopis_client.models.simple_data_resource import SimpleDataResource
-from calycopis_client.models.simple_storage_resource import SimpleStorageResource
-from calycopis_client.models.simple_volume_mount import SimpleVolumeMount
-from calycopis_client.models.component_metadata import ComponentMetadata
+from calycopis_schema_client.models.docker_container import DockerContainer
+from calycopis_schema_client.models.docker_image_spec import DockerImageSpec
+from calycopis_schema_client.models.simple_data_resource import SimpleDataResource
+from calycopis_schema_client.models.simple_storage_resource import SimpleStorageResource
+from calycopis_schema_client.models.simple_volume_mount import SimpleVolumeMount
+from calycopis_schema_client.models.component_metadata import ComponentMetadata
 
 
 # ---------------------------------------------------------------------------

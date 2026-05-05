@@ -62,7 +62,7 @@ Mock validators tested:
 
 Requires:
   - A running Calycopis broker service (default: http://localhost:8082)
-  - The calycopis_client Python package installed
+  - The calycopis_schema_client Python package installed
 
 Usage:
   pytest tests/test_mock_validators.py -v
@@ -73,30 +73,30 @@ import os
 
 import pytest
 
-from calycopis_client.wrappers.execution_client import ExecutionBrokerClient
-from calycopis_client.models import (
+from calycopis_schema_client.wrappers.execution_client import ExecutionBrokerClient
+from calycopis_schema_client.models import (
     ExecutionRequest,
     OfferSetResponse,
 )
-from calycopis_client.models.docker_container import DockerContainer
-from calycopis_client.models.docker_image_spec import DockerImageSpec
-from calycopis_client.models.docker_internal_port import DockerInternalPort
-from calycopis_client.models.docker_network_port import DockerNetworkPort
-from calycopis_client.models.docker_network_spec import DockerNetworkSpec
-from calycopis_client.models.jupyter_notebook import JupyterNotebook
-from calycopis_client.models.simple_compute_resource import SimpleComputeResource
-from calycopis_client.models.simple_compute_cores import SimpleComputeCores
-from calycopis_client.models.simple_compute_memory import SimpleComputeMemory
-from calycopis_client.models.simple_storage_resource import SimpleStorageResource
-from calycopis_client.models.simple_storage_size import SimpleStorageSize
-from calycopis_client.models.simple_data_resource import SimpleDataResource
-from calycopis_client.models.s3_data_resource import S3DataResource
-from calycopis_client.models.ivoa_data_resource import IvoaDataResource
-from calycopis_client.models.ivoa_data_resource_block import IvoaDataResourceBlock
-from calycopis_client.models.skao_data_resource import SkaoDataResource
-from calycopis_client.models.skao_data_resource_block import SkaoDataResourceBlock
-from calycopis_client.models.skao_replica_item import SkaoReplicaItem
-from calycopis_client.models.component_metadata import ComponentMetadata
+from calycopis_schema_client.models.docker_container import DockerContainer
+from calycopis_schema_client.models.docker_image_spec import DockerImageSpec
+from calycopis_schema_client.models.docker_internal_port import DockerInternalPort
+from calycopis_schema_client.models.docker_network_port import DockerNetworkPort
+from calycopis_schema_client.models.docker_network_spec import DockerNetworkSpec
+from calycopis_schema_client.models.jupyter_notebook import JupyterNotebook
+from calycopis_schema_client.models.simple_compute_resource import SimpleComputeResource
+from calycopis_schema_client.models.simple_compute_cores import SimpleComputeCores
+from calycopis_schema_client.models.simple_compute_memory import SimpleComputeMemory
+from calycopis_schema_client.models.simple_storage_resource import SimpleStorageResource
+from calycopis_schema_client.models.simple_storage_size import SimpleStorageSize
+from calycopis_schema_client.models.simple_data_resource import SimpleDataResource
+from calycopis_schema_client.models.s3_data_resource import S3DataResource
+from calycopis_schema_client.models.ivoa_data_resource import IvoaDataResource
+from calycopis_schema_client.models.ivoa_data_resource_block import IvoaDataResourceBlock
+from calycopis_schema_client.models.skao_data_resource import SkaoDataResource
+from calycopis_schema_client.models.skao_data_resource_block import SkaoDataResourceBlock
+from calycopis_schema_client.models.skao_replica_item import SkaoReplicaItem
+from calycopis_schema_client.models.component_metadata import ComponentMetadata
 
 
 # ---------------------------------------------------------------------------
