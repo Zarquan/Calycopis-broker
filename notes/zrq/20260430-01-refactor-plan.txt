@@ -62,7 +62,7 @@ calycopis-broker
             net.ivoa.calycopis.broker.api.functional..
 
         packages
-            net.ivoa.calycopis.broker.engine.datamodel..
+            net.ivoa.calycopis.broker.engine.entities..
             net.ivoa.calycopis.broker.engine.functional..
 
 # -----------------------------------------------------
