@@ -26,7 +26,6 @@ package net.ivoa.calycopis.broker.engine.functional.platfom;
 import java.net.URI;
 import java.util.UUID;
 
-import net.ivoa.calycopis.broker.engine.entities.component.AbstractLifecycleComponentEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorFactory;
@@ -74,12 +73,6 @@ extends FactoryBase
     public ProcessingRequestFactory getProcessingRequestFactory();
     
     /**
-     * Get the ComponentEntityFactory for this platform.
-     *
-     */
-    public AbstractLifecycleComponentEntityFactory getLifecycleComponentEntityFactory();
-    
-    /**
      * Get the ComputeResourceOfferFactory for this platform.
      *
      */
@@ -91,12 +84,6 @@ extends FactoryBase
      */
     public AbstractComputeResourceValidatorFactory getComputeResourceValidators();
     
-    /**
-     * Get the DataResourceEntityFactory for this platform.
-     *
-    public AbstractDataResourceEntityFactory getDataResourceEntityFactory();
-     */
-
     /**
      * Get the DataResourceValidatorFactory for this platform.
      *

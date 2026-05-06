@@ -55,7 +55,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.component.AbstractLifecycleComponentEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidatorFactory;
@@ -111,65 +110,33 @@ implements DockerPlatform
         // validators in registration order.
         //
         
-        /*
-        this.executableValidatorFactory.addValidator(
-            new MockJupyterNotebookValidatorImpl(
-                this.jupyterNotebookEntityFactory
-                )
-            );
-         */
         this.executableValidatorFactory.addValidator(
             new DockerDockerContainerValidatorImpl(
                 this
                 )
             );
+
         this.computeResourceValidatorFactory.addValidator(
             new DockerSimpleComputeResourceValidatorImpl(
                 this.computeResourceEntityFactory,
                 this.volumeMountValidatorFactory
                 )
             );
-        /*
-        this.storageResourceValidatorFactory.addValidator(
-            new DockerVolumeMountStorageValidatorImpl(
-                this.storageResourceEntityFactory
-                )
-            );
-         */
 
-        /*
-        this.dataResourceValidatorFactory.addValidator(
-            new MockSkaoDataResourceValidatorImpl(
-                this.jdbcTemplate,
-                this.mockSkaoDataResourceEntityFactory,
-                this.dataStorageLinker
-                )
-            );
-        this.dataResourceValidatorFactory.addValidator(
-            new MockIvoaDataResourceValidatorImpl(
-                this.mockIvoaDataResourceEntityFactory,
-                this.dataStorageLinker
-                )
-            );
-        this.dataResourceValidatorFactory.addValidator(
-            new MockAmazonS3DataResourceValidatorImpl(
-                this.mockAmazonS3DataResourceEntityFactory,
-                this.dataStorageLinker
-                )
-            );
-         */
         this.dataResourceValidatorFactory.addValidator(
             new DockerFileResourceValidatorImpl(
                 this.dockerFileResourceEntityFactory,
                 this.dataStorageLinker
                 )
             );
+        
         this.dataResourceValidatorFactory.addValidator(
             new DockerHttpResourceValidatorImpl(
                 this.dockerHttpResourceEntityFactory,
                 this.dataStorageLinker
                 )
             );
+        
         this.dataResourceValidatorFactory.addValidator(
             new DockerStopResourceValidatorImpl()
             );
@@ -328,14 +295,6 @@ implements DockerPlatform
 
 // LifecycleComponent
 
-    @Autowired
-    private AbstractLifecycleComponentEntityFactory lifecycleComponentEntityFactory;
-    @Override
-    public AbstractLifecycleComponentEntityFactory getLifecycleComponentEntityFactory()
-        {
-        return this.lifecycleComponentEntityFactory;
-        }
-    
     Map<URI, LifecycleComponentEntityFactory<?>> registry = new HashMap<URI, LifecycleComponentEntityFactory<?>>();
     
     void registerFactory(

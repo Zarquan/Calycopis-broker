@@ -96,13 +96,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.component.AbstractLifecycleComponentEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.mock.MockSimpleComputeResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.mock.MockSimpleComputeResourceValidatorImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceEntityFactory;
@@ -361,6 +359,8 @@ implements MockPlatform
 
 // LifecycleComponent
 
+    /*
+     * 
     @Autowired
     private AbstractLifecycleComponentEntityFactory lifecycleComponentEntityFactory;
     @Override
@@ -368,6 +368,8 @@ implements MockPlatform
         {
         return this.lifecycleComponentEntityFactory;
         }
+     * 
+     */
     
     Map<URI, LifecycleComponentEntityFactory<?>> registry = new HashMap<URI, LifecycleComponentEntityFactory<?>>();
     
