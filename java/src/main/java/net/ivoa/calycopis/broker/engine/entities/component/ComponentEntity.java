@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -23,54 +23,19 @@
 
 package net.ivoa.calycopis.broker.engine.entities.component;
 
-import java.net.URI;
-import java.time.Instant;
-import java.util.UUID;
-
-import net.ivoa.calycopis.broker.engine.entities.message.MessageSubject;
+import net.ivoa.calycopis.broker.engine.entities.message.MessageEntity;
 
 /**
- * Public interface for a Component
  * 
  */
-public interface Component
-extends MessageSubject
+public interface ComponentEntity
+extends Component
     {
 
     /**
-     * Get the Component UUID.
-     *
+     * Get an Iterable of MessageEntities for this Component.
+     * 
      */
-    public UUID getUuid();
+    public Iterable<MessageEntity> getMessageEntities();
 
-    /**
-     * Get the Component kind (type).
-     *
-     */
-    public URI getKind() ;
-
-    /**
-     * Get the Component name.
-     *
-     */
-    public String getName();
-
-    /**
-     * Get the Component description.
-     *
-     */
-    public String getDescription();
-
-    /**
-     * Get the Component created date.
-     *
-     */
-    public Instant getCreated();
-
-    /**
-     * Get the Component modified date.
-     *
-     */
-    public Instant getModified();
-    
     }
