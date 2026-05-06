@@ -54,7 +54,6 @@ implements ComponentProcessingRequest
     {
 
     public static final Duration DEFAULT_RELEASE_LOOP_INTERVAL = Duration.ofSeconds(10);
-    public static final long DEFAULT_RELEASE_DELAY_SECONDS = 20;
 
     protected ReleaseComponentRequestEntity()
         {

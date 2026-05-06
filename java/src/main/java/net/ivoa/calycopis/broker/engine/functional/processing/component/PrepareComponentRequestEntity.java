@@ -65,7 +65,6 @@ extends ComponentProcessingRequestEntityImpl
 implements ComponentProcessingRequest
     {
 
-    public static final Duration DEFAULT_PREPARE_WAIT_INTERVAL = Duration.ofSeconds(30);
     public static final Duration DEFAULT_PREPARE_LOOP_INTERVAL = Duration.ofSeconds(10);
     
     protected PrepareComponentRequestEntity()
