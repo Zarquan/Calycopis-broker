@@ -58,7 +58,7 @@ implements DockerDockerContainerValidator
         this.platform = platform;
         }
 
-    public static final Long CACHED_IMAGE_PREPARE_TIME = 10L;
+    public static final Long CACHED_IMAGE_PREPARE_TIME = 1L;
 
     public static final Long IMAGE_DOWNLOAD_PREPARE_TIME = 120L;
 
