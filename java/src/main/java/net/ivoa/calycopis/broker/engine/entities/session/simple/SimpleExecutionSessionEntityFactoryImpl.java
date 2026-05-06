@@ -35,7 +35,6 @@ import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -52,7 +51,7 @@ public class SimpleExecutionSessionEntityFactoryImpl
 
     @Autowired
     public SimpleExecutionSessionEntityFactoryImpl(
-        final ProcessingRequestFactory processingRequestFactory,            
+        //final ProcessingRequestFactory processingRequestFactory,            
         final SimpleExecutionSessionEntityRepository sessionEntityRepository
         //final OfferSetRequestParser offersetRequestParser,
         //final OfferSetFactory offerSetFactory
