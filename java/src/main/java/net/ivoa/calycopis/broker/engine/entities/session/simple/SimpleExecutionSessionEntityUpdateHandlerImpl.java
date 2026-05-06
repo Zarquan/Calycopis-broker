@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
@@ -196,7 +196,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
                     );
                 //
                 // REJECT the other Sessions in the offer.
-                for (AbstractExecutionSessionEntityImpl sibling : entity.getOfferSet().getOffers())
+                for (AbstractExecutionSessionEntity sibling : entity.getOfferSetEntity().getOfferEntities())
                     {
                     if (sibling.getUuid().equals(entity.getUuid()) == false)
                         {

@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,31 +21,21 @@
  *
  */
 
-package net.ivoa.calycopis.broker.engine.entities.session;
+package net.ivoa.calycopis.broker.engine.entities.offerset;
 
-import java.net.URI;
-
-import net.ivoa.calycopis.broker.engine.entities.component.Component;
-import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSet;
+import net.ivoa.calycopis.broker.engine.entities.component.ComponentEntity;
+import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntity;
 
 /**
- * Public interface for an execution session.
- *
+ * 
  */
-public interface AbstractExecutionSession
-extends Component
+public interface OfferSetEntity
+extends OfferSet, ComponentEntity
     {
     /**
-     * The webapp path for sessions.
+     * Get a list of the Execution offers.
      * 
      */
-    public static final URI WEBAPP_PATH = URI.create("sessions/"); 
-
-    /**
-     * Get the parent OfferSet.
-     *
-     */
-    public OfferSet getOfferSet();
+    public Iterable<AbstractExecutionSessionEntity> getOfferEntities();
 
     }
-

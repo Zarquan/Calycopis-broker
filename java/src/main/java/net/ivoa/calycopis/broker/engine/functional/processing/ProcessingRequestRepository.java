@@ -51,7 +51,7 @@ extends JpaRepository<ProcessingRequestEntityImpl, UUID>
         SELECT
             p.uuid
         FROM
-            ProcessingRequestEntity p
+            ProcessingRequestEntityImpl p
         WHERE
             p.service = :service
         AND
@@ -71,7 +71,7 @@ extends JpaRepository<ProcessingRequestEntityImpl, UUID>
     @Query(
         """
         UPDATE
-            ProcessingRequestEntity pe
+            ProcessingRequestEntityImpl pe
         SET
             pe.service = :service
         WHERE
@@ -79,7 +79,7 @@ extends JpaRepository<ProcessingRequestEntityImpl, UUID>
                 SELECT
                     q.uuid
                 FROM
-                    ProcessingRequestEntity q
+                    ProcessingRequestEntityImpl q
                 WHERE
                     q.service IS NULL
                 AND

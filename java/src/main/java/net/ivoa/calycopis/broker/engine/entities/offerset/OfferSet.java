@@ -24,19 +24,17 @@ package net.ivoa.calycopis.broker.engine.entities.offerset;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.List;
 
 import net.ivoa.calycopis.broker.engine.entities.component.Component;
-import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSession;
 import net.ivoa.calycopis.schema.spring.model.IvoaOfferSetResponse.ResultEnum;
 
 /**
  * 
- * TODO Split this into AbstractOfferSet and UmbleOfferSet ?
  * 
  */
 public interface OfferSet
-    extends Component
+extends Component
     {
     /**
      * The webapp path for executables.
@@ -67,6 +65,6 @@ public interface OfferSet
      * Get a list of the Execution offers.
      * 
      */
-    public List<AbstractExecutionSessionEntityImpl> getOffers();
+    public Iterable<AbstractExecutionSession> getOffers();
     
     }

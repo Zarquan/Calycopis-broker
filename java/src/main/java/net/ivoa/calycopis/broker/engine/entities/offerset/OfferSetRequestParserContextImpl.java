@@ -47,11 +47,14 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidator;
+import net.ivoa.calycopis.broker.engine.entities.message.Message;
+import net.ivoa.calycopis.broker.engine.entities.message.MessageEntity;
 import net.ivoa.calycopis.broker.engine.entities.message.MessageEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.broker.engine.functional.validator.Validator;
 import net.ivoa.calycopis.broker.engine.functional.validator.ValidatorBase;
+import net.ivoa.calycopis.broker.engine.util.ListWrapper;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractStorageResource;
@@ -897,11 +900,30 @@ extends ValidatorBase
     private List<MessageEntityImpl> messages = new ArrayList<MessageEntityImpl>();
     
     @Override
-    public List<MessageEntityImpl> getMessages()
+    public Iterable<Message> getMessages()
         {
-        return this.messages;
+        return new ListWrapper<Message, MessageEntityImpl>(
+            this.messages
+            ){
+            public Message wrap(final MessageEntityImpl inner)
+                {
+                return inner;
+                }
+            };
         }
 
+    public Iterable<MessageEntity> getMessageEntities()
+        {
+        return new ListWrapper<MessageEntity, MessageEntityImpl>(
+            this.messages
+            ){
+            public MessageEntity wrap(final MessageEntityImpl inner)
+                {
+                return inner;
+                }
+            };
+        }
+    
     @Override
     public void addMessage(LevelEnum level, String type, String template, Map<String, Object> values)
         {

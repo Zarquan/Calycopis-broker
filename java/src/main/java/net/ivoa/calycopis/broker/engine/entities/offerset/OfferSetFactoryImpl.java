@@ -26,6 +26,7 @@
 package net.ivoa.calycopis.broker.engine.entities.offerset;
 
 import java.time.Instant;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
@@ -165,10 +167,11 @@ public class OfferSetFactoryImpl
                 {
                 //
                 // If the OfferSetEntity has at least one offer.
-                if (offerSetEntityImpl.getOffers().size() > 0)
+                Iterator<AbstractExecutionSessionEntity> offers = offerSetEntityImpl.getOfferEntities().iterator();
+                if (offers.hasNext())
                     {
                     // TODO Get rid of the nasty class casts.
-                    SimpleExecutionSessionEntityImpl offer = (SimpleExecutionSessionEntityImpl) offerSetEntityImpl.getOffers().getFirst();
+                    SimpleExecutionSessionEntityImpl offer = (SimpleExecutionSessionEntityImpl) offers.next();
                     //
                     // Set the phase to ACCEPTED and schedule a PrepareSessionRequest for the offer.
                     offer.setPhase(

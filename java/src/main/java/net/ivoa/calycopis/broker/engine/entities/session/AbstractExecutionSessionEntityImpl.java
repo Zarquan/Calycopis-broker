@@ -32,6 +32,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.ComponentEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSet;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetEntity;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetEntityImpl;
 import net.ivoa.calycopis.broker.engine.util.URIBuilder;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutionSession;
@@ -46,7 +48,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutionSession;
     )
 public abstract class AbstractExecutionSessionEntityImpl
 extends ComponentEntityImpl
-implements AbstractExecutionSession
+implements AbstractExecutionSessionEntity
     {
     @Override
     protected URI getWebappPath()
@@ -79,7 +81,13 @@ implements AbstractExecutionSession
     private OfferSetEntityImpl offerset;
 
     @Override
-    public OfferSetEntityImpl getOfferSet()
+    public OfferSet getOfferSet()
+        {
+        return this.offerset;
+        }
+
+    @Override
+    public OfferSetEntity getOfferSetEntity()
         {
         return this.offerset;
         }

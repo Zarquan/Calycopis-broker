@@ -34,7 +34,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface LifecycleComponentEntityRepository<EntityType extends LifecycleComponentEntityImpl>
-    extends JpaRepository<EntityType, UUID>
+extends JpaRepository<EntityType, UUID>
     {
 
     }

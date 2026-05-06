@@ -41,6 +41,8 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.broker.engine.entities.message.Message;
+import net.ivoa.calycopis.broker.engine.entities.message.MessageEntity;
 import net.ivoa.calycopis.broker.engine.entities.message.MessageEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.message.MessageItemBean;
 import net.ivoa.calycopis.broker.engine.util.ListWrapper;
@@ -61,7 +63,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaMessageItem.LevelEnum;
     strategy = InheritanceType.JOINED
     )
 public abstract class ComponentEntityImpl
-    implements Component
+    implements ComponentEntity
     {
 
     /**
@@ -160,11 +162,32 @@ public abstract class ComponentEntityImpl
     protected List<MessageEntityImpl> messages = new ArrayList<MessageEntityImpl>();
 
     @Override
-    public List<MessageEntityImpl> getMessages()
+    public Iterable<Message> getMessages()
         {
-        return messages ;
+        return new ListWrapper<Message, MessageEntityImpl>(
+            this.messages
+            ){
+            public Message wrap(final MessageEntityImpl inner)
+                {
+                return inner;
+                }
+            };
         }
 
+    @Override
+    public Iterable<MessageEntity> getMessageEntities()
+        {
+        return new ListWrapper<MessageEntity, MessageEntityImpl>(
+            this.messages
+            ){
+            public MessageEntity wrap(final MessageEntityImpl inner)
+                {
+                return inner;
+                }
+            };
+        }
+    
+    
     @Override
     public void addMessage(final LevelEnum level, final String type, final String template, final Map<String, Object> values)
         {
@@ -178,23 +201,6 @@ public abstract class ComponentEntityImpl
         messages.add(
             message
             );
-        }
-
-    /**
-     * Claim a set of messages by setting the message parent and adding it to our list.
-     * 
-     */
-    public void claimMessages(final List<MessageEntityImpl> messages)
-        {
-        for (MessageEntityImpl message : messages)
-            {
-            message.setParent(
-                this
-                );
-            this.messages.add(
-                message
-                );
-            }
         }
     
     @Override
@@ -226,7 +232,7 @@ public abstract class ComponentEntityImpl
     public List<IvoaMessageItem> getMessageBeans()
         {
         return new ListWrapper<IvoaMessageItem, MessageEntityImpl>(
-            this.getMessages()
+            this.messages
             ){
             public IvoaMessageItem wrap(final MessageEntityImpl inner)
                 {

@@ -36,6 +36,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.ComponentEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.message.Message;
+import net.ivoa.calycopis.broker.engine.entities.message.MessageEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSession;
+import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.util.ListWrapper;
 import net.ivoa.calycopis.broker.engine.util.URIBuilder;
@@ -53,7 +57,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaOfferSetResponse.ResultEnum;
     )
 public class OfferSetEntityImpl
 extends ComponentEntityImpl
-implements OfferSet
+implements OfferSetEntity
     {
     @Override
     protected URI getWebappPath()
@@ -120,11 +124,31 @@ implements OfferSet
     List<AbstractExecutionSessionEntityImpl> executions = new ArrayList<AbstractExecutionSessionEntityImpl>();
 
     @Override
-    public List<AbstractExecutionSessionEntityImpl> getOffers()
+    public Iterable<AbstractExecutionSession> getOffers()
         {
-        return executions ;
+        return new ListWrapper<AbstractExecutionSession, AbstractExecutionSessionEntityImpl>(
+            this.executions
+            ){
+            public AbstractExecutionSession wrap(final AbstractExecutionSessionEntityImpl inner)
+                {
+                return inner;
+                }
+            };
         }
- 
+
+    @Override
+    public Iterable<AbstractExecutionSessionEntity> getOfferEntities()
+        {
+        return new ListWrapper<AbstractExecutionSessionEntity, AbstractExecutionSessionEntityImpl>(
+            this.executions
+            ){
+            public AbstractExecutionSessionEntity wrap(final AbstractExecutionSessionEntityImpl inner)
+                {
+                return inner;
+                }
+            };
+        }
+
     public void addExecutionSession(final AbstractExecutionSessionEntityImpl execution)
         {
         executions.add(execution);
@@ -152,7 +176,7 @@ implements OfferSet
             );
         bean.setOffers(
             new ListWrapper<IvoaAbstractExecutionSession, AbstractExecutionSessionEntityImpl>(
-                this.getOffers()
+                this.executions
                 ){
                 public IvoaAbstractExecutionSession wrap(final AbstractExecutionSessionEntityImpl inner)
                     {
@@ -163,5 +187,34 @@ implements OfferSet
                 }
             );
         return bean;
+        }
+
+    /**
+     * Claim a set of messages by setting the message parent and adding it to our list.
+     * TODO - create new MessageEntities from Message interfaces. 
+     */
+    public void claimMessages(final Iterable<Message> messages)
+        {
+        for (Message message : messages)
+            {
+            if (message instanceof MessageEntityImpl)
+                {
+                ((MessageEntityImpl) message).setParent(
+                    this
+                    );
+                this.messages.add(
+                    ((MessageEntityImpl) message)
+                    );
+                }
+            else {
+                log.error(
+                    "Unexpected message type [{}]",
+                    message.getClass().getSimpleName()
+                    );
+                throw new IllegalArgumentException(
+                    "Unexpected message type [" + message.getClass().getSimpleName() + "]"
+                    );
+                }
+            }
         }
     }

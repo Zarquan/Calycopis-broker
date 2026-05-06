@@ -23,7 +23,6 @@
 package net.ivoa.calycopis.broker.engine.entities.message;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import net.ivoa.calycopis.schema.spring.model.IvoaMessageItem.LevelEnum;
@@ -38,7 +37,7 @@ public interface MessageSubject
      * Get the List of messages about this thing.
      * 
      */
-    public List<MessageEntityImpl> getMessages();
+    public Iterable<Message> getMessages();
 
     /**
      * Add a message with a value map.

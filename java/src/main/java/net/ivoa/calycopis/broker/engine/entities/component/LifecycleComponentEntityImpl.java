@@ -71,7 +71,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaLifecycleStartDurationInterval
     )
 public abstract class LifecycleComponentEntityImpl
 extends ComponentEntityImpl
-implements LifecycleComponent
+implements LifecycleComponentEntity
     {
     /**
      * 
