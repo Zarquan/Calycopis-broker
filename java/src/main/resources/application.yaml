@@ -49,7 +49,7 @@ server:
 logging:
     level:
         net.ivoa: DEBUG
-        net.ivoa.calycopis.functional.processing: INFO
+        net.ivoa.calycopis.broker.engine.functional.processing: INFO
         com.baeldung: INFO
         org.hibernate: INFO
         org.apache.tomcat: INFO
