@@ -59,6 +59,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.message.Message;
+import net.ivoa.calycopis.broker.engine.entities.message.MessageEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntityImpl;
@@ -638,6 +640,35 @@ public class SimpleExecutionSessionEntityImpl
             }
         
         return bean;
+        }
+
+    /**
+     * Claim a set of messages by setting the message parent and adding it to our list.
+     * TODO - create new MessageEntities from Message interfaces. 
+     */
+    public void claimMessages(final Iterable<Message> messages)
+        {
+        for (Message message : messages)
+            {
+            if (message instanceof MessageEntityImpl)
+                {
+                ((MessageEntityImpl) message).setParent(
+                    this
+                    );
+                this.messages.add(
+                    ((MessageEntityImpl) message)
+                    );
+                }
+            else {
+                log.error(
+                    "Unexpected message type [{}]",
+                    message.getClass().getSimpleName()
+                    );
+                throw new IllegalArgumentException(
+                    "Unexpected message type [" + message.getClass().getSimpleName() + "]"
+                    );
+                }
+            }
         }
     }
 
