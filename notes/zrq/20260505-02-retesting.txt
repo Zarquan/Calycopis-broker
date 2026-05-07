@@ -169,9 +169,7 @@ EOF
         --env "POSTGRES_PASSWORD=$(yq '.spring.datasource.password' /etc/calycopis/database.yaml)" \
         docker.io/library/postgres:latest
 
---START--
-ed1660c1b838bb42264b6bc1af04652dff1c4b6a02759fdee1fc4ab105fa9c6d
---END--
+    >   ed1660c1b838bb42264b6bc1af04652dff1c4b6a02759fdee1fc4ab105fa9c6d
 
 
 # -----------------------------------------------------
@@ -233,11 +231,9 @@ ed1660c1b838bb42264b6bc1af04652dff1c4b6a02759fdee1fc4ab105fa9c6d
         popd
     popd
 
---START--
-....
-....
-======== 49 passed, 20 warnings in 301.29s (0:05:01) ========
---END--
+    >   ....
+    >   ....
+    >   ======== 49 passed, 20 warnings in 301.29s (0:05:01) ========
 
 
 # -----------------------------------------------------
@@ -285,9 +281,7 @@ ed1660c1b838bb42264b6bc1af04652dff1c4b6a02759fdee1fc4ab105fa9c6d
         popd
     popd
 
---START--
-....
-....
-======== 43 passed, 246 warnings in 1288.32s (0:21:28) ========
---END--
+    >   ....
+    >   ....
+    >   ======== 43 passed, 246 warnings in 1288.32s (0:21:28) ========
 
