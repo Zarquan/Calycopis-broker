@@ -45,6 +45,7 @@
     Create a re-usable component for resource booking.
     Implement resource booking for a storage pool.
 
+    Refactor mock classes to use a simple duration rather than loop count.
 
 # -----------------------------------------------------
 # medium
@@ -58,6 +59,7 @@
 # minor
 
     Get rid of Optional, just return null.
+    Or make use of the NoSuchElementException that Optional throws.
 
     Remove the XyzEntity interfaces and replace woth XyzEntityImpl.
     Evaluate - do we need XyzEntityFactory interfaces
