@@ -42,7 +42,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.message.Message;
-import net.ivoa.calycopis.broker.engine.entities.message.MessageEntity;
 import net.ivoa.calycopis.broker.engine.entities.message.MessageEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.message.MessageItemBean;
 import net.ivoa.calycopis.broker.engine.util.ListWrapper;
@@ -63,7 +62,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaMessageItem.LevelEnum;
     strategy = InheritanceType.JOINED
     )
 public abstract class ComponentEntityImpl
-    implements ComponentEntity
+    implements Component
     {
 
     /**
@@ -161,6 +160,11 @@ public abstract class ComponentEntityImpl
         )
     protected List<MessageEntityImpl> messages = new ArrayList<MessageEntityImpl>();
 
+    public Iterable<MessageEntityImpl> getMessageEntities()
+        {
+        return this.messages;
+        }
+    
     @Override
     public Iterable<Message> getMessages()
         {
@@ -173,20 +177,6 @@ public abstract class ComponentEntityImpl
                 }
             };
         }
-
-    @Override
-    public Iterable<MessageEntity> getMessageEntities()
-        {
-        return new ListWrapper<MessageEntity, MessageEntityImpl>(
-            this.messages
-            ){
-            public MessageEntity wrap(final MessageEntityImpl inner)
-                {
-                return inner;
-                }
-            };
-        }
-    
     
     @Override
     public void addMessage(final LevelEnum level, final String type, final String template, final Map<String, Object> values)

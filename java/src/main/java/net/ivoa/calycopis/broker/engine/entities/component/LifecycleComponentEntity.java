@@ -26,6 +26,7 @@ package net.ivoa.calycopis.broker.engine.entities.component;
 /**
  * 
  */
+@Deprecated
 public interface LifecycleComponentEntity
 extends LifecycleComponent
     {

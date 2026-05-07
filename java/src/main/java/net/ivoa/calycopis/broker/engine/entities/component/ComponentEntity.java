@@ -23,11 +23,12 @@
 
 package net.ivoa.calycopis.broker.engine.entities.component;
 
-import net.ivoa.calycopis.broker.engine.entities.message.MessageEntity;
+import net.ivoa.calycopis.broker.engine.entities.message.MessageEntityImpl;
 
 /**
  * 
  */
+@Deprecated
 public interface ComponentEntity
 extends Component
     {
@@ -36,6 +37,6 @@ extends Component
      * Get an Iterable of MessageEntities for this Component.
      * 
      */
-    public Iterable<MessageEntity> getMessageEntities();
+    public Iterable<MessageEntityImpl> getMessageEntities();
 
     }

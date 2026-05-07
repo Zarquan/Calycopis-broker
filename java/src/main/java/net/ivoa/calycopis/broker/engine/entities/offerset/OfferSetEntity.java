@@ -23,14 +23,13 @@
 
 package net.ivoa.calycopis.broker.engine.entities.offerset;
 
-import net.ivoa.calycopis.broker.engine.entities.component.ComponentEntity;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntity;
 
 /**
  * 
  */
 public interface OfferSetEntity
-extends OfferSet, ComponentEntity
+extends OfferSet
     {
     /**
      * Get a list of the Execution offers.
