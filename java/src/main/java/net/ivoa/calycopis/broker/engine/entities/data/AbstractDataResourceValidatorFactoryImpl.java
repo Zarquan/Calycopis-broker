@@ -33,25 +33,20 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.data;
 
-import org.springframework.stereotype.Component;
-
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 
 /**
- * A factory implementation for DataResource validators.
+ * An AbstractDataResourceValidatorFactory implementation.
  * 
  */
-@Component
 public class AbstractDataResourceValidatorFactoryImpl
 extends ValidatorFactoryImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
 implements AbstractDataResourceValidatorFactory
     {
-
     /**
-     * Default constructor.
-     * Validators are registered externally by the Platform. 
+     * Public constructor used by our Platform.
      * 
      */
     public AbstractDataResourceValidatorFactoryImpl()

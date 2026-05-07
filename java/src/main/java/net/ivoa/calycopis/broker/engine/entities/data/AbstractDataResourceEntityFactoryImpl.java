@@ -38,8 +38,6 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResource;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
@@ -61,7 +59,6 @@ implements AbstractDataResourceEntityFactory
         return SimpleDataResource.TYPE_DISCRIMINATOR;
         }
 
-    @Autowired
     public AbstractDataResourceEntityFactoryImpl(final AbstractDataResourceEntityRepository repository)
         {
         super();
