@@ -61,7 +61,7 @@ extends LifecycleComponentEntityImpl
 implements AbstractComputeResource
     {
     /**
-     * Protected constructor.
+     * Protected constructor for JPA entities.
      * 
      */
     protected AbstractComputeResourceEntityImpl()
@@ -70,8 +70,7 @@ implements AbstractComputeResource
         }
 
     /**
-     * Protected constructor.
-     * Automatically adds this resource to the parent SessionEntity.
+     * Protected constructor used by our Factories.
      * 
      */
     protected AbstractComputeResourceEntityImpl(

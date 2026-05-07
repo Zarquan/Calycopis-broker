@@ -46,7 +46,7 @@ import net.ivoa.calycopis.broker.engine.util.URIBuilder;
 import net.ivoa.calycopis.schema.spring.model.IvoaS3DataResource;
 
 /**
- * An Amazon S3 data resource.
+ * An AmazonS3DataResourceEntity implementation.
  *
  */
 @Entity
@@ -64,7 +64,7 @@ public abstract class AmazonS3DataResourceEntityImpl
         }
 
     /**
-     * Protected constructor
+     * Protected constructor for JPA entities.
      *
      */
     protected AmazonS3DataResourceEntityImpl()
@@ -73,10 +73,10 @@ public abstract class AmazonS3DataResourceEntityImpl
         }
 
     /**
-     * Protected constructor with parent, storage, and validation Result.
+     * Protected constructor used by our Factories.
      *
      */
-    public AmazonS3DataResourceEntityImpl(
+    protected AmazonS3DataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
@@ -90,12 +90,10 @@ public abstract class AmazonS3DataResourceEntityImpl
         }
     
     /**
-     * Protected constructor with parent and template.
-     * TODO validated can be replaced by Result.getObject()
-     * TODO No need to pass validated.getMeta() separately.
+     * Protected constructor used by our Factories.
      *
      */
-    public AmazonS3DataResourceEntityImpl(
+    protected AmazonS3DataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result,
@@ -111,33 +109,32 @@ public abstract class AmazonS3DataResourceEntityImpl
         this.template = validated.getTemplate();
         this.bucket   = validated.getBucket();
         this.object   = validated.getObject();
-
         }
 
     private String endpoint;
     @Override
-    public String getEndpoint()
+    public String getS3Endpoint()
         {
         return this.endpoint;
         }
 
     private String template;
     @Override
-    public String getTemplate()
+    public String getS3Template()
         {
         return this.template;
         }
 
     private String bucket;
     @Override
-    public String getBucket()
+    public String getS3BucketName()
         {
         return this.bucket;
         }
 
     private String object;
     @Override
-    public String getObject()
+    public String getS3ObjectName()
         {
         return this.object;
         }

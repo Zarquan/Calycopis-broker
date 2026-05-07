@@ -43,5 +43,4 @@ import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockMonitorab
 public interface MockAmazonS3DataResource
 extends AmazonS3DataResource, MockMonitorableComponent
     {
-
     }

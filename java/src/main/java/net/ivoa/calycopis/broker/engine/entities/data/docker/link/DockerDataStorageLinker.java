@@ -31,5 +31,4 @@ import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
 public interface DockerDataStorageLinker
 extends AbstractDataStorageLinker
     {
-
     }

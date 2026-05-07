@@ -34,9 +34,13 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 public interface AbstractDataStorageLinker
 extends FactoryBase
     {
+    /**
+     * Link, or create, a storage resource to a data resource,
+     * 
+     */
     public AbstractStorageResourceValidator.Result linkStorage(
-            final IvoaAbstractDataResource requested,
-            final IvoaAbstractDataResource validated,
-            final OfferSetRequestParserContext context
-            );
+        final IvoaAbstractDataResource requested,
+        final IvoaAbstractDataResource validated,
+        final OfferSetRequestParserContext context
+        );
     }

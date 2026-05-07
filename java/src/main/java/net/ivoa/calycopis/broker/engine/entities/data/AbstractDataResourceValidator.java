@@ -41,7 +41,7 @@ import net.ivoa.calycopis.broker.engine.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 
 /**
- * Public interface for DataResource validators and results.
+ * Public interface for AbstractDataResource Validators.
  * 
  */
 public interface AbstractDataResourceValidator
@@ -54,16 +54,15 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
     public interface Result
     extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
         {
-        // TODO Keep references to the storage resource for this data.
         /**
-         * Build an entity based on a validation result. 
+         * Build a DataResourceEntity based on a validation result. 
          *
          */
         public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session);
         }
 
     /**
-     * Validate a component.
+     * Validate a DataResource.
      *
      */
     public ResultEnum validate(

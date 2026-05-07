@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 
 /**
- * A SimpleComputeResource Factory implementation.
+ * A SimpleComputeResourceEntity Factory implementation.
  *
  */
 @Slf4j

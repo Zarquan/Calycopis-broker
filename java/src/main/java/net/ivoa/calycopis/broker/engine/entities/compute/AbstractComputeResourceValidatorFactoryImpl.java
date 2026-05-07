@@ -36,7 +36,10 @@ public class AbstractComputeResourceValidatorFactoryImpl
 extends ValidatorFactoryImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl>
 implements AbstractComputeResourceValidatorFactory
     {
-
+    /**
+     * Public constructor, used by our Platforms.
+     * 
+     */
     public AbstractComputeResourceValidatorFactoryImpl()
         {
         super();

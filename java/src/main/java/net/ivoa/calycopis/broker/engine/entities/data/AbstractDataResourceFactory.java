@@ -31,5 +31,4 @@ import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBase;
 public interface AbstractDataResourceFactory
 extends FactoryBase
     {
-    
     }

@@ -33,9 +33,8 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
 public interface AbstractDataResourceEntityFactory
 extends LifecycleComponentEntityFactory<AbstractDataResourceEntity>
     {
-
     /**
-     * Create a new data resource.
+     * Create a new DataResourceEntity based on a Validator Result.
      *
      */
     public AbstractDataResourceEntity create(
@@ -43,5 +42,4 @@ extends LifecycleComponentEntityFactory<AbstractDataResourceEntity>
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
         );
-
     }

@@ -64,17 +64,19 @@ implements DockerFileResource
     {
 
     /**
+     * Protected constructor for JPA entities.
      * 
      */
-    public DockerFileResourceEntityImpl()
+    protected DockerFileResourceEntityImpl()
         {
         super();
         }
 
     /**
+     * Protected constructor used by our Factories.
      * 
      */
-    public DockerFileResourceEntityImpl(
+    protected DockerFileResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final Result result
@@ -87,9 +89,9 @@ implements DockerFileResource
         }
 
     /**
+     * Protected constructor used by our Factories.
      * 
-     */
-    public DockerFileResourceEntityImpl(
+    protected DockerFileResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final Result result,
@@ -102,6 +104,7 @@ implements DockerFileResource
             validated
             );
         }
+     */
 
     @Override
     public ProcessingAction getPrepareAction(Platform platform, ComponentProcessingRequest request)
@@ -164,5 +167,4 @@ implements DockerFileResource
                 }
             };
         }
-
     }

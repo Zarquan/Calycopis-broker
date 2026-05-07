@@ -28,7 +28,7 @@ import java.net.URI;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResource;
 
 /**
- * Public interface for a SimpleDataResource.
+ * Public interface for an AmazonS3DataResource.
  *
  */
 public interface AmazonS3DataResource
@@ -44,25 +44,25 @@ public interface AmazonS3DataResource
      * Get the Amazon S3 service endpoint.
      *
      */
-    public String getEndpoint();
+    public String getS3Endpoint();
 
     /**
      * Get the Amazon S3 URL template.
      *
      */
-    public String getTemplate();
+    public String getS3Template();
 
     /**
      * Get the Amazon S3 bucket name.
      *
      */
-    public String getBucket();
+    public String getS3BucketName();
 
     /**
      * Get the Amazon S3 object name.
      *
      */
-    public String getObject();
+    public String getS3ObjectName();
     
     }
 

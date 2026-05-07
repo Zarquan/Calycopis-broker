@@ -97,7 +97,7 @@ implements DockerSimpleComputeResource
     {
 
     /**
-     * Protected constructor.
+     * Protected constructor for JPA entities.
      *
      */
     protected DockerSimpleComputeResourceEntityImpl()
@@ -106,7 +106,7 @@ implements DockerSimpleComputeResource
         }
 
     /**
-     * Protected constructor with session, validation result, and offer.
+     * Protected constructor used by our Factories.
      *
      */
     protected DockerSimpleComputeResourceEntityImpl(

@@ -66,7 +66,7 @@ public abstract class ComponentEntityImpl
     {
 
     /**
-     * Protected constructor.
+     * Protected constructor for JPA entities.
      *
      */
     protected ComponentEntityImpl()
@@ -75,7 +75,7 @@ public abstract class ComponentEntityImpl
         }
 
     /**
-     * Protected constructor.
+     * Protected constructor used by our Factories.
      *
      */
     protected ComponentEntityImpl(final String name)

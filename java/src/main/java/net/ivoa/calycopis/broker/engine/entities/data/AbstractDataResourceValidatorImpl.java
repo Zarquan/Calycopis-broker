@@ -43,9 +43,10 @@ implements AbstractDataResourceValidator
     private final AbstractDataStorageLinker storageLinker ;
     
     /**
+     * Protected constructor.
      * 
      */
-    public AbstractDataResourceValidatorImpl(
+    protected AbstractDataResourceValidatorImpl(
         final AbstractDataStorageLinker storageLinker
         ){
         super();

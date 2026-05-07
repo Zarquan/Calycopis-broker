@@ -77,7 +77,7 @@ public abstract class SimpleComputeResourceEntityImpl
         }
 
     /**
-     * Protected constructor
+     * Protected constructor for JPA entities.
      *
      */
     protected SimpleComputeResourceEntityImpl()
@@ -86,7 +86,7 @@ public abstract class SimpleComputeResourceEntityImpl
         }
 
     /**
-     * Protected constructor with session, validation result, and offer.
+     * Protected constructor used by our Factories.
      *
      */
     protected SimpleComputeResourceEntityImpl(

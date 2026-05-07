@@ -67,7 +67,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.schema.spring.model.IvoaS3DataResource;
 
 /**
- * A validator implementation to handle simple data resources.
+ * A Validator implementation to handle AmazonS3DataResources.
  * TODO A lot of this should be inherited from SimpleDataResourceValidator.
  * TODO Create a common base class with methods that can be inherited.
  * 
@@ -116,7 +116,7 @@ implements AmazonS3DataResourceValidator
         }
 
     /**
-     * Validate an S3 data resource.
+     * Validate an AmazonS3 data resource.
      *
      */
     public ResultEnum validate(

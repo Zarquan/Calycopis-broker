@@ -70,7 +70,7 @@ implements MockSimpleComputeResource
     {
 
     /**
-     * Protected constructor
+     * Protected constructor for JPA entities.
      *
      */
     protected MockSimpleComputeResourceEntityImpl()
@@ -79,7 +79,7 @@ implements MockSimpleComputeResource
         }
 
     /**
-     * Protected constructor with session, validation result, and offer.
+     * Protected constructor used by our Factories.
      *
      */
     protected MockSimpleComputeResourceEntityImpl(

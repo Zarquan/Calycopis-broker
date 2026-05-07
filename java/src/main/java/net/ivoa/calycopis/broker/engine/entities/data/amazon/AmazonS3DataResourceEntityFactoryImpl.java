@@ -34,21 +34,23 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data.amazon;
 
+import java.net.URI;
+
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceFactoryImpl;
 
 /**
- * An AmazonS3DataResource Factory implementation.
+ * An AmazonS3DataResourceEntity Factory implementation.
  *
  */
 @Slf4j
 public abstract class AmazonS3DataResourceEntityFactoryImpl
-    extends AbstractDataResourceFactoryImpl
-    implements AmazonS3DataResourceEntityFactory
+extends AbstractDataResourceFactoryImpl
+implements AmazonS3DataResourceEntityFactory
     {
-
-    public AmazonS3DataResourceEntityFactoryImpl()
+    @Override
+    public URI getKind()
         {
-        super();
+        return AmazonS3DataResource.TYPE_DISCRIMINATOR;
         }
     }

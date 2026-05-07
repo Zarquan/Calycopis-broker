@@ -33,9 +33,8 @@ import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResour
 public interface AbstractComputeResourceEntityFactory
 extends LifecycleComponentEntityFactory<AbstractComputeResourceEntityImpl>
     {
-
     /**
-     * Create a new AbstractComputeResourceEntity based on a validation result.
+     * Create a new ComputeResourceEntity based on a Validator Result and a ComputeResourceOffer.
      *
      */
     public AbstractComputeResourceEntityImpl create(
@@ -43,5 +42,4 @@ extends LifecycleComponentEntityFactory<AbstractComputeResourceEntityImpl>
         final AbstractComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         );
-    
     }

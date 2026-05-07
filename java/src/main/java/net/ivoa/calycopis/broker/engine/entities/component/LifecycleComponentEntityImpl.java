@@ -74,17 +74,19 @@ extends ComponentEntityImpl
 implements LifecycleComponent
     {
     /**
+     * Protected constructor for JPA entities.
      * 
      */
-    public LifecycleComponentEntityImpl()
+    protected LifecycleComponentEntityImpl()
         {
         super();
         }
 
     /**
+     * Protected constructor used by our Factories.
      * 
      */
-    public LifecycleComponentEntityImpl(
+    protected LifecycleComponentEntityImpl(
         final IvoaComponentMetadata meta
         ){
         this(

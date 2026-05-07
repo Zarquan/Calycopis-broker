@@ -38,11 +38,10 @@ import net.ivoa.calycopis.broker.engine.functional.validator.ValidatorFactory;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 
 /**
- * Public interface for a DataResource ValidatorFactory.
+ * Public interface for a DataResourceValidator Factory.
  * 
  */
 public interface AbstractDataResourceValidatorFactory
 extends AbstractDataResourceValidator, ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
-
     }

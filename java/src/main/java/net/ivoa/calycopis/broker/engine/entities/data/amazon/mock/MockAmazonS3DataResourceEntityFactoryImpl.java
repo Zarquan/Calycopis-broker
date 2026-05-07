@@ -36,10 +36,8 @@ package net.ivoa.calycopis.broker.engine.entities.data.amazon.mock;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.AmazonS3DataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.AmazonS3DataResourceEntityImpl;
@@ -50,7 +48,6 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
  *
  */
 @Slf4j
-@Component
 public class MockAmazonS3DataResourceEntityFactoryImpl
 extends AmazonS3DataResourceEntityFactoryImpl
 implements MockAmazonS3DataResourceEntityFactory
@@ -58,7 +55,10 @@ implements MockAmazonS3DataResourceEntityFactory
 
     private final MockAmazonS3DataResourceEntityRepository repository;
 
-    @Autowired
+    /**
+     * Public constructor, used by our Platform.
+     *
+     */
     public MockAmazonS3DataResourceEntityFactoryImpl(
         final MockAmazonS3DataResourceEntityRepository repository
         ){
@@ -67,7 +67,7 @@ implements MockAmazonS3DataResourceEntityFactory
         }
 
     @Override
-    public Optional<AmazonS3DataResourceEntityImpl> select(final UUID uuid)
+    public Optional<AbstractDataResourceEntity> select(final UUID uuid)
         {
         return Optional.of(
             this.repository.findById(uuid).get()

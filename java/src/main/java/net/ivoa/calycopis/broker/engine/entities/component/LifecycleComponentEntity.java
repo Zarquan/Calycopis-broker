@@ -30,5 +30,4 @@ package net.ivoa.calycopis.broker.engine.entities.component;
 public interface LifecycleComponentEntity
 extends LifecycleComponent
     {
-
     }

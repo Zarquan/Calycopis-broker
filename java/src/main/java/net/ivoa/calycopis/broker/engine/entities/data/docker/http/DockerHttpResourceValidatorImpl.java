@@ -39,9 +39,6 @@ extends SimpleDataResourceValidatorImpl
 implements DockerHttpResourceValidator
     {
 
-    /**
-     * 
-     */
     public DockerHttpResourceValidatorImpl(
         final AbstractDataResourceEntityFactory entityFactory,
         final AbstractDataStorageLinker storageLinker
@@ -98,5 +95,4 @@ implements DockerHttpResourceValidator
         {
         return 0L;
         }
-
     }

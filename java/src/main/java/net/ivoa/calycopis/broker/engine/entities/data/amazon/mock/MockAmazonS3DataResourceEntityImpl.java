@@ -61,17 +61,19 @@ public class MockAmazonS3DataResourceEntityImpl
     implements MockAmazonS3DataResource
     {
     /**
+     * Protected constructor for JPA entities.
      * 
      */
-    public MockAmazonS3DataResourceEntityImpl()
+    protected MockAmazonS3DataResourceEntityImpl()
         {
         super();
         }
 
     /**
+     * Protected constructor used by our Factories.
      *
      */
-    public MockAmazonS3DataResourceEntityImpl(
+    protected MockAmazonS3DataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result

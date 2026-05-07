@@ -74,7 +74,7 @@ extends LifecycleComponentEntityImpl
 implements AbstractDataResource
     {
     /**
-     * Protected constructor.
+     * Protected constructor for JPA entities.
      * 
      */
     protected AbstractDataResourceEntity()
@@ -83,8 +83,7 @@ implements AbstractDataResource
         }
 
     /**
-     * Protected constructor.
-     * Automatically adds this resource to the parent SessionEntity.
+     * Protected constructor used by our Factories.
      * TODO meta can be replaced by Result.getObject().getMeta()
      * 
      */
@@ -157,8 +156,7 @@ implements AbstractDataResource
         )
     List<AbstractVolumeMountEntityImpl> volumeMounts = new ArrayList<AbstractVolumeMountEntityImpl>();
 
-    @Override
-    public List<AbstractVolumeMountEntityImpl> getVolumeMounts()
+    public List<AbstractVolumeMountEntityImpl> getVolumeMountEntities()
         {
         return volumeMounts;
         }

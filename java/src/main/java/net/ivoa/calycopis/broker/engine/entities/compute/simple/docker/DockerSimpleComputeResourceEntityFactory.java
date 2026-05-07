@@ -24,8 +24,6 @@
 package net.ivoa.calycopis.broker.engine.entities.compute.simple.docker;
 
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOffer;
 
 /**
  * A DockerSimpleComputeResourceEntity Factory.
@@ -34,14 +32,4 @@ import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResour
 public interface DockerSimpleComputeResourceEntityFactory
 extends SimpleComputeResourceEntityFactory
     {
-    /**
-     * Create a new DockerSimpleComputeResourceEntity based on a Validator Result and a ComputeResourceOffer .
-     * TODO Move this up to SimpleComputeResourceEntityFactory.
-     *
-     */
-    public DockerSimpleComputeResourceEntityImpl create(
-        final SimpleExecutionSessionEntityImpl session,
-        final DockerSimpleComputeResourceValidator.Result result,
-        final ComputeResourceOffer offer
-        );
     }

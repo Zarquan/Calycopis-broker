@@ -182,7 +182,7 @@ implements DockerDataStorageLinker
             }
         }
     
-    AbstractStorageResourceValidator.Result linkBindMount(
+    protected AbstractStorageResourceValidator.Result linkBindMount(
         final IvoaSimpleDataResource requested,
         final IvoaSimpleDataResource validated,
         final OfferSetRequestParserContext context
@@ -232,7 +232,7 @@ implements DockerDataStorageLinker
         
         }
 
-    Result linkVolumeMount(
+    protected Result linkVolumeMount(
         final IvoaSimpleDataResource requested,
         final IvoaSimpleDataResource validated,
         final OfferSetRequestParserContext context

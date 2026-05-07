@@ -31,7 +31,9 @@ import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserC
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleDataResource;
 
 /**
- * 
+ * A STOP Validator to cap the end of the validator chain for SimpleDataResources.
+ * This Validator fails the validation, adding a warning message to indicate that the platform is unable to handle the requested location .
+ *  
  */
 @Slf4j
 public class DockerStopResourceValidatorImpl
@@ -39,9 +41,6 @@ extends SimpleDataResourceValidatorImpl
 implements DockerStopResourceValidator
     {
 
-    /**
-     * 
-     */
     public DockerStopResourceValidatorImpl()
         {
         super(null, null);
@@ -59,7 +58,7 @@ implements DockerStopResourceValidator
 
         context.addWarning(
                 "uri:unknown-url",
-                "Unknown location [${location}]",
+                "Unable to handle data location [${location}]",
                 Map.of(
                     "location",
                     location

@@ -30,7 +30,7 @@ import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResource
  *
  */
 public interface DockerSimpleComputeResource
-    extends AbstractComputeResource
+extends AbstractComputeResource
     {
 
     /**
