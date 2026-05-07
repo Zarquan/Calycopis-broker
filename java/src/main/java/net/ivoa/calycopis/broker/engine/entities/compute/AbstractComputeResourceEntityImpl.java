@@ -38,8 +38,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMount;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityImpl;
 import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOffer;
+import net.ivoa.calycopis.broker.engine.util.ListWrapper;
 import net.ivoa.calycopis.broker.engine.util.URIBuilder;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.schema.spring.model.IvoaComponentMetadata;
@@ -123,13 +125,25 @@ implements AbstractComputeResource
         orphanRemoval = true
         )
     List<AbstractVolumeMountEntityImpl> volumeMounts = new ArrayList<AbstractVolumeMountEntityImpl>();
-
-    @Override
-    public List<AbstractVolumeMountEntityImpl> getVolumeMounts()
+    
+    public Iterable<AbstractVolumeMountEntityImpl> getVolumeMountEntities()
         {
         return volumeMounts;
         }
 
+    @Override
+    public Iterable<AbstractVolumeMount> getVolumeMounts()
+        {
+        return new ListWrapper<AbstractVolumeMount, AbstractVolumeMountEntityImpl>(
+            this.volumeMounts
+            ){
+            public AbstractVolumeMount wrap(final AbstractVolumeMountEntityImpl inner)
+                {
+                return inner;
+                }
+            };
+        }
+    
     public void addVolumeMount(final AbstractVolumeMountEntityImpl volume)
         {
         volumeMounts.add(

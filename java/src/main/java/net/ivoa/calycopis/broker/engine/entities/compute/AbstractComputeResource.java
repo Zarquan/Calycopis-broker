@@ -24,10 +24,9 @@
 package net.ivoa.calycopis.broker.engine.entities.compute;
 
 import java.net.URI;
-import java.util.List;
 
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponent;
-import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMount;
 
 /**
  * 
@@ -45,6 +44,6 @@ public interface AbstractComputeResource
      * Get the list of volume mounts attached to this resource.
      *
      */
-    public List<AbstractVolumeMountEntityImpl> getVolumeMounts();
+    public Iterable<AbstractVolumeMount> getVolumeMounts();
 
     }

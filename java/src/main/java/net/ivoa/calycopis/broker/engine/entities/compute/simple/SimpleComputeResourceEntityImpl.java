@@ -230,7 +230,7 @@ public abstract class SimpleComputeResourceEntityImpl
         memorybean.setMax(maxofferedcores);
         bean.setMemory(memorybean);
 
-        for (AbstractVolumeMountEntityImpl volume : this.getVolumeMounts())
+        for (AbstractVolumeMountEntityImpl volume : this.getVolumeMountEntities())
             {
             bean.addVolumesItem(
                 volume.makeBean(uribuilder)
