@@ -39,31 +39,27 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResource;
-import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityRepository;
-import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityFactoryImpl;
 
 /**
- * A factory that can select any SimpleDataResourceEntity subtype
- * by UUID, using the parent JPA repository to handle all subtypes
- * via JPA JOINED inheritance.
+ * A factory that can handle DockerSimpleDataResourceEntity subtypes.
  *
  */
-@Component
-public class DockerSimpleDataResourceEntityFactoryImpl
-extends FactoryBaseImpl
+public abstract class DockerSimpleDataResourceEntityFactoryImpl
+extends SimpleDataResourceEntityFactoryImpl
 implements DockerSimpleDataResourceEntityFactory
     {
 
-    private final SimpleDataResourceEntityRepository repository;
+    protected final DockerSimpleDataResourceEntityRepository repository;
 
-    @Autowired
+    /**
+     * Public constructor used by our Platform.
+     *
+     */
     public DockerSimpleDataResourceEntityFactoryImpl(
-        final SimpleDataResourceEntityRepository repository
+        final DockerSimpleDataResourceEntityRepository repository
         ){
         super();
         this.repository = repository;
@@ -76,8 +72,10 @@ implements DockerSimpleDataResourceEntityFactory
         }
 
     @Override
-    public Optional<SimpleDataResourceEntityImpl> select(final UUID uuid)
+    public Optional<AbstractDataResourceEntity> select(final UUID uuid)
         {
-        return this.repository.findById(uuid);
+        return Optional.of(
+            this.repository.findById(uuid).get()
+            );
         }
     }

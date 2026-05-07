@@ -23,14 +23,12 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data.docker.file;
 
-import java.util.UUID;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import net.ivoa.calycopis.broker.engine.entities.data.docker.DockerSimpleDataResourceEntityRepository;
 
 /**
  * 
  */
 public interface DockerFileResourceEntityRepository
-extends JpaRepository<DockerFileResourceEntityImpl, UUID>
+extends DockerSimpleDataResourceEntityRepository
     {
     }

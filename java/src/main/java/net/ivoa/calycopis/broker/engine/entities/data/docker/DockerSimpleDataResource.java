@@ -21,14 +21,14 @@
  *
  */
 
-package net.ivoa.calycopis.broker.engine.entities.data.docker.http;
+package net.ivoa.calycopis.broker.engine.entities.data.docker;
 
-import net.ivoa.calycopis.broker.engine.entities.data.docker.DockerSimpleDataResourceEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResource;
 
 /**
  * 
  */
-public interface DockerHttpResourceEntityFactory
-extends DockerSimpleDataResourceEntityFactory
+public interface DockerSimpleDataResource
+extends SimpleDataResource
     {
     }

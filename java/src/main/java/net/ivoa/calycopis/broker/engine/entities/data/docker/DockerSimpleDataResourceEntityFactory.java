@@ -35,17 +35,13 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data.docker;
 
-import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityFactory;
 
 /**
- * A factory that can select any SimpleDataResourceEntity subtype
- * by UUID, using the parent JPA repository to handle all subtypes
- * (DockerFileResourceEntity, DockerHttpResourceEntity, etc.)
- * via JPA JOINED inheritance.
+ * A factory that can handle DockerSimpleDataResourceEntity subtypes.
  *
  */
 public interface DockerSimpleDataResourceEntityFactory
-extends LifecycleComponentEntityFactory<SimpleDataResourceEntityImpl>
+extends SimpleDataResourceEntityFactory
     {
     }

@@ -23,12 +23,12 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data.docker.http;
 
-import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResource;
+import net.ivoa.calycopis.broker.engine.entities.data.docker.DockerSimpleDataResource;
 
 /**
  * 
  */
 public interface DockerHttpResource
-extends SimpleDataResource
+extends DockerSimpleDataResource
     {
     }

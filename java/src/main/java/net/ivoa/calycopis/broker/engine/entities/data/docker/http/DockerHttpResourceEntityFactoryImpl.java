@@ -23,16 +23,11 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data.docker.http;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.data.docker.DockerSimpleDataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 
@@ -42,25 +37,15 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
 @Slf4j
 @Component
 public class DockerHttpResourceEntityFactoryImpl
-extends SimpleDataResourceEntityFactoryImpl
+extends DockerSimpleDataResourceEntityFactoryImpl
 implements DockerHttpResourceEntityFactory
     {
 
-    private final DockerHttpResourceEntityRepository repository;
-
-    @Autowired
     public DockerHttpResourceEntityFactoryImpl(
         final DockerHttpResourceEntityRepository repository
         ){
-        super();
-        this.repository = repository;
-        }
-
-    @Override
-    public Optional<AbstractDataResourceEntity> select(final UUID uuid)
-        {
-        return Optional.of(
-            this.repository.findById(uuid).get()
+        super(
+            repository
             );
         }
 
