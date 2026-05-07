@@ -22,19 +22,16 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.compute;
 
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractComputeResource;
 
 /**
- * A factory for compute resource validators.
+ * A Factory for AbstractComputeResourceValidators.
  * 
  */
 @Slf4j
-@Component
 public class AbstractComputeResourceValidatorFactoryImpl
 extends ValidatorFactoryImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl>
 implements AbstractComputeResourceValidatorFactory

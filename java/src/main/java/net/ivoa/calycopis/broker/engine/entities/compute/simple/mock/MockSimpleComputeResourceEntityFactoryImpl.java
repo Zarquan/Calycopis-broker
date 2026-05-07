@@ -26,9 +26,6 @@ package net.ivoa.calycopis.broker.engine.entities.compute.simple.mock;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceEntityFactoryImpl;
@@ -40,7 +37,6 @@ import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResour
  *
  */
 @Slf4j
-@Component
 public class MockSimpleComputeResourceEntityFactoryImpl
 extends SimpleComputeResourceEntityFactoryImpl
 implements MockSimpleComputeResourceEntityFactory
@@ -48,7 +44,6 @@ implements MockSimpleComputeResourceEntityFactory
 
     private final MockSimpleComputeResourceEntityRepository repository;
 
-    @Autowired
     public MockSimpleComputeResourceEntityFactoryImpl(final MockSimpleComputeResourceEntityRepository repository)
         {
         super();

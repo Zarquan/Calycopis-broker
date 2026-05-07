@@ -58,7 +58,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidatorFactory;
+import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidatorFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.docker.DockerSimpleComputeResourceEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.compute.simple.docker.DockerSimpleComputeResourceEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.compute.simple.docker.DockerSimpleComputeResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.docker.DockerSimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
@@ -104,6 +107,14 @@ implements DockerPlatform
 
     public void initialize()
         {
+        log.debug("initialize()");
+        
+        //
+        // Need to do this here because computeResourceEntityRepository is not available at construction time.
+        this.computeResourceEntityFactory = new DockerSimpleComputeResourceEntityFactoryImpl(
+            this.computeResourceEntityRepository
+            );
+        
         //
         // Register validators with the most specific types first.
         // Each validator factory will iterate through it's list of
@@ -186,10 +197,10 @@ implements DockerPlatform
         }
     
     @Autowired
-    private DockerSimpleComputeResourceEntityFactory computeResourceEntityFactory;
+    private DockerSimpleComputeResourceEntityRepository computeResourceEntityRepository;
+    private DockerSimpleComputeResourceEntityFactory    computeResourceEntityFactory;
 
-    @Autowired
-    private AbstractComputeResourceValidatorFactory computeResourceValidatorFactory;
+    private AbstractComputeResourceValidatorFactory computeResourceValidatorFactory = new AbstractComputeResourceValidatorFactoryImpl();
     @Override
     public AbstractComputeResourceValidatorFactory getComputeResourceValidators()
         {

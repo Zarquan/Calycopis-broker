@@ -36,8 +36,6 @@ package net.ivoa.calycopis.broker.engine.entities.compute.simple;
 
 import java.net.URI;
 
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 
@@ -46,7 +44,6 @@ import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
  *
  */
 @Slf4j
-@Component
 public abstract class SimpleComputeResourceEntityFactoryImpl
 extends FactoryBaseImpl
 implements SimpleComputeResourceEntityFactory

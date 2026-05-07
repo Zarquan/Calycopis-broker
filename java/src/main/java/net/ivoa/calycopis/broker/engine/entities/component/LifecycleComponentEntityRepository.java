@@ -26,13 +26,11 @@ package net.ivoa.calycopis.broker.engine.entities.component;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 /**
  * JpaRepository for LifecycleComponentEntities.
  *
  */
-@Repository
 public interface LifecycleComponentEntityRepository<EntityType extends LifecycleComponentEntityImpl>
 extends JpaRepository<EntityType, UUID>
     {

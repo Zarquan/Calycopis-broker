@@ -99,7 +99,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidatorFactory;
+import net.ivoa.calycopis.broker.engine.entities.compute.simple.docker.DockerSimpleComputeResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.mock.MockSimpleComputeResourceEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.compute.simple.mock.MockSimpleComputeResourceEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.compute.simple.mock.MockSimpleComputeResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.mock.MockSimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
@@ -157,6 +160,18 @@ implements MockPlatform
     public void initialize()
         {
         log.debug("initialize()");
+        //
+        // Need to do this here because computeResourceEntityRepository is not available at construction time.
+        this.computeResourceEntityFactory = new MockSimpleComputeResourceEntityFactoryImpl(
+            this.computeResourceEntityRepository
+            );
+
+        //
+        // Register validators with the most specific types first.
+        // Each validator factory will iterate through it's list of
+        // validators in registration order.
+        //
+        
         this.executableValidatorFactory.addValidator(
             new MockJupyterNotebookValidatorImpl(
                 this.jupyterNotebookEntityFactory
@@ -242,7 +257,8 @@ implements MockPlatform
         }
     
     @Autowired
-    private MockSimpleComputeResourceEntityFactory computeResourceEntityFactory;
+    private MockSimpleComputeResourceEntityRepository computeResourceEntityRepository;
+    private MockSimpleComputeResourceEntityFactory    computeResourceEntityFactory;
 
     @Autowired
     private AbstractComputeResourceValidatorFactory computeResourceValidatorFactory;

@@ -26,9 +26,6 @@ package net.ivoa.calycopis.broker.engine.entities.compute.simple.docker;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceEntityFactoryImpl;
@@ -36,11 +33,10 @@ import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionS
 import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOffer;
 
 /**
- * A DockerSimpleComputeResource Factory implementation.
+ * A DockerSimpleComputeResourceEntityFactory implementation.
  *
  */
 @Slf4j
-@Component
 public class DockerSimpleComputeResourceEntityFactoryImpl
 extends SimpleComputeResourceEntityFactoryImpl
 implements DockerSimpleComputeResourceEntityFactory
@@ -48,7 +44,6 @@ implements DockerSimpleComputeResourceEntityFactory
 
     private final DockerSimpleComputeResourceEntityRepository repository;
 
-    @Autowired
     public DockerSimpleComputeResourceEntityFactoryImpl(
         final DockerSimpleComputeResourceEntityRepository repository
         ){
