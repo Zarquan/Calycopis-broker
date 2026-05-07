@@ -32,7 +32,7 @@ import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResource;
  *
  */
 public interface SimpleDataResource
-    extends AbstractDataResource
+extends AbstractDataResource
     {
     /**
      * The OpenAPI type identifier.

@@ -26,7 +26,7 @@ package net.ivoa.calycopis.broker.engine.entities.data.simple;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityFactory;
 
 /**
- * A SimpleDataResource Factory.
+ * A SimpleDataResourceEntity factory.
  *
  */
 public interface SimpleDataResourceEntityFactory

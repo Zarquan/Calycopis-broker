@@ -42,5 +42,4 @@ import net.ivoa.calycopis.broker.engine.entities.data.skao.SkaoDataResourceValid
 public interface MockSkaoDataResourceValidator
 extends SkaoDataResourceValidator
     {
-
     }

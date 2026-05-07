@@ -57,21 +57,24 @@ extends SimpleDataResourceEntityFactoryImpl
 implements MockSimpleDataResourceEntityFactory
     {
 
-    private final MockSimpleDataResourceEntityRepository repository;
+    private final MockSimpleDataResourceEntityRepository simpleDataResourceEntityRepository;
 
-    @Autowired
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public MockSimpleDataResourceEntityFactoryImpl(
-        final MockSimpleDataResourceEntityRepository repository
+        final MockSimpleDataResourceEntityRepository simpleDataResourceEntityRepository
         ){
         super();
-        this.repository = repository;
+        this.simpleDataResourceEntityRepository = simpleDataResourceEntityRepository;
         }
 
     @Override
     public Optional<AbstractDataResourceEntity> select(final UUID uuid)
         {
         return Optional.of(
-            this.repository.findById(uuid).get()
+            this.simpleDataResourceEntityRepository.findById(uuid).get()
             );
         }
 
@@ -81,7 +84,7 @@ implements MockSimpleDataResourceEntityFactory
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
         ){
-        return this.repository.save(
+        return this.simpleDataResourceEntityRepository.save(
             new MockSimpleDataResourceEntityImpl(
                 session,
                 storage,

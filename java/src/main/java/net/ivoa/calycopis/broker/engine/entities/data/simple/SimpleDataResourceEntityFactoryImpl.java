@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceFactoryImpl;
 
 /**
- * A SimpleDataResourceEntity Factory implementation.
+ * A SimpleDataResourceEntityFactory implementation.
  *
  */
 @Slf4j

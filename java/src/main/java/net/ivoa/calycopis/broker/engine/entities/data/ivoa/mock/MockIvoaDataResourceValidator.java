@@ -42,5 +42,4 @@ import net.ivoa.calycopis.broker.engine.entities.data.ivoa.IvoaDataResourceValid
 public interface MockIvoaDataResourceValidator
 extends IvoaDataResourceValidator
     {
-
     }

@@ -28,5 +28,4 @@ import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValida
 public interface SkaoDataResourceValidator
 extends AbstractDataResourceValidator
     {
-
     }

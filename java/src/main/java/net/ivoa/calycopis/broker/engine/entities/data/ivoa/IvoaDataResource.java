@@ -34,7 +34,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaIvoaObsCoreItem;
  *
  */
 public interface IvoaDataResource
-    extends AbstractDataResource
+extends AbstractDataResource
     {
     /**
      * The OpenAPI type identifier.

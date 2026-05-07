@@ -64,12 +64,12 @@ implements MockSimpleDataResourceValidator
     {
 
     public MockSimpleDataResourceValidatorImpl(
-        final SimpleDataResourceEntityFactory entityFactory,
-        final MockDataStorageLinker storageLinker
+        final SimpleDataResourceEntityFactory simpleDataResourceEntityFactory,
+        final MockDataStorageLinker dataStorageLinker
         ){
         super(
-            entityFactory,
-            storageLinker
+            simpleDataResourceEntityFactory,
+            dataStorageLinker
             );
         }
 

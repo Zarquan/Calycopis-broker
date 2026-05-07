@@ -61,6 +61,7 @@ public class MockIvoaDataResourceEntityImpl
     implements MockIvoaDataResource
     {
     /**
+     * Protected constructor for JPA entities.
      * 
      */
     public MockIvoaDataResourceEntityImpl()
@@ -69,6 +70,7 @@ public class MockIvoaDataResourceEntityImpl
         }
 
     /**
+     * Protected constructor used by our Factories.
      *
      */
     public MockIvoaDataResourceEntityImpl(

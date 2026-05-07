@@ -62,6 +62,10 @@ extends IvoaDataResourceValidatorImpl
 implements MockIvoaDataResourceValidator
     {
 
+    /**
+     * Public constructor used by our Platform.
+     *
+     */
     public MockIvoaDataResourceValidatorImpl(
         final IvoaDataResourceEntityFactory entityFactory,
         final MockDataStorageLinker storageLinker

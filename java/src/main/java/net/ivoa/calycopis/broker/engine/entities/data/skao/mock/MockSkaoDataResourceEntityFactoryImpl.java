@@ -36,10 +36,8 @@ package net.ivoa.calycopis.broker.engine.entities.data.skao.mock;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.skao.SkaoDataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.skao.SkaoDataResourceEntityImpl;
@@ -50,27 +48,29 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
  *
  */
 @Slf4j
-@Component
 public class MockSkaoDataResourceEntityFactoryImpl
 extends SkaoDataResourceEntityFactoryImpl
 implements MockSkaoDataResourceEntityFactory
     {
 
-    private final MockSkaoDataResourceEntityRepository repository;
+    private final MockSkaoDataResourceEntityRepository skaoDataResourceEntityRepository;
 
-    @Autowired
+    /**
+     * Public constructor used by our Platform.
+     *
+     */
     public MockSkaoDataResourceEntityFactoryImpl(
-        final MockSkaoDataResourceEntityRepository repository
+        final MockSkaoDataResourceEntityRepository skaoDataResourceEntityRepository
         ){
         super();
-        this.repository = repository;
+        this.skaoDataResourceEntityRepository = skaoDataResourceEntityRepository;
         }
 
     @Override
-    public Optional<SkaoDataResourceEntityImpl> select(final UUID uuid)
+    public Optional<AbstractDataResourceEntity> select(final UUID uuid)
         {
         return Optional.of(
-            this.repository.findById(uuid).get()
+            this.skaoDataResourceEntityRepository.findById(uuid).get()
             );
         }
 
@@ -80,7 +80,7 @@ implements MockSkaoDataResourceEntityFactory
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
         ){
-        return this.repository.save(
+        return this.skaoDataResourceEntityRepository.save(
             new MockSkaoDataResourceEntityImpl(
                 session,
                 storage,

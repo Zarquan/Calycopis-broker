@@ -60,7 +60,9 @@ public class MockSimpleDataResourceEntityImpl
 extends SimpleDataResourceEntityImpl
 implements MockSimpleDataResource
     {
+
     /**
+     * Protected constructor for JPA entities.
      * 
      */
     public MockSimpleDataResourceEntityImpl()
@@ -69,6 +71,7 @@ implements MockSimpleDataResource
         }
 
     /**
+     * Protected constructor used by our Factories.
      *
      */
     public MockSimpleDataResourceEntityImpl(

@@ -42,5 +42,4 @@ import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceV
 public interface MockSimpleDataResourceValidator
 extends SimpleDataResourceValidator
     {
-
     }

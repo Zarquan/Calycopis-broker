@@ -59,7 +59,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSkaoDataResourceBlock.Objectty
 import net.ivoa.calycopis.schema.spring.model.IvoaSkaoReplicaItem;
 
 /**
- * An IvoaDataResource entity.
+ * A SkaoDataResource entity.
  *
  */
 @Slf4j
@@ -78,7 +78,7 @@ public abstract class SkaoDataResourceEntityImpl
         }
 
     /**
-     * Protected constructor
+     * Protected constructor for JPA entities.
      *
      */
     protected SkaoDataResourceEntityImpl()
@@ -87,10 +87,10 @@ public abstract class SkaoDataResourceEntityImpl
         }
 
     /**
-     * Protected constructor with parent.
+     * Protected constructor used by our Factories.
      *
      */
-    public SkaoDataResourceEntityImpl(
+    protected SkaoDataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
@@ -104,7 +104,7 @@ public abstract class SkaoDataResourceEntityImpl
         }
         
     /**
-     * Protected constructor with parent.
+     * Protected constructor used by our Factories.
      * TODO validated can be replaced by Result.getObject()
      *
      */

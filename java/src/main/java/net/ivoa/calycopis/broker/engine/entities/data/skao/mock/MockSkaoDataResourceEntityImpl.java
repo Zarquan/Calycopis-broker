@@ -61,17 +61,19 @@ public class MockSkaoDataResourceEntityImpl
     implements MockSkaoDataResource
     {
     /**
+     * Protected constructor for JPA entities.
      * 
      */
-    public MockSkaoDataResourceEntityImpl()
+    protected MockSkaoDataResourceEntityImpl()
         {
         super();
         }
 
     /**
+     * Protected constructor used by our Factories.
      *
      */
-    public MockSkaoDataResourceEntityImpl(
+    protected MockSkaoDataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result

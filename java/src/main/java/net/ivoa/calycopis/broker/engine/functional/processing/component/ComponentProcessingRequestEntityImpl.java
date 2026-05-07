@@ -114,7 +114,7 @@ implements ComponentProcessingRequest
         if (component == null)
             {
             log.error(
-                "Unable to find component for pre-processng [{}][{}]",
+                "Unable to find component for pre-processing [{}][{}]",
                 this.componentUuid,
                 this.componentKind
                 );

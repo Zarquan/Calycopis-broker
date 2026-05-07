@@ -88,10 +88,10 @@ implements IvoaDataResourceValidator
     final IvoaDataResourceEntityFactory entityFactory;
 
     /**
-     * Public constructor.
+     * Protected constructor.
      *
      */
-    public IvoaDataResourceValidatorImpl(
+    protected IvoaDataResourceValidatorImpl(
         final IvoaDataResourceEntityFactory entityFactory,
         final AbstractDataStorageLinker storageLinker
         ){

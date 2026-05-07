@@ -47,7 +47,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleDataResource;
 
 /**
- * A Simple data resource.
+ * A SimpleDataResourceEntity implementation.
  *
  */
 @Entity
@@ -65,7 +65,7 @@ public abstract class SimpleDataResourceEntityImpl
         }
 
     /**
-     * Protected constructor
+     * Protected constructor for JPA entities.
      *
      */
     protected SimpleDataResourceEntityImpl()
@@ -74,10 +74,10 @@ public abstract class SimpleDataResourceEntityImpl
         }
 
     /**
-     * Protected constructor with parent.
+     * Protected constructor used by our Factories.
      *
      */
-    public SimpleDataResourceEntityImpl(
+    protected SimpleDataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
@@ -91,12 +91,12 @@ public abstract class SimpleDataResourceEntityImpl
         }
     
     /**
-     * Protected constructor with parent.
+     * Protected constructor used by our Factories.
      * TODO validated can be replaced by Result.getObject()
      * TODO No need to pass validated.getMeta() separately.
      *
      */
-    public SimpleDataResourceEntityImpl(
+    protected SimpleDataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result,
@@ -139,4 +139,3 @@ public abstract class SimpleDataResourceEntityImpl
         return bean;
         }
     }
-

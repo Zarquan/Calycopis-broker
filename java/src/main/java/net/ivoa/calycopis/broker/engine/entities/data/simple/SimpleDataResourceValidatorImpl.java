@@ -68,7 +68,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleDataResource;
 
 /**
- * A Validator implementation to handle simple data resources.
+ * A Validator implementation to handle SimpleDataResources.
  * 
  */
 @Slf4j
@@ -81,18 +81,20 @@ implements SimpleDataResourceValidator
      * Factory for creating Entities.
      * 
      */
-    final AbstractDataResourceEntityFactory entityFactory;
+    final AbstractDataResourceEntityFactory abstractDataResourceEntityFactory;
 
     /**
-     * Public constructor.
+     * Protected constructor.
      * 
      */
     public SimpleDataResourceValidatorImpl(
-        final AbstractDataResourceEntityFactory entityFactory,
-        final AbstractDataStorageLinker storageLinker
+        final AbstractDataResourceEntityFactory abstractDataResourceEntityFactory,
+        final AbstractDataStorageLinker abstractDataStorageLinker
         ){
-        super(storageLinker);
-        this.entityFactory = entityFactory ;
+        super(
+            abstractDataStorageLinker
+            );
+        this.abstractDataResourceEntityFactory = abstractDataResourceEntityFactory ;
         }
     
     @Override
@@ -162,7 +164,7 @@ implements SimpleDataResourceValidator
                 @Override
                 public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session)
                     {
-                    this.entity = SimpleDataResourceValidatorImpl.this.entityFactory.create(
+                    this.entity = SimpleDataResourceValidatorImpl.this.abstractDataResourceEntityFactory.create(
                         session,
                         storage.getEntity(),
                         this

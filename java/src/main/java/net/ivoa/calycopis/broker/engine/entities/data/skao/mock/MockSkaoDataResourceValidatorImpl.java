@@ -63,6 +63,10 @@ extends SkaoDataResourceValidatorImpl
 implements MockSkaoDataResourceValidator
     {
 
+    /**
+     * Public constructor used by our Platform.
+     *
+     */
     public MockSkaoDataResourceValidatorImpl(
         final JdbcTemplate jdbcTemplate,
         final SkaoDataResourceEntityFactory entityFactory,
@@ -75,19 +79,19 @@ implements MockSkaoDataResourceValidator
             );
         }
 
-    public static final List<String> NAMESPACE_BLACKLIST = List.of(
-        "blacklisted-namespace",
-        "forbidden-namespace"
+    public static final List<String> EXCLUDED_NAMESPACE_LIST = List.of(
+        "excluded-namespace-one",
+        "excluded-namespace-two"
         );
 
     @Override
     protected boolean validateNamespace(String namespace, OfferSetRequestParserContext context)
         {
-        if (NAMESPACE_BLACKLIST.contains(namespace))
+        if (EXCLUDED_NAMESPACE_LIST.contains(namespace))
             {
             context.addWarning(
                 "urn:invalid-value",
-                "SkaoDataResource - namespace is blacklisted [${value}]",
+                "SkaoDataResource - namespace is excluded [${value}]",
                 Map.of(
                     "value",
                     namespace

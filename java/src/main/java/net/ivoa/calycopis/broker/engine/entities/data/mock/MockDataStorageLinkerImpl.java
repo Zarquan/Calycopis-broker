@@ -54,15 +54,15 @@ implements MockDataStorageLinker
      * A factory for StorageResource Validators.
      *
      */
-    private final AbstractStorageResourceValidatorFactory storageValidators;
+    private final AbstractStorageResourceValidatorFactory abstractStorageValidatorFactory;
 
     /**
      * 
      */
     public MockDataStorageLinkerImpl(
-        final AbstractStorageResourceValidatorFactory storageValidators
+        final AbstractStorageResourceValidatorFactory abstractStorageValidatorFactory
         ){
-        this.storageValidators = storageValidators ;
+        this.abstractStorageValidatorFactory = abstractStorageValidatorFactory ;
         }
 
     @Override
@@ -118,7 +118,7 @@ implements MockDataStorageLinker
             //
             // Validate the new StorageResource.
             // TODO Better if the validate method returned the Result directly.
-            storageValidators.validate(
+            abstractStorageValidatorFactory.validate(
                 template,
                 context
                 );

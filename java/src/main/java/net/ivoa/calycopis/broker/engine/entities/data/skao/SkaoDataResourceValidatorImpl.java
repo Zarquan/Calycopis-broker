@@ -98,22 +98,22 @@ implements SkaoDataResourceValidator
      * Factory for creating Entities.
      *
      */
-    final SkaoDataResourceEntityFactory entityFactory;
+    final SkaoDataResourceEntityFactory skaoDataResourceEntityFactory;
 
     /**
-     * Public constructor.
+     * Protected constructor.
      *
      */
-    public SkaoDataResourceValidatorImpl(
+    protected SkaoDataResourceValidatorImpl(
         final JdbcTemplate jdbcTemplate,
-        final SkaoDataResourceEntityFactory entityFactory,
-        final AbstractDataStorageLinker storageLinker
+        final SkaoDataResourceEntityFactory skaoDataResourceEntityFactory,
+        final AbstractDataStorageLinker abstractDataStorageLinker
         ){
         super(
-            storageLinker
+            abstractDataStorageLinker
             );
         this.jdbcTemplate  = jdbcTemplate  ;
-        this.entityFactory = entityFactory ;
+        this.skaoDataResourceEntityFactory = skaoDataResourceEntityFactory ;
         }
 
     @Override
@@ -136,7 +136,7 @@ implements SkaoDataResourceValidator
         return ResultEnum.CONTINUE;
         }
 
-    public ResultEnum validate(
+    protected ResultEnum validate(
         final IvoaSkaoDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -193,7 +193,7 @@ implements SkaoDataResourceValidator
                 @Override
                 public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session)
                     {
-                    this.entity = SkaoDataResourceValidatorImpl.this.entityFactory.create(
+                    this.entity = SkaoDataResourceValidatorImpl.this.skaoDataResourceEntityFactory.create(
                         session,
                         storage.getEntity(),
                         this

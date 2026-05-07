@@ -73,7 +73,7 @@ public abstract class IvoaDataResourceEntityImpl
         }
 
     /**
-     * Protected constructor
+     * Protected constructor for JPA entities.
      *
      */
     protected IvoaDataResourceEntityImpl()
@@ -82,7 +82,7 @@ public abstract class IvoaDataResourceEntityImpl
         }
 
     /**
-     * Protected constructor with parent.
+     * Protected constructor used by our Factories.
      *
      */
     public IvoaDataResourceEntityImpl(

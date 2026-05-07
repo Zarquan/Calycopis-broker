@@ -58,7 +58,7 @@ Mock validators tested:
   - MockSimpleDataResourceValidatorImpl    (location blacklist)
   - MockAmazonS3DataResourceValidatorImpl  (endpoint blacklist)
   - MockIvoaDataResourceValidatorImpl      (ivoid blacklist)
-  - MockSkaoDataResourceValidatorImpl      (namespace blacklist)
+  - MockSkaoDataResourceValidatorImpl      (excluded namespace)
 
 Requires:
   - A running Calycopis broker service (default: http://localhost:8082)
@@ -1079,28 +1079,28 @@ class TestSkaoDataResourceValidation:
         assert response.result == "YES"
         assert response.offers is not None and len(response.offers) > 0
 
-    def test_blacklisted_namespace(self, client):
+    def test_excluded_namespace_one(self, client):
         """
-        A SkaoDataResource with a blacklisted namespace should be rejected.
+        A SkaoDataResource with an excluded namespace should be rejected.
         """
         request = ExecutionRequest(
-            executable=_make_docker_executable("skao-data-blacklisted"),
+            executable=_make_docker_executable("skao-data-excluded"),
             data=[
                 SkaoDataResource(
                     kind=SKAO_DATA_KIND,
-                    meta=ComponentMetadata(name="blacklisted-skao"),
+                    meta=ComponentMetadata(name="skao-data-excluded-one"),
                     ivoa=IvoaDataResourceBlock(
-                        ivoid="ivo://skao.int/blacklisted-obs",
+                        ivoid="ivo://skao.int/skao-data-excluded-one",
                     ),
                     skao=SkaoDataResourceBlock(
-                        namespace="blacklisted-namespace",
-                        objectname="test-object",
+                        namespace="excluded-namespace-one",
+                        objectname="skao-data-excluded-one",
                         objecttype="FILE",
                         datasize=1024,
                         replicas=[
                             SkaoReplicaItem(
                                 rsename="TEST-RSE-1",
-                                dataurl="https://rse1.example.com/data/test-object",
+                                dataurl="https://rse1.example.com/data/skao-data-excluded-one",
                             ),
                         ],
                     ),
@@ -1110,29 +1110,28 @@ class TestSkaoDataResourceValidation:
         response = client.submit_execution(request, follow_redirect=True)
         assert response.result == "NO"
 
-    def test_blacklisted_namespace_forbidden(self, client):
+    def two(self, client):
         """
-        A SkaoDataResource with the other blacklisted namespace
-        should also be rejected.
+        A SkaoDataResource with an excluded namespace should be rejected.
         """
         request = ExecutionRequest(
-            executable=_make_docker_executable("skao-data-forbidden"),
+            executable=_make_docker_executable("skao-data-excluded-two"),
             data=[
                 SkaoDataResource(
                     kind=SKAO_DATA_KIND,
-                    meta=ComponentMetadata(name="forbidden-skao"),
+                    meta=ComponentMetadata(name="skao-data-excluded-two"),
                     ivoa=IvoaDataResourceBlock(
-                        ivoid="ivo://skao.int/forbidden-obs",
+                        ivoid="ivo://skao.int/skao-data-excluded-two",
                     ),
                     skao=SkaoDataResourceBlock(
-                        namespace="forbidden-namespace",
-                        objectname="test-object",
+                        namespace="excluded-namespace-two",
+                        objectname="skao-data-excluded-two",
                         objecttype="FILE",
                         datasize=1024,
                         replicas=[
                             SkaoReplicaItem(
                                 rsename="TEST-RSE-1",
-                                dataurl="https://rse1.example.com/data/test-object",
+                                dataurl="https://rse1.example.com/data/skao-data-excluded-two",
                             ),
                         ],
                     ),

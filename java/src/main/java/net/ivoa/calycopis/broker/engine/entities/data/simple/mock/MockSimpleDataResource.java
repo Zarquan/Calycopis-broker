@@ -43,5 +43,4 @@ import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockMonitorab
 public interface MockSimpleDataResource
 extends SimpleDataResource, MockMonitorableComponent
     {
-
     }
