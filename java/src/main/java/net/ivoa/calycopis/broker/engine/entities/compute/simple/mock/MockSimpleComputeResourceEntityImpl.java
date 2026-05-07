@@ -40,7 +40,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
@@ -83,7 +82,7 @@ implements MockSimpleComputeResource
      * Protected constructor with session, validation result, and offer.
      *
      */
-    public MockSimpleComputeResourceEntityImpl(
+    protected MockSimpleComputeResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final MockSimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
@@ -96,25 +95,6 @@ implements MockSimpleComputeResource
             );
         }
     
-    /**
-     * Protected constructor with session, template and offer.
-     * TODO validated can be replaced by Result.getObject()
-     * 
-     */
-    public MockSimpleComputeResourceEntityImpl(
-        final SimpleExecutionSessionEntityImpl session,
-        final SimpleComputeResourceValidator.Result result,
-        final ComputeResourceOffer offer,
-        final IvoaSimpleComputeResource validated
-        ){
-        super(
-            session,
-            result,
-            offer,
-            validated
-            );
-        }
-
     @Override
     public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
         {

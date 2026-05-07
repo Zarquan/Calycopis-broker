@@ -34,10 +34,10 @@ import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResour
 public interface MockSimpleComputeResourceEntityFactory
 extends SimpleComputeResourceEntityFactory
     {
-
     /**
-     * Create and save a new MockSimpleComputeResourceEntity based on a template and an offer.
-     *
+     * Create a new MockSimpleComputeResourceEntity based on a Validator Result and a ComputeResourceOffer .
+     * TODO Move this up to SimpleComputeResourceEntityFactory.
+     * 
      */
     public MockSimpleComputeResourceEntityImpl create(
         final SimpleExecutionSessionEntityImpl session,

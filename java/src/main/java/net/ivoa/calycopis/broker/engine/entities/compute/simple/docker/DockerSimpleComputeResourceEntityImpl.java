@@ -59,7 +59,6 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponent;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainer;
@@ -110,7 +109,7 @@ implements DockerSimpleComputeResource
      * Protected constructor with session, validation result, and offer.
      *
      */
-    public DockerSimpleComputeResourceEntityImpl(
+    protected DockerSimpleComputeResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final DockerSimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
@@ -123,24 +122,6 @@ implements DockerSimpleComputeResource
             );
         }
     
-    /**
-     * Protected constructor with session, template and offer.
-     * 
-     */
-    public DockerSimpleComputeResourceEntityImpl(
-        final SimpleExecutionSessionEntityImpl session,
-        final SimpleComputeResourceValidator.Result result,
-        final ComputeResourceOffer offer,
-        final IvoaSimpleComputeResource validated
-        ){
-        super(
-            session,
-            result,
-            offer,
-            validated
-            );
-        }
-
     @Column(name="dockercontainerid")
     private String dockerContainerId;
     public String getDockerContainerId()
@@ -252,11 +233,10 @@ implements DockerSimpleComputeResource
 
         final List<Bind> bindList = new ArrayList<Bind>();
         log.debug(
-            "Resolving volume mounts for compute resource [{}], mount count [{}]",
-            resourceUuid,
-            this.getVolumeMounts().size()
+            "Resolving volume mounts for compute resource [{}]",
+            resourceUuid
             );
-        for (AbstractVolumeMountEntityImpl volumeMount : this.getVolumeMounts())
+        for (AbstractVolumeMountEntityImpl volumeMount : this.getVolumeMountEntities())
             {
             log.debug(
                 "Volume mount [{}] type [{}]",

@@ -33,6 +33,5 @@ import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockMonitorab
 public interface MockSimpleComputeResource
 extends AbstractComputeResource, MockMonitorableComponent
     {
-
     }
 

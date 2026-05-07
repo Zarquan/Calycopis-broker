@@ -34,9 +34,9 @@ import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResour
 public interface DockerSimpleComputeResourceEntityFactory
 extends SimpleComputeResourceEntityFactory
     {
-
     /**
-     * Create and save a new DockerSimpleComputeResourceEntity based on a template and an offer.
+     * Create a new DockerSimpleComputeResourceEntity based on a Validator Result and a ComputeResourceOffer .
+     * TODO Move this up to SimpleComputeResourceEntityFactory.
      *
      */
     public DockerSimpleComputeResourceEntityImpl create(

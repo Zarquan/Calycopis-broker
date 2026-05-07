@@ -31,5 +31,4 @@ import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResource
 public interface MockSimpleComputeResourceValidator
 extends AbstractComputeResourceValidator
     {
-
     }

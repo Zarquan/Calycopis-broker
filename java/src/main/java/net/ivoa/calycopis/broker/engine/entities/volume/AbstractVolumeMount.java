@@ -62,12 +62,14 @@ public interface AbstractVolumeMount
 
     /**
      * Reference to the DataResource mounted in this volume.
+     * TODO Combine these behind a common interface.
      *
      */
     public AbstractDataResource getDataResource();
     
     /**
      * Reference to the StorageResource mounted in this volume.
+     * TODO Combine these behind a common interface.
      *
      */
     public AbstractStorageResource getStorageResource();
