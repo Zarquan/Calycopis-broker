@@ -36,10 +36,8 @@ package net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.IvoaDataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.IvoaDataResourceEntityImpl;
@@ -50,27 +48,29 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
  *
  */
 @Slf4j
-@Component
 public class MockIvoaDataResourceEntityFactoryImpl
 extends IvoaDataResourceEntityFactoryImpl
 implements MockIvoaDataResourceEntityFactory
     {
 
-    private final MockIvoaDataResourceEntityRepository repository;
+    private final MockIvoaDataResourceEntityRepository dataResourceEntityRepository;
 
-    @Autowired
+    /**
+     * Public constructor used by our Platform.
+     *
+     */
     public MockIvoaDataResourceEntityFactoryImpl(
-        final MockIvoaDataResourceEntityRepository repository
+        final MockIvoaDataResourceEntityRepository dataResourceEntityRepository
         ){
         super();
-        this.repository = repository;
+        this.dataResourceEntityRepository = dataResourceEntityRepository;
         }
 
     @Override
-    public Optional<IvoaDataResourceEntityImpl> select(final UUID uuid)
+    public Optional<AbstractDataResourceEntity> select(final UUID uuid)
         {
         return Optional.of(
-            this.repository.findById(uuid).get()
+            this.dataResourceEntityRepository.findById(uuid).get()
             );
         }
 
@@ -80,7 +80,7 @@ implements MockIvoaDataResourceEntityFactory
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result
         ){
-        return this.repository.save(
+        return this.dataResourceEntityRepository.save(
             new MockIvoaDataResourceEntityImpl(
                 session,
                 storage,

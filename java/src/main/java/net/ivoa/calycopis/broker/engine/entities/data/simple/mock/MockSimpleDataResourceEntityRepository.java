@@ -33,15 +33,13 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.data.simple.mock;
 
-import java.util.UUID;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityRepository;
 
 /**
  * JpaRepository for MockSimpleDataResourceEntity.
  *
  */
 public interface MockSimpleDataResourceEntityRepository
-extends JpaRepository<MockSimpleDataResourceEntityImpl, UUID>
+extends SimpleDataResourceEntityRepository
     {
     }

@@ -34,11 +34,13 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data.skao;
 
+import java.net.URI;
+
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceFactoryImpl;
 
 /**
- * A SkaoDataResource Factory implementation.
+ * A SkaoDataResourceFactory implementation.
  *
  */
 @Slf4j
@@ -46,9 +48,9 @@ public abstract class SkaoDataResourceEntityFactoryImpl
     extends AbstractDataResourceFactoryImpl
     implements SkaoDataResourceEntityFactory
     {
-
-    public SkaoDataResourceEntityFactoryImpl()
+    @Override
+    public URI getKind()
         {
-        super();
+        return SkaoDataResource.TYPE_DISCRIMINATOR;
         }
     }

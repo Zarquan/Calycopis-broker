@@ -34,21 +34,23 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data.ivoa;
 
+import java.net.URI;
+
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceFactoryImpl;
 
 /**
- * An IvoaDataResource Factory implementation.
+ * An IvoaDataResourceFactory implementation.
  *
  */
 @Slf4j
 public abstract class IvoaDataResourceEntityFactoryImpl
-    extends AbstractDataResourceFactoryImpl
-    implements IvoaDataResourceEntityFactory
+extends AbstractDataResourceFactoryImpl
+implements IvoaDataResourceEntityFactory
     {
-
-    public IvoaDataResourceEntityFactoryImpl()
+    @Override
+    public URI getKind()
         {
-        super();
+        return IvoaDataResource.TYPE_DISCRIMINATOR;
         }
     }

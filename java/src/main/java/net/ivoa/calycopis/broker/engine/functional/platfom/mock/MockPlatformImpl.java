@@ -99,21 +99,30 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidatorFactory;
-import net.ivoa.calycopis.broker.engine.entities.compute.simple.docker.DockerSimpleComputeResourceEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidatorFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.mock.MockSimpleComputeResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.mock.MockSimpleComputeResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.mock.MockSimpleComputeResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.mock.MockSimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorFactory;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.mock.MockDataStorageLinker;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.mock.MockSimpleDataResourceEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.data.simple.mock.MockSimpleDataResourceEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.data.simple.mock.MockSimpleDataResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.mock.MockSimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.skao.mock.MockSkaoDataResourceEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.data.skao.mock.MockSkaoDataResourceEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.data.skao.mock.MockSkaoDataResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.data.skao.mock.MockSkaoDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.mock.MockDockerContainerEntityFactory;
@@ -161,11 +170,27 @@ implements MockPlatform
         {
         log.debug("initialize()");
         //
-        // Need to do this here because computeResourceEntityRepository is not available at construction time.
-        this.computeResourceEntityFactory = new MockSimpleComputeResourceEntityFactoryImpl(
-            this.computeResourceEntityRepository
+        // We need create these here because the Autowired Repositories are not available at construction time.
+        this.simpleComputeResourceEntityFactory = new MockSimpleComputeResourceEntityFactoryImpl(
+            this.simpleComputeResourceEntityRepository
             );
 
+        this.simpleDataResourceEntityFactory = new MockSimpleDataResourceEntityFactoryImpl(
+            this.simpleDataResourceEntityRepository
+            );
+
+        this.amazonS3DataResourceEntityFactory = new MockAmazonS3DataResourceEntityFactoryImpl(
+            this.amazonS3DataResourceEntityRepository
+            );
+
+        this.ivoaDataResourceEntityFactory = new MockIvoaDataResourceEntityFactoryImpl(
+            this.ivoaDataResourceEntityRepository
+            );  
+        
+        this.skaoDataResourceEntityFactory = new MockSkaoDataResourceEntityFactoryImpl(
+            this.skaoDataResourceEntityRepository
+            );
+        
         //
         // Register validators with the most specific types first.
         // Each validator factory will iterate through it's list of
@@ -182,9 +207,9 @@ implements MockPlatform
                 this.dockerContainerEntityFactory
                 )
             );
-        this.computeResourceValidatorFactory.addValidator(
+        this.abstractComputeResourceValidatorFactory.addValidator(
             new MockSimpleComputeResourceValidatorImpl(
-                this.computeResourceEntityFactory,
+                this.simpleComputeResourceEntityFactory,
                 this.volumeMountValidatorFactory
                 )
             );
@@ -205,42 +230,42 @@ implements MockPlatform
         // SkaoDataResource extends IvoaDataResource in the type hierarchy,
         // so the SKAO validator must be registered before the IVOA validator.
         //
-        this.dataResourceValidatorFactory.addValidator(
+        this.abstractDataResourceValidatorFactory.addValidator(
             new MockSkaoDataResourceValidatorImpl(
                 this.jdbcTemplate,
-                this.mockSkaoDataResourceEntityFactory,
+                this.skaoDataResourceEntityFactory,
                 this.dataStorageLinker
                 )
             );
-        this.dataResourceValidatorFactory.addValidator(
+        this.abstractDataResourceValidatorFactory.addValidator(
             new MockIvoaDataResourceValidatorImpl(
-                this.mockIvoaDataResourceEntityFactory,
+                this.ivoaDataResourceEntityFactory,
                 this.dataStorageLinker
                 )
             );
-        this.dataResourceValidatorFactory.addValidator(
+        this.abstractDataResourceValidatorFactory.addValidator(
             new MockAmazonS3DataResourceValidatorImpl(
-                this.mockAmazonS3DataResourceEntityFactory,
+                this.amazonS3DataResourceEntityFactory,
                 this.dataStorageLinker
                 )
             );
-        this.dataResourceValidatorFactory.addValidator(
+        this.abstractDataResourceValidatorFactory.addValidator(
             new MockSimpleDataResourceValidatorImpl(
-                this.mockSimpleDataResourceEntityFactory,
+                this.simpleDataResourceEntityFactory,
                 this.dataStorageLinker
                 )
             );
         this.volumeMountValidatorFactory.addValidator(
             new MockSimpleVolumeMountValidatorImpl(
                 this.volumeMountEntityFactory,
-                this.mockSimpleDataResourceEntityFactory,
+                this.simpleDataResourceEntityFactory,
                 this.storageResourceEntityFactory
                 )
             );
 
         this.registerFactory(this.dockerContainerEntityFactory);
         this.registerFactory(this.jupyterNotebookEntityFactory);
-        this.registerFactory(this.computeResourceEntityFactory);
+        this.registerFactory(this.simpleComputeResourceEntityFactory);
         //this.registerFactory(this.dataResourceEntityFactory);
         this.registerFactory(this.storageResourceEntityFactory);
         
@@ -257,15 +282,15 @@ implements MockPlatform
         }
     
     @Autowired
-    private MockSimpleComputeResourceEntityRepository computeResourceEntityRepository;
-    private MockSimpleComputeResourceEntityFactory    computeResourceEntityFactory;
+    private MockSimpleComputeResourceEntityRepository simpleComputeResourceEntityRepository;
+    private MockSimpleComputeResourceEntityFactory    simpleComputeResourceEntityFactory;
 
-    @Autowired
-    private AbstractComputeResourceValidatorFactory computeResourceValidatorFactory;
+    // This just provides the iteration part of the ValidatorFactory interface.
+    private AbstractComputeResourceValidatorFactory abstractComputeResourceValidatorFactory = new AbstractComputeResourceValidatorFactoryImpl();
     @Override
     public AbstractComputeResourceValidatorFactory getComputeResourceValidators()
         {
-        return this.computeResourceValidatorFactory;
+        return this.abstractComputeResourceValidatorFactory;
         }
     
 // Data   
@@ -274,33 +299,27 @@ implements MockPlatform
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private MockSimpleDataResourceEntityFactory mockSimpleDataResourceEntityFactory;
+    private MockSimpleDataResourceEntityRepository simpleDataResourceEntityRepository;
+    private MockSimpleDataResourceEntityFactory    simpleDataResourceEntityFactory;
 
     @Autowired
-    private MockAmazonS3DataResourceEntityFactory mockAmazonS3DataResourceEntityFactory;
+    private MockAmazonS3DataResourceEntityRepository amazonS3DataResourceEntityRepository;
+    private MockAmazonS3DataResourceEntityFactory    amazonS3DataResourceEntityFactory;
 
     @Autowired
-    private MockIvoaDataResourceEntityFactory mockIvoaDataResourceEntityFactory;
+    private MockIvoaDataResourceEntityRepository ivoaDataResourceEntityRepository;
+    private MockIvoaDataResourceEntityFactory    ivoaDataResourceEntityFactory;
 
     @Autowired
-    private MockSkaoDataResourceEntityFactory mockSkaoDataResourceEntityFactory;
+    private MockSkaoDataResourceEntityRepository skaoDataResourceEntityRepository;
+    private MockSkaoDataResourceEntityFactory    skaoDataResourceEntityFactory;
 
-    //@Autowired
-    //private AbstractDataResourceEntityFactory dataResourceEntityFactory;
-    /*
-    @Override
-    public AbstractDataResourceEntityFactory getDataResourceEntityFactory()
-        {
-        return this.dataResourceEntityFactory;
-        }
-     */
-    
-    @Autowired
-    private AbstractDataResourceValidatorFactory dataResourceValidatorFactory;
+    // This just provides the iteration part of the ValidatorFactory interface.
+    private AbstractDataResourceValidatorFactory abstractDataResourceValidatorFactory = new AbstractDataResourceValidatorFactoryImpl();
     @Override
     public AbstractDataResourceValidatorFactory getDataResourceValidators()
         {
-        return this.dataResourceValidatorFactory;
+        return this.abstractDataResourceValidatorFactory;
         }
 
 // Executable    

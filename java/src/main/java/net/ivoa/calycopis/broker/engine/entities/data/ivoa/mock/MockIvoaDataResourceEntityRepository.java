@@ -33,15 +33,13 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock;
 
-import java.util.UUID;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import net.ivoa.calycopis.broker.engine.entities.data.ivoa.IvoaDataResourceEntityRepository;
 
 /**
  * JpaRepository for MockIvoaDataResourceEntity.
  *
  */
 public interface MockIvoaDataResourceEntityRepository
-extends JpaRepository<MockIvoaDataResourceEntityImpl, UUID>
+extends IvoaDataResourceEntityRepository
     {
     }
