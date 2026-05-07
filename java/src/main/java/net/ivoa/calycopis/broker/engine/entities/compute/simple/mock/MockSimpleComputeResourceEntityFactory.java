@@ -24,8 +24,6 @@
 package net.ivoa.calycopis.broker.engine.entities.compute.simple.mock;
 
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOffer;
 
 /**
  * A MockSimpleComputeResourceEntity Factory.
@@ -34,15 +32,5 @@ import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResour
 public interface MockSimpleComputeResourceEntityFactory
 extends SimpleComputeResourceEntityFactory
     {
-    /**
-     * Create a new MockSimpleComputeResourceEntity based on a Validator Result and a ComputeResourceOffer .
-     * TODO Move this up to SimpleComputeResourceEntityFactory.
-     * 
-     */
-    public MockSimpleComputeResourceEntityImpl create(
-        final SimpleExecutionSessionEntityImpl session,
-        final MockSimpleComputeResourceValidator.Result result,
-        final ComputeResourceOffer offer
-        );
     }
 

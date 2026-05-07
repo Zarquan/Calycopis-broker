@@ -24,17 +24,15 @@
 package net.ivoa.calycopis.broker.engine.entities.data;
 
 import java.net.URI;
-import java.util.List;
 
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponent;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource;
-import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityImpl;
 
 /**
  * 
  */
 public interface AbstractDataResource
-    extends LifecycleComponent
+extends LifecycleComponent
     {
     /**
      * The webapp path for data resources.
@@ -51,7 +49,7 @@ public interface AbstractDataResource
     /**
      * Get the list of volume mounts this resource is attached to.
      *
-     */
     public List<AbstractVolumeMountEntityImpl> getVolumeMounts();
+     */
     
     }

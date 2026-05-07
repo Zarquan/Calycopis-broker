@@ -77,19 +77,20 @@ public class DockerHttpResourceEntityImpl
 extends SimpleDataResourceEntityImpl
 implements DockerHttpResource
     {
-
     /**
+     * Protected constructor for JPA entities.
      * 
      */
-    public DockerHttpResourceEntityImpl()
+    protected DockerHttpResourceEntityImpl()
         {
         super();
         }
 
     /**
+     * Protected constructor used by our Factories.
      * 
      */
-    public DockerHttpResourceEntityImpl(
+    protected DockerHttpResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final Result result
@@ -98,23 +99,6 @@ implements DockerHttpResource
             session,
             storage,
             result
-            );
-        }
-
-    /**
-     * 
-     */
-    public DockerHttpResourceEntityImpl(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractStorageResourceEntityImpl storage,
-        final Result result,
-        final IvoaSimpleDataResource validated
-        ){
-        super(
-            session,
-            storage,
-            result,
-            validated
             );
         }
 

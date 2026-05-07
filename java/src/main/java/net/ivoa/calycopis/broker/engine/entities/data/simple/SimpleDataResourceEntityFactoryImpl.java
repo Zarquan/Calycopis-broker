@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceFactoryImpl;
 
 /**
- * A SimpleDataResource Factory implementation.
+ * A SimpleDataResourceEntity Factory implementation.
  *
  */
 @Slf4j
@@ -52,10 +52,5 @@ implements SimpleDataResourceEntityFactory
     public URI getKind()
         {
         return SimpleDataResource.TYPE_DISCRIMINATOR;
-        }
-
-    public SimpleDataResourceEntityFactoryImpl()
-        {
-        super();
         }
     }

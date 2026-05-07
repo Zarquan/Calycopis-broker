@@ -24,9 +24,6 @@
 package net.ivoa.calycopis.broker.engine.entities.data.simple;
 
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 
 /**
  * A SimpleDataResource Factory.
@@ -35,16 +32,5 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
 public interface SimpleDataResourceEntityFactory
 extends AbstractDataResourceEntityFactory
     {
-
-    /**
-     * Create a new SimpleDataResource based on a template.
-     *
-     */
-    public SimpleDataResourceEntityImpl create(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractStorageResourceEntityImpl storage,
-        final AbstractDataResourceValidator.Result result
-        );
-
     }
 

@@ -26,6 +26,7 @@ package net.ivoa.calycopis.broker.engine.entities.data.amazon;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
@@ -36,24 +37,7 @@ import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBase;
  *
  */
 public interface AmazonS3DataResourceEntityFactory
-    extends FactoryBase
+extends AbstractDataResourceEntityFactory
     {
-
-    /**
-     * Select a SimpleDataResource based on UUID.
-     *
-     */
-    public Optional<AmazonS3DataResourceEntityImpl> select(final UUID uuid);
-
-    /**
-     * Create and save a new SimpleDataResource based on a template.
-     *
-     */
-    public AmazonS3DataResourceEntityImpl create(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractStorageResourceEntityImpl storage,
-        final AbstractDataResourceValidator.Result result
-        );
-
     }
 
