@@ -39,11 +39,30 @@
     IdentityEntity
         Component.Owner -> Identity
 
+    Create a re-usable component to record preparation time.
+    Use recorded time to predict preparation time.
+
+    Create a re-usable component for resource booking.
+    Implement resource booking for a storage pool.
+
+
+# -----------------------------------------------------
+# medium
+
+    Find somewhere to store stdout and stderr.
+
+    Split the create and select functionality in DockerSimpleDataResourceEntityFactory and AbstractDataResourceEntityFactory.
+
 
 # -----------------------------------------------------
 # minor
 
     Get rid of Optional, just return null.
+
+    Remove the XyzEntity interfaces and replace woth XyzEntityImpl.
+    Evaluate - do we need XyzEntityFactory interfaces
+
+
 
 
 
