@@ -23,37 +23,14 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data.skao;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBase;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityFactory;
 
 /**
- * An IvoaDataResource Factory.
+ * A SkaoDataResource Factory.
  *
  */
 public interface SkaoDataResourceEntityFactory
-    extends FactoryBase
+extends AbstractDataResourceEntityFactory
     {
-
-    /**
-     * Select an IvoaDataResource based on UUID.
-     *
-     */
-    public Optional<SkaoDataResourceEntityImpl> select(final UUID uuid);
-
-    /**
-     * Create a new IvoaDataResource based on a template.
-     *
-     */
-    public SkaoDataResourceEntityImpl create(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractStorageResourceEntityImpl storage,
-        final AbstractDataResourceValidator.Result result
-        );
-
     }
 
