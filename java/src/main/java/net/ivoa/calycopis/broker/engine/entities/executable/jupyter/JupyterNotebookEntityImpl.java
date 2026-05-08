@@ -36,7 +36,6 @@ import net.ivoa.calycopis.broker.engine.util.URIBuilder;
 import net.ivoa.calycopis.schema.spring.model.IvoaJupyterNotebook;
 
 /**
- * A Jupyter notebook executable.
  *
  */
 @Entity
@@ -47,8 +46,8 @@ import net.ivoa.calycopis.schema.spring.model.IvoaJupyterNotebook;
     strategy = InheritanceType.JOINED
     )
 public abstract class JupyterNotebookEntityImpl
-    extends AbstractExecutableEntityImpl
-    implements JupyterNotebook
+extends AbstractExecutableEntityImpl
+implements JupyterNotebook
     {
     @Override
     public URI getKind()
@@ -56,33 +55,29 @@ public abstract class JupyterNotebookEntityImpl
         return JupyterNotebook.TYPE_DISCRIMINATOR ;
         }
 
+    /**
+     * Protected constructor for JPA entities.
+     * 
+     */
     protected JupyterNotebookEntityImpl()
         {
         super();
         }
 
-    // TODO Get rid of the class cast.    
+    /**
+     * Protected constructor used by our factory.
+     *
+     */
     protected JupyterNotebookEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractExecutableValidator.Result result
         ){
-        this(   
-            session,
-            result,
-            (IvoaJupyterNotebook) result.getObject()
-            );
-        }
-
-    protected JupyterNotebookEntityImpl(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractExecutableValidator.Result result,
-        final IvoaJupyterNotebook validated
-        ){
         super(
             session,
-            result,
-            validated.getMeta()
+            result
             );
+        final IvoaJupyterNotebook validated = (IvoaJupyterNotebook) result.getObject();
+        
         this.location = validated.getLocation();
         }
 

@@ -50,7 +50,6 @@ import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockEntitySet
 import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockMonitorAction;
 import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockPrepareAction;
 import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockReleaseAction;
-import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeResource;
 
 /**
  * A Simple compute resource.
@@ -79,7 +78,7 @@ implements MockSimpleComputeResource
         }
 
     /**
-     * Protected constructor used by our Factories.
+     * Protected constructor used by our factory.
      *
      */
     protected MockSimpleComputeResourceEntityImpl(
@@ -90,8 +89,7 @@ implements MockSimpleComputeResource
         super(
             session,
             result,
-            offer,
-            (IvoaSimpleComputeResource) result.getObject()
+            offer
             );
         }
     

@@ -36,27 +36,36 @@ import net.ivoa.calycopis.schema.spring.model.IvoaJupyterNotebook;
  */
 public class MockJupyterNotebookValidatorImpl
 extends JupyterNotebookValidatorImpl
-    implements MockJupyterNotebookValidator
+implements MockJupyterNotebookValidator
     {
 
-    public MockJupyterNotebookValidatorImpl(final JupyterNotebookEntityFactory entityFactory)
-        {
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
+    public MockJupyterNotebookValidatorImpl(
+        final JupyterNotebookEntityFactory entityFactory
+        ){
         super(entityFactory);
         }
 
-    public static final List<String> LOCATION_BLACKLIST = List.of(
-            "http://example.com/blacklisted.ipynb",
-            "http://example.com/blacklisted.ipynb"
+    /**
+     * List of locations to exclude from validation.
+     * 
+     */
+    public static final List<String> LOCATION_EXCLUDE_LIST = List.of(
+        "http://example.com/excluded-one.ipynb",
+        "http://example.com/excluded-two.ipynb"
         ); 
 
     @Override
     protected boolean validateLocation(String location, OfferSetRequestParserContext context)
         {
-        if (LOCATION_BLACKLIST.contains(location))
+        if (LOCATION_EXCLUDE_LIST.contains(location))
             {
             context.addWarning(
                 "urn:invalid-value",
-                "JupyterNotebook - location is blacklisted [{}]",
+                "JupyterNotebook - location is excluded [{}]",
                 Map.of(
                     "value",
                     location
@@ -73,7 +82,7 @@ extends JupyterNotebookValidatorImpl
      * Default prepare duration, 30 seconds.
      * 
      */
-    public static final Long DEFAULT_PREPARE_ESTIMATE = 30L;
+    public static final Long DEFAULT_PREPARE_ESTIMATE = 5L;
 
     /**
      * Get the prepare duration for a resource.

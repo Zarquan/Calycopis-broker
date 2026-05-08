@@ -57,7 +57,6 @@ package net.ivoa.calycopis.broker.engine.entities.compute.simple;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
@@ -183,7 +182,7 @@ implements SimpleComputeResourceValidator
         if (success)
             {
             context.addComputeValidatorResult(
-                new AbstractComputeResourceValidator.ResultBean(
+                new SimpleComputeResourceValidator.ResultBean(
                     Validator.ResultEnum.ACCEPTED,
                     validated
                     ){

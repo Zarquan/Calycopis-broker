@@ -26,13 +26,11 @@ package net.ivoa.calycopis.broker.engine.entities.executable.docker.docker;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainer;
 
 /**
- * Docker platform specific DockerContainer interface.
  * 
  */
 public interface DockerDockerContainer
 extends DockerContainer
     {
-
     /**
      * Get the time it took to download the container image (in milliseconds).
      * Returns null if the image was already cached locally.

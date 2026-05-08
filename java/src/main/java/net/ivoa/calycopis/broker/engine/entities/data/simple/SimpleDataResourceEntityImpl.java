@@ -105,8 +105,7 @@ public abstract class SimpleDataResourceEntityImpl
         super(
             session,
             storage,
-            result,
-            validated.getMeta()
+            result
             );
         this.location = validated.getLocation();
         }

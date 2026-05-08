@@ -40,7 +40,6 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.broker.engine.entities.executable.jupyter.JupyterNotebookEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
@@ -67,14 +66,23 @@ public class MockJupyterNotebookEntityImpl
 extends JupyterNotebookEntityImpl
 implements MockJupyterNotebook
     {
-    public MockJupyterNotebookEntityImpl()
+
+    /**
+     * Protected constructor for JPA entities.
+     * 
+     */
+    protected MockJupyterNotebookEntityImpl()
         {
         super();
         }
 
-    public MockJupyterNotebookEntityImpl(
+    /**
+     * Protected constructor used by our factory.
+     *
+     */
+    protected MockJupyterNotebookEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
-        final AbstractExecutableValidator.Result result
+        final MockJupyterNotebookValidator.Result result
         ){
         super(
             session,

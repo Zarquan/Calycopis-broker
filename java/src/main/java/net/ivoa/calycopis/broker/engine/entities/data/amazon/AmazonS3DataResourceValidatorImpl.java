@@ -56,7 +56,6 @@ package net.ivoa.calycopis.broker.engine.entities.data.amazon;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
@@ -84,10 +83,10 @@ implements AmazonS3DataResourceValidator
     final AmazonS3DataResourceEntityFactory entityFactory;
 
     /**
-     * Public constructor.
+     * Protected constructor.
      * 
      */
-    public AmazonS3DataResourceValidatorImpl(
+    protected AmazonS3DataResourceValidatorImpl(
         final AmazonS3DataResourceEntityFactory entityFactory,
         final AbstractDataStorageLinker storageLinker
         ){
@@ -159,7 +158,7 @@ implements AmazonS3DataResourceValidator
         // Everything is good, create our Result.
         if (success)
             {
-            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+            AmazonS3DataResourceValidator.Result dataResult = new AmazonS3DataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated
                 ){

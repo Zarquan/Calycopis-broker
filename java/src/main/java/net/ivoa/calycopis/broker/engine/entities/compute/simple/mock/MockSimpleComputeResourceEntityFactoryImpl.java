@@ -44,6 +44,10 @@ implements MockSimpleComputeResourceEntityFactory
 
     private final MockSimpleComputeResourceEntityRepository repository;
 
+    /**
+     * Public constructor used by our Platform.
+     *
+     */
     public MockSimpleComputeResourceEntityFactoryImpl(final MockSimpleComputeResourceEntityRepository repository)
         {
         super();

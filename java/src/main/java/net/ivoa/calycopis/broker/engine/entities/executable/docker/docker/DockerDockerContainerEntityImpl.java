@@ -38,7 +38,6 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponent;
-import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainerEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
@@ -65,26 +64,26 @@ import net.ivoa.calycopis.schema.spring.model.IvoaLifecyclePhase;
     strategy = InheritanceType.JOINED
     )
 public class DockerDockerContainerEntityImpl
-    extends DockerContainerEntityImpl
-    implements DockerDockerContainer
+extends DockerContainerEntityImpl
+implements DockerDockerContainer
     {
 
     /**
-     * Default constructor for JPA.
+     * Protected constructor for JPA entities.
      * 
      */
-    public DockerDockerContainerEntityImpl()
+    protected DockerDockerContainerEntityImpl()
         {
         super();
         }
 
     /**
-     * Constructor with session and validation result.
+     * Protected constructor used by our factory.
      *
      */
-    public DockerDockerContainerEntityImpl(
+    protected DockerDockerContainerEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
-        final AbstractExecutableValidator.Result result
+        final DockerDockerContainerValidator.Result result
         ){
         super(
             session,

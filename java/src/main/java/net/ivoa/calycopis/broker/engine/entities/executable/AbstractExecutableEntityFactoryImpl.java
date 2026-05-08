@@ -37,8 +37,6 @@ package net.ivoa.calycopis.broker.engine.entities.executable;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 
@@ -51,19 +49,14 @@ extends FactoryBaseImpl
 implements AbstractExecutableEntityFactory
     {
 
-    private AbstractExecutableEntityRepository repository;
+    protected AbstractExecutableEntityRepository repository;
 
-    @Autowired
     public AbstractExecutableEntityFactoryImpl(final AbstractExecutableEntityRepository repository)
         {
         super();
         this.repository = repository;
         }
 
-    // TODO This is needed because of the Optional<>.
-    // Get rid of of the Optional<> and this whole class goes away,
-    // because the DockerContainer and JupyterNotebook factories
-    // can implement the AbstractExecutableEntityFactory interface.
     @Override
     public Optional<AbstractExecutableEntityImpl> select(UUID uuid)
         {

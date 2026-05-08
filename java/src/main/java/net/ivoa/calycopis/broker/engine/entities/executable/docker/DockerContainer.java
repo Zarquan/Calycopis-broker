@@ -13,7 +13,7 @@ import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutable;
  *
  */
 public interface DockerContainer
-    extends AbstractExecutable
+extends AbstractExecutable
     {
     /**
      * The OpenAPI type identifier.
@@ -21,17 +21,15 @@ public interface DockerContainer
      */
     public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0") ;
 
-    public DockerContainerImage getImage();
-    
-    public boolean getPrivileged();
-
     public String getEntrypoint();
 
     public List<String> getCommand();
 
     public Map<String, String> getEnvironment();
+
+    public boolean getPrivileged();
     
-    public DockerNetwork getNetwork();    
+    public DockerContainerImage getImage();
     
     public static interface DockerContainerImage
         {
@@ -48,6 +46,8 @@ public interface DockerContainer
     
         public String getOs();
         }
+
+    public DockerNetwork getNetwork();    
 
     public interface DockerNetwork    
         {

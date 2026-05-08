@@ -60,7 +60,10 @@ public class MockAmazonS3DataResourceValidatorImpl
 extends AmazonS3DataResourceValidatorImpl
 implements MockAmazonS3DataResourceValidator
     {
-
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public MockAmazonS3DataResourceValidatorImpl(
         final AmazonS3DataResourceEntityFactory entityFactory,
         final MockDataStorageLinker storageLinker

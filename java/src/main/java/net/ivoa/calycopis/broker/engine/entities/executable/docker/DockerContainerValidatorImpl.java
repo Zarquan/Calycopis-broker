@@ -47,11 +47,8 @@ package net.ivoa.calycopis.broker.engine.entities.executable.docker;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
@@ -66,7 +63,6 @@ import net.ivoa.calycopis.schema.spring.model.IvoaDockerNetworkSpec;
 import net.ivoa.calycopis.schema.spring.model.IvoaDockerPlatformSpec;
 
 /**
- * A validator implementation to handle DockerContainers.
  *
  */
 @Slf4j
@@ -76,9 +72,12 @@ implements DockerContainerValidator
     {
 
     private final DockerContainerEntityFactory entityFactory;
-    
-    @Autowired
-    public DockerContainerValidatorImpl(final DockerContainerEntityFactory entityFactory)
+
+    /**
+     * Protected constructor used by derived classes.
+     * 
+     */
+    protected DockerContainerValidatorImpl(final DockerContainerEntityFactory entityFactory)
         {
         this.entityFactory = entityFactory;
         }
@@ -181,7 +180,7 @@ implements DockerContainerValidator
         if (success)
             {
             context.setExecutableResult(
-                new AbstractExecutableValidator.ResultBean(
+                new DockerContainerValidator.ResultBean(
                     Validator.ResultEnum.ACCEPTED,
                     validated
                     ) {

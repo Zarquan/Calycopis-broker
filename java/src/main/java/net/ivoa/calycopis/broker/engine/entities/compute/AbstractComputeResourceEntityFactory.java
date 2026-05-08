@@ -34,7 +34,7 @@ public interface AbstractComputeResourceEntityFactory
 extends LifecycleComponentEntityFactory<AbstractComputeResourceEntityImpl>
     {
     /**
-     * Create a new ComputeResourceEntity based on a Validator Result and a ComputeResourceOffer.
+     * Create a new ComputeResourceEntity based on a Validator Result.
      *
      */
     public AbstractComputeResourceEntityImpl create(

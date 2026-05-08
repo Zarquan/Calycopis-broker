@@ -34,12 +34,10 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResource;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 
 /**
@@ -53,11 +51,15 @@ implements AbstractDataResourceEntityFactory
 
     private AbstractDataResourceEntityRepository repository;
 
+    // TODO This is wrong, this should only be implemented in the derived classes.
+    /*
     @Override
     public URI getKind()
         {
         return SimpleDataResource.TYPE_DISCRIMINATOR;
         }
+     *  
+     */
 
     public AbstractDataResourceEntityFactoryImpl(final AbstractDataResourceEntityRepository repository)
         {
@@ -65,10 +67,10 @@ implements AbstractDataResourceEntityFactory
         this.repository = repository;
         }
 
+    // TODO This is needed because of the Optional<>.
     @Override
     public Optional<AbstractDataResourceEntity> select(UUID uuid)
         {
         return repository.findById(uuid);
         }
-
     }

@@ -42,5 +42,4 @@ import net.ivoa.calycopis.broker.engine.entities.data.amazon.AmazonS3DataResourc
 public interface MockAmazonS3DataResourceValidator
 extends AmazonS3DataResourceValidator
     {
-
     }

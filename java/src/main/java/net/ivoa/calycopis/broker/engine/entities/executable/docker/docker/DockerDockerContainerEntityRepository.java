@@ -26,15 +26,11 @@ package net.ivoa.calycopis.broker.engine.entities.executable.docker.docker;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 /**
- * JpaRepository for DockerDockerContainerEntity.
  *
  */
-@Repository
 public interface DockerDockerContainerEntityRepository
-    extends JpaRepository<DockerDockerContainerEntityImpl, UUID>
+extends JpaRepository<DockerDockerContainerEntityImpl, UUID>
     {
-
     }

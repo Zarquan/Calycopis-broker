@@ -56,7 +56,6 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityImpl;
 import net.ivoa.calycopis.broker.engine.util.URIBuilder;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.schema.spring.model.IvoaComponentMetadata;
 
 /**
  * 
@@ -83,18 +82,16 @@ implements AbstractDataResource
         }
 
     /**
-     * Protected constructor used by our Factories.
-     * TODO meta can be replaced by Result.getObject().getMeta()
+     * Protected constructor used by derived classes.
      * 
      */
     protected AbstractDataResourceEntity(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
-        final AbstractDataResourceValidator.Result result,
-        final IvoaComponentMetadata meta
+        final AbstractDataResourceValidator.Result result
         ){
         super(
-            meta
+            result.getMeta()
             );
 
         this.session = session;

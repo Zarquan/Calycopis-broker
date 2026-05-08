@@ -38,7 +38,10 @@ public class DockerFileResourceValidatorImpl
 extends SimpleDataResourceValidatorImpl
 implements DockerFileResourceValidator
     {
-
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public DockerFileResourceValidatorImpl(
         final AbstractDataResourceEntityFactory entityFactory,
         final AbstractDataStorageLinker storageLinker)

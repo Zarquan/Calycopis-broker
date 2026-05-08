@@ -17,7 +17,6 @@ import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEnt
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.util.URIBuilder;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.schema.spring.model.IvoaComponentMetadata;
 
 /**
  * 
@@ -32,10 +31,10 @@ import net.ivoa.calycopis.schema.spring.model.IvoaComponentMetadata;
     )
 public abstract class AbstractExecutableEntityImpl
 extends LifecycleComponentEntityImpl
-    implements AbstractExecutable
+implements AbstractExecutable
     {
     /**
-     * Protected constructor.
+     * Protected constructor for JPA entities.
      * 
      */
     protected AbstractExecutableEntityImpl()
@@ -44,16 +43,15 @@ extends LifecycleComponentEntityImpl
         }
     
     /**
-     * Protected constructor.
+     * Protected constructor used by derived classes.
      * 
      */
     protected AbstractExecutableEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
-        final AbstractExecutableValidator.Result result,
-        final IvoaComponentMetadata meta
+        final AbstractExecutableValidator.Result result
         ){
         super(
-            meta
+            result.getMeta()
             );
 
         this.session = session;

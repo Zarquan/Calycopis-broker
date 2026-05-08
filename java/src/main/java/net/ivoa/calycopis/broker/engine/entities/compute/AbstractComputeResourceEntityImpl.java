@@ -44,7 +44,6 @@ import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResour
 import net.ivoa.calycopis.broker.engine.util.ListWrapper;
 import net.ivoa.calycopis.broker.engine.util.URIBuilder;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.schema.spring.model.IvoaComponentMetadata;
 
 /**
  * 
@@ -70,17 +69,16 @@ implements AbstractComputeResource
         }
 
     /**
-     * Protected constructor used by our Factories.
+     * Protected constructor used by derived classes.
      * 
      */
     protected AbstractComputeResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractComputeResourceValidator.Result result,
-        final ComputeResourceOffer offer,
-        final IvoaComponentMetadata meta
+        final ComputeResourceOffer offer
         ){
         super(
-            meta
+            result.getMeta()
             );
         this.session = session;
         this.session.setComputeResource(

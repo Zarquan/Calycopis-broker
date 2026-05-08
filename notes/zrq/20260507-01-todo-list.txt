@@ -25,7 +25,7 @@
 
     Target:
 
-        A list of key things needed to make a deployable service.
+        A list of things needed to make a deployable service.
 
     Result:
 
@@ -34,10 +34,14 @@
 # -----------------------------------------------------
 # major
 
+    Create a String free interface for JpaRepositories.
+
     Authentication.
     OIDC auth in webapp
     IdentityEntity
         Component.Owner -> Identity
+
+    Check what is being stored in the DB.
 
     Create a re-usable component to record preparation time.
     Use recorded time to predict preparation time.
@@ -47,6 +51,13 @@
 
     Refactor mock classes to use a simple duration rather than loop count.
 
+    Mock tests trigger internal failure on Docker platform
+    Docker tests trigger internal failure on Mock platform
+
+    Two stage delete for expired offers.
+    Two stage delete for expired processing requests.
+
+
 # -----------------------------------------------------
 # medium
 
@@ -54,9 +65,28 @@
 
     Split the create and select functionality in DockerSimpleDataResourceEntityFactory and AbstractDataResourceEntityFactory.
 
+    Resolve the PURL issues.
 
 # -----------------------------------------------------
 # minor
+
+
+    Move
+        net.ivoa.calycopis.broker.engine.entities.data.docker;
+        net.ivoa.calycopis.broker.engine.entities.data.simple.docker;
+
+        net.ivoa.calycopis.broker.engine.entities.data.docker.file;
+        net.ivoa.calycopis.broker.engine.entities.data.simple.docker.file;
+
+        net.ivoa.calycopis.broker.engine.entities.data.docker.http;
+        net.ivoa.calycopis.broker.engine.entities.data.simple.docker.http;
+
+    Pass more things down the chain using a reference to the Platform.
+    References to JpaRepositories for example.
+
+
+    How many of the JpaRepositories are actually used ?
+    I think it might just be the base class AbstractXyz ones.
 
     Get rid of Optional, just return null.
     Or make use of the NoSuchElementException that Optional throws.
@@ -65,7 +95,12 @@
     Evaluate - do we need XyzEntityFactory interfaces
 
 
+    Decide on one pattern for entities and their interfaces:
 
+        AbstractDataResource is the interface
+        AbstractDataResourceEntity is the entity class
 
+        AbstractExecutable is the interface
+        AbstractExecutableEntityImpl is the entity class
 
 

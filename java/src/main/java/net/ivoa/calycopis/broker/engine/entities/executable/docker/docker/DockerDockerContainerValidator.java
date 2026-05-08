@@ -26,11 +26,9 @@ package net.ivoa.calycopis.broker.engine.entities.executable.docker.docker;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainerValidator;
 
 /**
- * Docker platform specific validator for DockerContainer executables.
  * 
  */
 public interface DockerDockerContainerValidator
 extends DockerContainerValidator
     {
-
     }

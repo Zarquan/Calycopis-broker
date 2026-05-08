@@ -14,7 +14,7 @@ public interface JupyterNotebook
     extends AbstractExecutable
     {
     /**
-     * The type discriminator for Jupyter notebooks.
+     * The OpenAPI type identifier.
      * 
      */
     public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0") ;

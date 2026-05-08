@@ -45,7 +45,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.util.ListWrapper;
 import net.ivoa.calycopis.broker.engine.util.URIBuilder;
@@ -71,8 +70,8 @@ import net.ivoa.calycopis.schema.spring.model.IvoaDockerPlatformSpec;
     strategy = InheritanceType.JOINED
     )
 public abstract class DockerContainerEntityImpl
-    extends AbstractExecutableEntityImpl
-    implements DockerContainer
+extends AbstractExecutableEntityImpl
+implements DockerContainer
     {
     @Override
     public URI getKind()
@@ -80,34 +79,30 @@ public abstract class DockerContainerEntityImpl
         return DockerContainer.TYPE_DISCRIMINATOR ;
         }
 
+    /**
+     * Protected constructor for JPA entities.
+     * 
+     */
     protected DockerContainerEntityImpl()
         {
         super();
         }
 
-    // TODO Get rid of the class cast.
+    /**
+     * Protected constructor used by derived classes.
+     * 
+     */
     protected DockerContainerEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
-        final AbstractExecutableValidator.Result result
-        ){
-        this(
-            session,
-            result,
-            (IvoaDockerContainer) result.getObject()
-            );
-        }
-    
-    protected DockerContainerEntityImpl(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractExecutableValidator.Result result,
-        final IvoaDockerContainer validated
+        final DockerContainerValidator.Result result
         ){
         super(
             session,
-            result,
-            validated.getMeta()
+            result
             );
 
+        final IvoaDockerContainer validated = (IvoaDockerContainer) result.getObject();
+        
         log.debug("DockerContainerEntity validated [{}]", validated);
 
         this.privileged = validated.getPrivileged();

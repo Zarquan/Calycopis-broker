@@ -22,22 +22,22 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.executable;
 
-import org.springframework.stereotype.Component;
-
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
 
 /**
- * A factory for IvoaAbstractExecutable validators.
  *   
  */
-@Component
 public class AbstractExecutableValidatorFactoryImpl
-    extends ValidatorFactoryImpl<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
-    implements AbstractExecutableValidatorFactory
+extends ValidatorFactoryImpl<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
+implements AbstractExecutableValidatorFactory
     {
-    
+
+    /**
+     * Public constructor used by our platform.
+     * 
+     */
     public AbstractExecutableValidatorFactoryImpl()
         {
         super();

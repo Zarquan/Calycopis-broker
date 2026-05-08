@@ -47,21 +47,6 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
 public interface AbstractExecutableValidator
 extends Validator<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
     {
-    
-    /**
-     * Public interface for a validator result.
-     * 
-     */
-    public static interface Result
-    extends Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntityImpl> 
-        {
-        /**
-         * Build an entity based on a validation result. 
-         *
-         */
-        public AbstractExecutableEntityImpl build(final SimpleExecutionSessionEntityImpl session);
-        }
-
     /**
      * Validate a component.
      *
@@ -72,27 +57,42 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
         );
 
     /**
-     * Simple Bean implementation of an ExecutableValidator result.
+     * Public interface for a validator result.
+     * 
+     */
+    public static interface Result
+    extends Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntityImpl> 
+        {
+        /**
+         * Build a ExecutableEntity based on the validation result. 
+         *
+         */
+        public AbstractExecutableEntityImpl build(final SimpleExecutionSessionEntityImpl session);
+        }
+
+    /**
+     * Bean implementation of a validator result.
      * 
      */
     public static abstract class ResultBean
     extends Validator.ResultBean<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
-    implements Result
+    implements AbstractExecutableValidator.Result
         {
         /**
-         * Public constructor.
+         * Protected constructor with just a ResultEnum.
+         * Used to respond to a failed validation, where we don't have an object to return.
          * 
          */
-        public ResultBean(ResultEnum result)
+        protected ResultBean(ResultEnum result)
             {
             super(result);
             }
 
         /**
-         * Public constructor.
+         * Protected constructor with a ResultEnum and IvoaAbstractExecutable.
          * 
          */
-        public ResultBean(
+        protected ResultBean(
             final ResultEnum result,
             final IvoaAbstractExecutable object
             ){
@@ -101,13 +101,6 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
                 object,
                 (object != null) ? object.getMeta() : null
                 );
-            }
-
-        @Override
-        // Here because we need to create Results with just a status and no entity
-        public AbstractExecutableEntityImpl build(SimpleExecutionSessionEntityImpl session)
-            {
-            return null;
             }
         }
     }

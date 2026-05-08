@@ -40,6 +40,10 @@ extends AbstractValidatorImpl<IvoaAbstractDataResource, AbstractDataResourceEnti
 implements AbstractDataResourceValidator
     {
 
+    /**
+     * StorageLinker to connect storage and data resources together.
+     * 
+     */
     private final AbstractDataStorageLinker storageLinker ;
     
     /**

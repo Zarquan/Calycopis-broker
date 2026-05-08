@@ -82,42 +82,23 @@ public abstract class IvoaDataResourceEntityImpl
         }
 
     /**
-     * Protected constructor used by our Factories.
+     * Protected constructor used by our factory.
      *
      */
     public IvoaDataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
-        final AbstractDataResourceValidator.Result result
-        ){
-        this(
-            session,
-            storage,
-            result,
-            (IvoaIvoaDataResource) result.getObject()
-            );
-        }
-
-    /**
-     * Protected constructor with parent.
-     * TODO validated can be replaced by Result.getObject()
-     * TODO No need to pass validated.getMeta() separately.
-     *
-     */
-    public IvoaDataResourceEntityImpl(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractStorageResourceEntityImpl storage,
-        final AbstractDataResourceValidator.Result result,
-        final IvoaIvoaDataResource validated
+        final IvoaDataResourceValidator.Result result
         ){
         super(
             session,
             storage,
-            result,
-            validated.getMeta()
+            result
             );
 
-        IvoaIvoaDataResourceBlock ivoa = validated.getIvoa();
+        final IvoaIvoaDataResource validated = (IvoaIvoaDataResource) result.getObject();
+        final IvoaIvoaDataResourceBlock ivoa = validated.getIvoa();
+
         if (null != ivoa)
             {
             this.ivoid = ivoa.getIvoid();
@@ -131,11 +112,7 @@ public abstract class IvoaDataResourceEntityImpl
         }
 
     /**
-     * Protected constructor for SkaoDataResource, which now extends
-     * AbstractDataResource directly rather than IvoaDataResource.
-     * Both IvoaSkaoDataResource and IvoaIvoaDataResource share the
-     * same ivoa block type, so we can initialize the IVOA fields
-     * from either.
+     * Protected constructor for SkaoDataResource.
      *
      */
     protected IvoaDataResourceEntityImpl(
@@ -147,8 +124,7 @@ public abstract class IvoaDataResourceEntityImpl
         super(
             session,
             storage,
-            result,
-            validated.getMeta()
+            result
             );
 
         IvoaIvoaDataResourceBlock ivoa = validated.getIvoa();

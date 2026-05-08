@@ -40,7 +40,6 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainerEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
@@ -67,20 +66,23 @@ public class MockDockerContainerEntityImpl
     extends DockerContainerEntityImpl
     implements MockDockerContainer
     {
+
     /**
+     * Protected constructor for JPA entities.
      * 
      */
-    public MockDockerContainerEntityImpl()
+    protected MockDockerContainerEntityImpl()
         {
         super();
         }
 
     /**
+     * Protected constructor used by our factory.
      *
      */
-    public MockDockerContainerEntityImpl(
+    protected MockDockerContainerEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
-        final AbstractExecutableValidator.Result result
+        final MockDockerContainerValidator.Result result
         ){
         super(
             session,

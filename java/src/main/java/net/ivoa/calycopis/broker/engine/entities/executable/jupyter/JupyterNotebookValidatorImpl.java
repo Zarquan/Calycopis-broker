@@ -49,9 +49,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidator;
+import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.broker.engine.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.schema.spring.model.IvoaJupyterNotebook;
@@ -62,14 +62,17 @@ import net.ivoa.calycopis.schema.spring.model.IvoaJupyterNotebook;
  */
 @Slf4j
 public abstract class JupyterNotebookValidatorImpl
-extends AbstractValidatorImpl<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
+extends AbstractExecutableValidatorImpl
 implements JupyterNotebookValidator
     {
     
     private final JupyterNotebookEntityFactory entityFactory;
 
-    @Autowired
-    public JupyterNotebookValidatorImpl(final JupyterNotebookEntityFactory entityFactory)
+    /**
+     * Protected constructor used by derived classes.
+     * 
+     */
+    protected JupyterNotebookValidatorImpl(final JupyterNotebookEntityFactory entityFactory)
         {
         this.entityFactory = entityFactory;
         }

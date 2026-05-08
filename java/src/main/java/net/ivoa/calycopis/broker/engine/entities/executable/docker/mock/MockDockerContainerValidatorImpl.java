@@ -39,12 +39,20 @@ extends DockerContainerValidatorImpl
 implements MockDockerContainerValidator
     {
 
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public MockDockerContainerValidatorImpl(final DockerContainerEntityFactory entityFactory)
         {
         super(entityFactory);
         }
 
-    public static final List<String> PORT_PATH_BLACKLIST = List.of(
+    /**
+     * List of network paths to exclude from validation.
+     * 
+     */
+    public static final List<String> PORT_PATH_EXCLUDE_LIST = List.of(
         "/badpath",
         "/alsobadpath"
         );
@@ -52,11 +60,11 @@ implements MockDockerContainerValidator
     @Override
     protected boolean validateNetworkPortPath(final String path, final OfferSetRequestParserContext context)
         {
-        if (PORT_PATH_BLACKLIST.contains(path))
+        if (PORT_PATH_EXCLUDE_LIST.contains(path))
             {
             context.addWarning(
                 "urn:invalid-value",
-                "DockerContainer - network path is blacklisted [{}]",
+                "DockerContainer - network path is excluded [{}]",
                 Map.of(
                     "value",
                     path
@@ -69,7 +77,7 @@ implements MockDockerContainerValidator
             }
         }
 
-    public static final List<Integer> PORT_NUMBER_BLACKLIST = List.of(
+    public static final List<Integer> PORT_NUMBER_EXCLUDE_LIST = List.of(
         Integer.valueOf(1234),
         Integer.valueOf(5678)
         );
@@ -77,11 +85,11 @@ implements MockDockerContainerValidator
     @Override
     protected boolean validateNetworkPortNumber(final Integer portnum, final OfferSetRequestParserContext context)
         {
-        if (PORT_NUMBER_BLACKLIST.contains(portnum))
+        if (PORT_NUMBER_EXCLUDE_LIST.contains(portnum))
             {
             context.addWarning(
                 "urn:invalid-value",
-                "DockerContainer - network port number is blacklisted [{}]",
+                "DockerContainer - network port number is excluded [{}]",
                 Map.of(
                     "value",
                     portnum
@@ -98,7 +106,7 @@ implements MockDockerContainerValidator
      * Default prepare duration, 30 seconds.
      * 
      */
-    public static final Long DEFAULT_PREPARE_ESTIMATE = 30L;
+    public static final Long DEFAULT_PREPARE_ESTIMATE = 5L;
 
     /**
      * Get the prepare duration for a resource.

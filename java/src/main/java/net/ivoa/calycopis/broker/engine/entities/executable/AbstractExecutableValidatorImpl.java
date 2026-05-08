@@ -33,10 +33,4 @@ public abstract class AbstractExecutableValidatorImpl
 extends AbstractValidatorImpl<IvoaAbstractExecutable, AbstractExecutableEntityImpl>
 implements AbstractExecutableValidator
     {
-
-    public AbstractExecutableValidatorImpl()
-        {
-        super();
-        }
-
     }

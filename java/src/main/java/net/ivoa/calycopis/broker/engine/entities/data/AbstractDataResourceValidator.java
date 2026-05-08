@@ -48,21 +48,7 @@ public interface AbstractDataResourceValidator
 extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
     /**
-     * Public interface for a validator result.
-     * 
-     */
-    public interface Result
-    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
-        {
-        /**
-         * Build a DataResourceEntity based on a validation result. 
-         *
-         */
-        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session);
-        }
-
-    /**
-     * Validate a DataResource.
+     * Validate a component.
      *
      */
     public ResultEnum validate(
@@ -71,28 +57,42 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         );
 
     /**
-     * Simple Bean implementation of a DataResourceValidator result.
-     * TODO Move this to AbstractDataResourceValidatorImpl, and include a factory method that can be inherited.
+     * Public interface for a validator result.
+     * 
+     */
+    public interface Result
+    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
+        {
+        /**
+         * Build a DataResourceEntity based on the validation result. 
+         *
+         */
+        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session);
+        }
+
+    /**
+     * Bean implementation of a validator result.
      * 
      */
     public static abstract class ResultBean
     extends Validator.ResultBean<IvoaAbstractDataResource, AbstractDataResourceEntity>
-    implements Result
+    implements AbstractDataResourceValidator.Result
         {
         /**
-         * Public constructor.
+         * Protected constructor with just a ResultEnum.
+         * Used to respond to a failed validation, where we don't have an object to return.
          * 
          */
-        public ResultBean(final ResultEnum result)
+        protected ResultBean(final ResultEnum result)
             {
             super(result);
             }
 
         /**
-         * Public constructor.
+         * Protected constructor with a ResultEnum and IvoaAbstractDataResource.
          * 
          */
-        public ResultBean(
+        protected ResultBean(
             final ResultEnum result,
             final IvoaAbstractDataResource object
             ){
@@ -101,13 +101,6 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
                 object,
                 (object != null) ? object.getMeta() : null
                 );
-            }
-
-        @Override
-        // Here because we need to create Results with just a status and no entity
-        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session)
-            {
-            return null;
             }
         }
     }

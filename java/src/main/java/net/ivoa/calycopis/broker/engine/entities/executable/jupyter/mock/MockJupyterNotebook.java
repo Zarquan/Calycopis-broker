@@ -32,5 +32,4 @@ import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockMonitorab
 public interface MockJupyterNotebook
 extends JupyterNotebook, MockMonitorableComponent
     {
-
     }

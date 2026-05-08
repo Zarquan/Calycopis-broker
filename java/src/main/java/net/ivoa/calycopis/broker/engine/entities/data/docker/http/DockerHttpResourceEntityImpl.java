@@ -50,7 +50,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponent;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator.Result;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource;
@@ -63,7 +62,6 @@ import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.schema.spring.model.IvoaLifecyclePhase;
-import net.ivoa.calycopis.schema.spring.model.IvoaSimpleDataResource;
 
 /**
  * 
@@ -87,13 +85,13 @@ implements DockerHttpResource
         }
 
     /**
-     * Protected constructor used by our Factories.
+     * Protected constructor used by our factory.
      * 
      */
     protected DockerHttpResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
-        final Result result
+        final DockerHttpResourceValidator.Result result
         ){
         super(
             session,

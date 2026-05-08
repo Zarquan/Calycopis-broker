@@ -76,7 +76,6 @@ import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.schema.spring.model.IvoaLifecyclePhase;
-import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleVolumeMount.ModeEnum;
 
 /**
@@ -106,7 +105,7 @@ implements DockerSimpleComputeResource
         }
 
     /**
-     * Protected constructor used by our Factories.
+     * Protected constructor used by our factory.
      *
      */
     protected DockerSimpleComputeResourceEntityImpl(
@@ -117,8 +116,7 @@ implements DockerSimpleComputeResource
         super(
             session,
             result,
-            offer,
-            (IvoaSimpleComputeResource) result.getObject()
+            offer
             );
         }
     

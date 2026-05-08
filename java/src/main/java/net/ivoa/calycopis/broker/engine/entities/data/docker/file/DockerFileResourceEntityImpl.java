@@ -39,7 +39,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponent;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator.Result;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
@@ -48,7 +47,6 @@ import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.schema.spring.model.IvoaLifecyclePhase;
-import net.ivoa.calycopis.schema.spring.model.IvoaSimpleDataResource;
 
 /**
  * 
@@ -73,13 +71,13 @@ implements DockerFileResource
         }
 
     /**
-     * Protected constructor used by our Factories.
+     * Protected constructor used by our factory.
      * 
      */
     protected DockerFileResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
-        final Result result
+        final DockerFileResourceValidator.Result result
         ){
         super(
             session,
@@ -87,24 +85,6 @@ implements DockerFileResource
             result
             );
         }
-
-    /**
-     * Protected constructor used by our Factories.
-     * 
-    protected DockerFileResourceEntityImpl(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractStorageResourceEntityImpl storage,
-        final Result result,
-        final IvoaSimpleDataResource validated
-        ){
-        super(
-            session,
-            storage,
-            result,
-            validated
-            );
-        }
-     */
 
     @Override
     public ProcessingAction getPrepareAction(Platform platform, ComponentProcessingRequest request)

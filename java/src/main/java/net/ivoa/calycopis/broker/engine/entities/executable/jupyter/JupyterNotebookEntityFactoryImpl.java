@@ -36,13 +36,14 @@ package net.ivoa.calycopis.broker.engine.entities.executable.jupyter;
 
 import java.net.URI;
 
-import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityRepository;
 
 /**
  * 
  */
 public abstract class JupyterNotebookEntityFactoryImpl
-extends FactoryBaseImpl
+extends AbstractExecutableEntityFactoryImpl
 implements JupyterNotebookEntityFactory
     {
     @Override
@@ -51,8 +52,12 @@ implements JupyterNotebookEntityFactory
         return JupyterNotebook.TYPE_DISCRIMINATOR;
         }
 
-    public JupyterNotebookEntityFactoryImpl()
+    /**
+     * Protected constructor, used by derived classes.
+     * 
+     */
+    protected JupyterNotebookEntityFactoryImpl(final AbstractExecutableEntityRepository repository)
         {
-        super();
+        super(repository);
         }
     }

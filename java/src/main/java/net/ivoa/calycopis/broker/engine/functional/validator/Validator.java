@@ -36,6 +36,7 @@ package net.ivoa.calycopis.broker.engine.functional.validator;
 
 import net.ivoa.calycopis.broker.engine.entities.component.ComponentEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.schema.spring.model.IvoaComponentMetadata;
 
 /**
@@ -81,7 +82,7 @@ public interface Validator<ObjectType, EntityType extends ComponentEntityImpl>
          * 
          */
         public ObjectType getObject();
-        
+
         /**
          * Get the corresponding Entity.
          * 
@@ -89,7 +90,7 @@ public interface Validator<ObjectType, EntityType extends ComponentEntityImpl>
         public EntityType getEntity();
 
         /**
-         * Get the IVOA metadata for this component.
+         * Get the component metadata.
          * 
          */
         public IvoaComponentMetadata getMeta();
@@ -131,17 +132,30 @@ public interface Validator<ObjectType, EntityType extends ComponentEntityImpl>
     public abstract static class ResultBean<ObjectType, EntityType extends ComponentEntityImpl>
     implements Result<ObjectType, EntityType>
         {
-        public ResultBean(final ResultEnum result)
+        /**
+         * Protected constructor with just a ResultEnum.
+         * Used to respond to a failed validation, where we don't have an object to return.
+         * 
+         */
+        protected ResultBean(final ResultEnum result)
             {
             this(result, null, null);
             }
 
-        public ResultBean(final ResultEnum result, final ObjectType object)
+        /**
+         * Protected constructor with a ResultEnum and validated object.
+         * 
+         */
+        protected ResultBean(final ResultEnum result, final ObjectType object)
             {
             this(result, object, null);
             }
-
-        public ResultBean(final ResultEnum result, final ObjectType object, final IvoaComponentMetadata meta)
+        
+        /**
+         * Protected constructor with a ResultEnum, validated object and object metadata.
+         * 
+         */
+        protected ResultBean(final ResultEnum result, final ObjectType object, final IvoaComponentMetadata meta)
             {
             this.result = result;
             this.object = object;
@@ -167,6 +181,16 @@ public interface Validator<ObjectType, EntityType extends ComponentEntityImpl>
         public EntityType getEntity()
             {
             return this.entity;
+            }
+
+        /**
+         * Default implementation that just returns null.
+         * Derived classes should override this to build an Entity based on the validation result.
+         * 
+         */
+        public EntityType build(final SimpleExecutionSessionEntityImpl session)
+            {
+            return null;
             }
 
         protected IvoaComponentMetadata meta;

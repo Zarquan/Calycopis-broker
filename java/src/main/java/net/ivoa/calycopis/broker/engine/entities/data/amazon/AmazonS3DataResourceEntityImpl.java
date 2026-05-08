@@ -39,7 +39,6 @@ import java.net.URI;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.util.URIBuilder;
@@ -73,38 +72,22 @@ public abstract class AmazonS3DataResourceEntityImpl
         }
 
     /**
-     * Protected constructor used by our Factories.
+     * Protected constructor used by derived classes.
      *
      */
     protected AmazonS3DataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
-        final AbstractDataResourceValidator.Result result
-        ){
-        this(
-            session,
-            storage,
-            result,
-            (IvoaS3DataResource) result.getObject()
-            );
-        }
-    
-    /**
-     * Protected constructor used by our Factories.
-     *
-     */
-    protected AmazonS3DataResourceEntityImpl(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractStorageResourceEntityImpl storage,
-        final AbstractDataResourceValidator.Result result,
-        final IvoaS3DataResource validated
+        final AmazonS3DataResourceValidator.Result result
         ){
         super(
             session,
             storage,
-            result,
-            validated.getMeta()
+            result
             );
+        
+        final IvoaS3DataResource validated = (IvoaS3DataResource) result.getObject();
+
         this.endpoint = validated.getEndpoint();
         this.template = validated.getTemplate();
         this.bucket   = validated.getBucket();

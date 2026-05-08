@@ -36,13 +36,14 @@ package net.ivoa.calycopis.broker.engine.entities.executable.docker;
 
 import java.net.URI;
 
-import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityRepository;
 
 /**
  * 
  */
 public abstract class DockerContainerEntityFactoryImpl
-extends FactoryBaseImpl
+extends AbstractExecutableEntityFactoryImpl
 implements DockerContainerEntityFactory
     {
     @Override
@@ -51,8 +52,12 @@ implements DockerContainerEntityFactory
         return DockerContainer.TYPE_DISCRIMINATOR;
         }
 
-    public DockerContainerEntityFactoryImpl()
+    /**
+     * Protected constructor used by derived classes.
+     * 
+     */
+    protected DockerContainerEntityFactoryImpl(final AbstractExecutableEntityRepository repository)
         {
-        super();
+        super(repository);
         }
     }

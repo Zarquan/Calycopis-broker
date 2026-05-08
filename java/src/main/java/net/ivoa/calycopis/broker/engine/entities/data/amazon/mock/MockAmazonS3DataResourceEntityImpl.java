@@ -70,7 +70,7 @@ public class MockAmazonS3DataResourceEntityImpl
         }
 
     /**
-     * Protected constructor used by our Factories.
+     * Protected constructor used by our factory.
      *
      */
     protected MockAmazonS3DataResourceEntityImpl(

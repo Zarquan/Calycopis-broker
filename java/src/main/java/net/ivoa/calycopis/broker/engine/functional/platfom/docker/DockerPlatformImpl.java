@@ -81,10 +81,15 @@ import net.ivoa.calycopis.broker.engine.entities.data.docker.http.DockerHttpReso
 import net.ivoa.calycopis.broker.engine.entities.data.docker.http.DockerHttpResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.docker.link.DockerDataStorageLinker;
 import net.ivoa.calycopis.broker.engine.entities.data.docker.stop.DockerStopResourceValidatorImpl;
+import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidatorFactory;
+import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidatorFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainerEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.DockerDockerContainerEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.DockerDockerContainerEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.DockerDockerContainerEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.DockerDockerContainerValidatorImpl;
+import net.ivoa.calycopis.broker.engine.entities.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.executable.jupyter.mock.MockJupyterNotebookEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityFactory;
@@ -152,6 +157,10 @@ implements DockerPlatform
             this.dockerHttpResourceEntityRepository
             );
 
+        this.dockerContainerEntityFactory = new DockerDockerContainerEntityFactoryImpl(
+            this.abstractExecutableEntityRepository
+            );
+        
         //
         // Register validators with the most specific types first.
         // Each validator factory will iterate through it's list of
@@ -248,7 +257,6 @@ implements DockerPlatform
     
 // Data   
     
-    // TODO Split the create and select functionality.
     @Autowired
     private DockerSimpleDataResourceEntityRepository dockerSimpleDataResourceEntityRepository;
     // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
@@ -273,16 +281,10 @@ implements DockerPlatform
         }
 
 // Executable    
-
-    @Autowired
-    private AbstractExecutableValidatorFactory executableValidatorFactory;
-    @Override
-    public AbstractExecutableValidatorFactory getExecutableValidators()
-        {
-        return this.executableValidatorFactory;
-        }
     
     @Autowired
+    private AbstractExecutableEntityRepository abstractExecutableEntityRepository ;  
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
     private DockerDockerContainerEntityFactory dockerContainerEntityFactory;  
     @Override
     public DockerContainerEntityFactory getDockerContainerEntityFactory()
@@ -290,8 +292,22 @@ implements DockerPlatform
         return this.dockerContainerEntityFactory;
         }
 
-    @Autowired
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
     private MockJupyterNotebookEntityFactory jupyterNotebookEntityFactory;
+    @Override
+    public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory()
+        {
+        return this.jupyterNotebookEntityFactory;
+        }
+    
+    
+    // This is just the iteration part of the factory interface.
+    private AbstractExecutableValidatorFactory executableValidatorFactory = new AbstractExecutableValidatorFactoryImpl() ;
+    @Override
+    public AbstractExecutableValidatorFactory getExecutableValidators()
+        {
+        return this.executableValidatorFactory;
+        }
     
 // Storage
 

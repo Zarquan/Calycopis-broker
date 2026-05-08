@@ -31,5 +31,4 @@ import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableVa
 public interface JupyterNotebookValidator
 extends AbstractExecutableValidator
     {
-
     }

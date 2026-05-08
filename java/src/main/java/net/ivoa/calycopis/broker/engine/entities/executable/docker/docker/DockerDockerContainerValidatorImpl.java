@@ -51,10 +51,16 @@ implements DockerDockerContainerValidator
 
     private final DockerPlatform platform;
 
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public DockerDockerContainerValidatorImpl(
         final DockerPlatform platform
         ){
-        super(platform.getDockerContainerEntityFactory());
+        super(
+            platform.getDockerContainerEntityFactory()
+            );
         this.platform = platform;
         }
 

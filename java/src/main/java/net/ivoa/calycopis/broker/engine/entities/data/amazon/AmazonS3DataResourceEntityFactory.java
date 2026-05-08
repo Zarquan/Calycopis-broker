@@ -23,14 +23,7 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data.amazon;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBase;
 
 /**
  * A SimpleDataResource Factory.

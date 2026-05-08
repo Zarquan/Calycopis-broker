@@ -86,7 +86,7 @@ public abstract class SimpleComputeResourceEntityImpl
         }
 
     /**
-     * Protected constructor used by our Factories.
+     * Protected constructor used by derived classes.
      *
      */
     protected SimpleComputeResourceEntityImpl(
@@ -94,32 +94,14 @@ public abstract class SimpleComputeResourceEntityImpl
         final SimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         ){
-        this(
-            session,
-            result,
-            offer,
-            (IvoaSimpleComputeResource) result.getObject()
-            );
-        }
-    
-    /**
-     * Protected constructor with session, template and offer.
-     * TODO validated can be replaced by Result.getObject()
-     * 
-     */
-    protected SimpleComputeResourceEntityImpl(
-        final SimpleExecutionSessionEntityImpl session,
-        final SimpleComputeResourceValidator.Result result,
-        final ComputeResourceOffer offer,
-        final IvoaSimpleComputeResource validated
-        ){
         super(
             session,
             result,
-            offer,
-            validated.getMeta()
+            offer
             );
-        
+
+        final IvoaSimpleComputeResource validated = (IvoaSimpleComputeResource) result.getObject();
+
         if (validated.getCores() != null)
             {
             this.minrequestedcores = validated.getCores().getMin();

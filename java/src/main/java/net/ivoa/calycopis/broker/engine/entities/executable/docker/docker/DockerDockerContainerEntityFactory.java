@@ -26,11 +26,9 @@ package net.ivoa.calycopis.broker.engine.entities.executable.docker.docker;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainerEntityFactory;
 
 /**
- * Factory for DockerDockerContainerEntity instances.
  * 
  */
 public interface DockerDockerContainerEntityFactory
 extends DockerContainerEntityFactory
     {
-
     }

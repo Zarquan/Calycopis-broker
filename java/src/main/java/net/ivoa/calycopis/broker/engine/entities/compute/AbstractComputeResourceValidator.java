@@ -47,6 +47,14 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractComputeResource;
 public interface AbstractComputeResourceValidator
 extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl>
     {
+    /**
+     * Validate a component.
+     *
+     */
+    public ResultEnum validate(
+        final IvoaAbstractComputeResource requested,
+        final OfferSetRequestParserContext context
+        );
    
     /**
      * Public interface for a validator result.
@@ -56,41 +64,32 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl
     extends Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl> 
         {
         /**
-         * Build an entity based on our validation result.
+         * Build an ComputeResourceEntity based on the validation result.
          * 
          */
         public AbstractComputeResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session, final ComputeResourceOffer offer);
-
         }
 
     /**
-     * Validate a component.
-     *
-     */
-    public ResultEnum validate(
-        final IvoaAbstractComputeResource requested,
-        final OfferSetRequestParserContext context
-        );
-
-    /**
-     * Simple Bean implementation of a ComputeResourceValidator result.
+     * Bean implementation of a validator result.
      * 
      */
     public abstract static class ResultBean
     extends Validator.ResultBean<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl>
-    implements Result
+    implements AbstractComputeResourceValidator.Result
         {
         /**
-         * Public constructor.
+         * Protected constructor with just a ResultEnum.
+         * Used to respond to a failed validation, where we don't have an object to return.
          * 
          */
-        public ResultBean(final ResultEnum result)
+        protected ResultBean(final ResultEnum result)
             {
             super(result);
             }
 
         /**
-         * Public constructor.
+         * Protected constructor with a ResultEnum and IvoaAbstractComputeResource.
          * 
          */
         public ResultBean(
@@ -102,13 +101,6 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntityImpl
                 object,
                 (object != null) ? object.getMeta() : null
                 );
-            }
-
-        @Override
-        // Here because we need to create Results with just a status and no entity
-        public AbstractComputeResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session, final ComputeResourceOffer offer)
-            {
-            return null;
             }
         }
     }

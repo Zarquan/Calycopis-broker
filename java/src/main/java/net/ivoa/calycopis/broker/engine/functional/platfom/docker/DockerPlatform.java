@@ -36,6 +36,7 @@
 package net.ivoa.calycopis.broker.engine.functional.platfom.docker;
 
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainerEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 
 /**
@@ -57,6 +58,12 @@ public interface DockerPlatform extends Platform
      *
      */
     public DockerContainerEntityFactory getDockerContainerEntityFactory();
+
+    /**
+     * Get the JupyterNotebookEntityFactory for this platform.
+     *
+     */
+    public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory();
 
     /**
      * Get the DockerSettings for this platform.

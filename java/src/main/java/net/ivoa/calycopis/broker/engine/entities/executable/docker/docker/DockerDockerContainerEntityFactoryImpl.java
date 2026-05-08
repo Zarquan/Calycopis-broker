@@ -23,20 +23,17 @@
 
 package net.ivoa.calycopis.broker.engine.entities.executable.docker.docker;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainerEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 
 /**
- * Factory implementation for DockerDockerContainerEntity.
+ * DockerDockerContainerEntity factory implementation for the Docker Platform.
  *
  */
 @Slf4j
@@ -46,26 +43,18 @@ extends DockerContainerEntityFactoryImpl
 implements DockerDockerContainerEntityFactory
     {
 
-    private final DockerDockerContainerEntityRepository repository;
-
-    @Autowired
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public DockerDockerContainerEntityFactoryImpl(
-        final DockerDockerContainerEntityRepository repository
+        final AbstractExecutableEntityRepository repository
         ){
-        super();
-        this.repository = repository;
+        super(repository);
         }
 
     @Override
-    public Optional<AbstractExecutableEntityImpl> select(final UUID uuid)
-        {
-        return Optional.of(
-            this.repository.findById(uuid).get()
-            );
-        }
-
-    @Override
-    public DockerDockerContainerEntityImpl create(
+    public AbstractExecutableEntityImpl create(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractExecutableValidator.Result result
         ){

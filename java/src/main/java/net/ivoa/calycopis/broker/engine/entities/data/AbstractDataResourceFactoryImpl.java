@@ -34,11 +34,4 @@ public class AbstractDataResourceFactoryImpl
 extends FactoryBaseImpl
 implements AbstractDataResourceFactory
     {
-    /**
-     * 
-     */
-    protected AbstractDataResourceFactoryImpl()
-        {
-        super();
-        }
     }

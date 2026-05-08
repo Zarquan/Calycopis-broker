@@ -44,6 +44,10 @@ implements DockerSimpleComputeResourceEntityFactory
 
     private final DockerSimpleComputeResourceEntityRepository repository;
 
+    /**
+     * Public constructor used by our Platform.
+     *
+     */
     public DockerSimpleComputeResourceEntityFactoryImpl(
         final DockerSimpleComputeResourceEntityRepository repository
         ){

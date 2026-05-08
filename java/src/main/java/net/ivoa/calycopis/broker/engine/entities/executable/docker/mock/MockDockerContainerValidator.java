@@ -31,5 +31,4 @@ import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContain
 public interface MockDockerContainerValidator
 extends DockerContainerValidator
     {
-
     }

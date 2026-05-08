@@ -24,6 +24,7 @@
 package net.ivoa.calycopis.broker.engine.entities.executable;
 
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 
 /**
  *
@@ -31,5 +32,12 @@ import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEnt
 public interface AbstractExecutableEntityFactory
 extends LifecycleComponentEntityFactory<AbstractExecutableEntityImpl>
     {
-
+    /**
+     * Create a new ExecutableEntity based on a Validator Result.
+     *
+     */
+    public AbstractExecutableEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
+        final AbstractExecutableValidator.Result result
+        );
     }

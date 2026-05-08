@@ -37,7 +37,7 @@ package net.ivoa.calycopis.broker.engine.entities.compute.simple;
 import java.net.URI;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityFactoryImpl;
 
 /**
  * A SimpleComputeResourceEntity Factory implementation.
@@ -45,7 +45,7 @@ import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
  */
 @Slf4j
 public abstract class SimpleComputeResourceEntityFactoryImpl
-extends FactoryBaseImpl
+extends AbstractComputeResourceEntityFactoryImpl
 implements SimpleComputeResourceEntityFactory
     {
     @Override
