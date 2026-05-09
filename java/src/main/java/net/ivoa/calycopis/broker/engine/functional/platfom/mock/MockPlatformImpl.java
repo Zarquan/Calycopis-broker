@@ -111,11 +111,13 @@ import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3Da
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceValidatorImpl;
+import net.ivoa.calycopis.broker.engine.entities.data.docker.link.DockerDataStorageLinkerImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.mock.MockDataStorageLinker;
+import net.ivoa.calycopis.broker.engine.entities.data.mock.MockDataStorageLinkerImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.mock.MockSimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.mock.MockSimpleDataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.mock.MockSimpleDataResourceEntityRepository;
@@ -189,6 +191,10 @@ implements MockPlatform
         
         this.skaoDataResourceEntityFactory = new MockSkaoDataResourceEntityFactoryImpl(
             this.skaoDataResourceEntityRepository
+            );
+
+        this.dataStorageLinker = new MockDataStorageLinkerImpl(
+            this.storageResourceValidatorFactory
             );
         
         //
@@ -351,7 +357,6 @@ implements MockPlatform
         return this.storageResourceValidatorFactory;
         }
 
-    @Autowired
     private MockDataStorageLinker dataStorageLinker;
     @Override
     public AbstractDataStorageLinker getDataStorageLinker()

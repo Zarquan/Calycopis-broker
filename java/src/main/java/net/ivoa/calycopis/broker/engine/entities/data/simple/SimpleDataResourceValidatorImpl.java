@@ -56,8 +56,6 @@ package net.ivoa.calycopis.broker.engine.entities.data.simple;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
@@ -81,20 +79,20 @@ implements SimpleDataResourceValidator
      * Factory for creating Entities.
      * 
      */
-    final AbstractDataResourceEntityFactory abstractDataResourceEntityFactory;
+    final SimpleDataResourceEntityFactory entityFactory;
 
     /**
      * Protected constructor.
      * 
      */
-    public SimpleDataResourceValidatorImpl(
-        final AbstractDataResourceEntityFactory abstractDataResourceEntityFactory,
-        final AbstractDataStorageLinker abstractDataStorageLinker
+    protected SimpleDataResourceValidatorImpl(
+        final SimpleDataResourceEntityFactory entityFactory,
+        final AbstractDataStorageLinker storageLinker
         ){
         super(
-            abstractDataStorageLinker
+            storageLinker
             );
-        this.abstractDataResourceEntityFactory = abstractDataResourceEntityFactory ;
+        this.entityFactory = entityFactory ;
         }
     
     @Override
@@ -157,14 +155,14 @@ implements SimpleDataResourceValidator
         // Everything is good, create a validator Result.
         if (success)
             {
-            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+            SimpleDataResourceValidator.Result dataResult = new SimpleDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated
                 ){
                 @Override
                 public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session)
                     {
-                    this.entity = SimpleDataResourceValidatorImpl.this.abstractDataResourceEntityFactory.create(
+                    this.entity = SimpleDataResourceValidatorImpl.this.entityFactory.create(
                         session,
                         storage.getEntity(),
                         this

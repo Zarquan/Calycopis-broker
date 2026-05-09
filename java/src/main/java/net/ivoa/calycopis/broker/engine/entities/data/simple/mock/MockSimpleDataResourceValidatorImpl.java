@@ -63,6 +63,10 @@ extends SimpleDataResourceValidatorImpl
 implements MockSimpleDataResourceValidator
     {
 
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public MockSimpleDataResourceValidatorImpl(
         final SimpleDataResourceEntityFactory simpleDataResourceEntityFactory,
         final MockDataStorageLinker dataStorageLinker

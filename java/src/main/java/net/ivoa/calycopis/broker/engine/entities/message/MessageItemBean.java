@@ -31,7 +31,8 @@ import net.ivoa.calycopis.schema.spring.model.IvoaMessageItem;
 /**
  * 
  */
-public class MessageItemBean extends IvoaMessageItem
+public class MessageItemBean
+extends IvoaMessageItem
     {
     private final MessageEntityImpl entity;
 

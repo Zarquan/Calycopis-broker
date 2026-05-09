@@ -35,9 +35,6 @@
 
 package net.ivoa.calycopis.broker.engine.entities.volume.simple.mock;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,11 +43,9 @@ import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResource
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountEntityFactoryImpl;
-import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountValidator;
 
 /**
- * A MockSimpleVolumeMount Factory implementation.
  *
  */
 @Slf4j
@@ -60,19 +55,17 @@ extends SimpleVolumeMountEntityFactoryImpl
 implements MockSimpleVolumeMountEntityFactory
     {
 
-    private final MockSimpleVolumeMountEntityRepository repository;
-
     @Autowired
     public MockSimpleVolumeMountEntityFactoryImpl(
         final MockSimpleVolumeMountEntityRepository repository
         ){
-        super();
-        this.repository = repository;
+        super(repository);
         }
 
+    @Override
     public MockSimpleVolumeMountEntityImpl create(
         final AbstractComputeResourceEntityImpl computeResource,
-        final AbstractDataResourceEntity    dataResource,
+        final AbstractDataResourceEntity        dataResource,
         final SimpleVolumeMountValidator.Result result
         ){
         return this.repository.save(
@@ -84,6 +77,7 @@ implements MockSimpleVolumeMountEntityFactory
             );
         }
 
+    @Override
     public MockSimpleVolumeMountEntityImpl create(
         final AbstractComputeResourceEntityImpl computeResource,
         final AbstractStorageResourceEntityImpl storageResource,
@@ -95,14 +89,6 @@ implements MockSimpleVolumeMountEntityFactory
                 storageResource,
                 result
                 )
-            );
-        }
-
-    @Override
-    public Optional<SimpleVolumeMountEntityImpl> select(UUID uuid)
-        {
-        return Optional.of(
-            this.repository.findById(uuid).get()
             );
         }
     }

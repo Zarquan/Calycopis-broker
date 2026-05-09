@@ -57,7 +57,7 @@ public class DockerSimpleVolumeMountEntityImpl
     {
 
     /**
-     * Protected constructor
+     * Protected constructor for JPA entities.
      *
      */
     protected DockerSimpleVolumeMountEntityImpl()
@@ -66,12 +66,12 @@ public class DockerSimpleVolumeMountEntityImpl
         }
 
     /**
-     * Protected constructor with parent compute, data resource and validator result.
+     * Protected constructor for a DataResource.
      *
      */
-    public DockerSimpleVolumeMountEntityImpl(
+    protected DockerSimpleVolumeMountEntityImpl(
         final AbstractComputeResourceEntityImpl computeResource,
-        final AbstractDataResourceEntity    dataResource,
+        final AbstractDataResourceEntity        dataResource,
         final SimpleVolumeMountValidator.Result result
         ){
         super(
@@ -82,7 +82,7 @@ public class DockerSimpleVolumeMountEntityImpl
         }
 
     /**
-     * Protected constructor with parent compute, storage resource and validator result.
+     * Protected constructor for a StorageResource.
      *
      */
     public DockerSimpleVolumeMountEntityImpl(

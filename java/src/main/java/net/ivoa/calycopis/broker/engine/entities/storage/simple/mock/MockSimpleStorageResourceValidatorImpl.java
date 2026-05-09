@@ -50,9 +50,16 @@ extends SimpleStorageResourceValidatorImpl
 implements MockSimpleStorageResourceValidator
     {
 
-    public MockSimpleStorageResourceValidatorImpl(final AbstractStorageResourceEntityFactory entityFactory)
-        {
-        super(entityFactory);
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
+    public MockSimpleStorageResourceValidatorImpl(
+        final AbstractStorageResourceEntityFactory abstractStorageResourceEntityFactory
+        ){
+        super(
+            abstractStorageResourceEntityFactory
+            );
         }
 
     public static final Long MIN_SIZE_DEFAULT =    1L ;

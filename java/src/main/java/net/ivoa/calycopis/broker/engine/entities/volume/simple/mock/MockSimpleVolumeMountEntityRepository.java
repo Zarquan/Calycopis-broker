@@ -22,15 +22,12 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.volume.simple.mock;
 
-import java.util.UUID;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountEntityRepository;
 
 /**
- * A SimpleVolumeMount JpaRepository.
  *
  */
 public interface MockSimpleVolumeMountEntityRepository
-extends JpaRepository<MockSimpleVolumeMountEntityImpl, UUID>
+extends SimpleVolumeMountEntityRepository
     {
     }

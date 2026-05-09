@@ -63,14 +63,10 @@ import net.ivoa.calycopis.broker.engine.entities.compute.simple.docker.DockerSim
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.docker.DockerSimpleComputeResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.docker.DockerSimpleComputeResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.docker.DockerSimpleComputeResourceValidatorImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator.Result;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
-import net.ivoa.calycopis.broker.engine.entities.data.docker.DockerSimpleDataResourceEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.data.docker.DockerSimpleDataResourceEntityFactoryImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.docker.DockerSimpleDataResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.data.docker.file.DockerFileResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.docker.file.DockerFileResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.docker.file.DockerFileResourceEntityRepository;
@@ -80,6 +76,7 @@ import net.ivoa.calycopis.broker.engine.entities.data.docker.http.DockerHttpReso
 import net.ivoa.calycopis.broker.engine.entities.data.docker.http.DockerHttpResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.data.docker.http.DockerHttpResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.docker.link.DockerDataStorageLinker;
+import net.ivoa.calycopis.broker.engine.entities.data.docker.link.DockerDataStorageLinkerImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.docker.stop.DockerStopResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidatorFactory;
@@ -87,19 +84,24 @@ import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableVa
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainerEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.DockerDockerContainerEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.DockerDockerContainerEntityFactoryImpl;
-import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.DockerDockerContainerEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.DockerDockerContainerValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.jupyter.JupyterNotebookEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.executable.jupyter.mock.MockJupyterNotebookEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidatorFactory;
-import net.ivoa.calycopis.broker.engine.entities.storage.docker.DockerSimpleStorageResourceEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidatorFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.storage.docker.DockerBindMountStorageEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.storage.docker.DockerBindMountStorageEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.storage.docker.DockerBindMountStorageEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.storage.docker.DockerVolumeMountStorageEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.storage.docker.DockerVolumeMountStorageEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.storage.docker.DockerVolumeMountStorageEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountValidatorFactory;
+import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountValidatorFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.docker.DockerSimpleVolumeMountEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.volume.simple.docker.DockerSimpleVolumeMountEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.volume.simple.docker.DockerSimpleVolumeMountEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.docker.DockerSimpleVolumeMountValidatorImpl;
 import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
@@ -131,23 +133,9 @@ implements DockerPlatform
             this.dockerSimpleComputeResourceEntityRepository
             );
 
-        this.dockerSimpleDataResourceEntityFactory = new DockerSimpleDataResourceEntityFactoryImpl(
-            this.dockerSimpleDataResourceEntityRepository
-            ){
-            @Override
-            public AbstractDataResourceEntity create(
-                final SimpleExecutionSessionEntityImpl session,
-                final AbstractStorageResourceEntityImpl storage,
-                final Result result
-                ){
-                log.error(
-                    "Calling create() on DockerSimpleDataResourceEntityFactoryImpl is not implemented."
-                    );
-                throw new UnsupportedOperationException(
-                    "Calling create() on DockerSimpleDataResourceEntityFactoryImpl is not implemented."
-                    );
-                }
-            };
+        this.dockerContainerEntityFactory = new DockerDockerContainerEntityFactoryImpl(
+            this.abstractExecutableEntityRepository
+            );
         
         this.dockerFileResourceEntityFactory = new DockerFileResourceEntityFactoryImpl(
             this.dockerFileResourceEntityRepository
@@ -157,8 +145,21 @@ implements DockerPlatform
             this.dockerHttpResourceEntityRepository
             );
 
-        this.dockerContainerEntityFactory = new DockerDockerContainerEntityFactoryImpl(
-            this.abstractExecutableEntityRepository
+        this.bindMountStorageResourceEntityFactory = new DockerBindMountStorageEntityFactoryImpl(
+            this.bindMountStorageResourceEntityRepository
+            );        
+        
+        this.volumeMountStorageResourceEntityFactory = new DockerVolumeMountStorageEntityFactoryImpl(   
+            this.volumeMountStorageResourceEntityRepository
+            );  
+
+        this.volumeMountEntityFactory = new DockerSimpleVolumeMountEntityFactoryImpl(
+            this.volumeMountEntityRepository
+            );
+
+        this.dataStorageLinker = new DockerDataStorageLinkerImpl(
+            this.bindMountStorageResourceEntityFactory,
+            this.volumeMountStorageResourceEntityFactory
             );
         
         //
@@ -201,16 +202,23 @@ implements DockerPlatform
         this.volumeMountValidatorFactory.addValidator(
             new DockerSimpleVolumeMountValidatorImpl(
                 this.volumeMountEntityFactory,
-                this.dockerHttpResourceEntityFactory,
-                this.storageResourceEntityFactory
+                (AbstractDataResourceEntityFactory) this.dockerHttpResourceEntityFactory,
+                (AbstractStorageResourceEntityFactory) this.volumeMountStorageResourceEntityFactory
                 )
             );
 
+        this.registerFactory(this.dockerSimpleComputeResourceEntityFactory);
+
         this.registerFactory(this.dockerContainerEntityFactory);
       //this.registerFactory(this.jupyterNotebookEntityFactory);
-        this.registerFactory(this.dockerSimpleComputeResourceEntityFactory);
-        this.registerFactory(this.dockerSimpleDataResourceEntityFactory);
-        this.registerFactory(this.simpleStorageResourceEntityFactory);
+        
+        // We probably only need to register one of these, because it searches the abstract base class repository.
+        this.registerFactory(this.dockerFileResourceEntityFactory);
+        this.registerFactory(this.dockerHttpResourceEntityFactory);
+
+        // We probably only need to register one of these, because it searches the abstract base class repository.
+        this.registerFactory(this.bindMountStorageResourceEntityFactory);
+        this.registerFactory(this.volumeMountStorageResourceEntityFactory);
         
         }
 
@@ -247,7 +255,6 @@ implements DockerPlatform
     // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
     private DockerSimpleComputeResourceEntityFactory dockerSimpleComputeResourceEntityFactory;
 
-    // This is just the iteration part of the factory interface.
     private AbstractComputeResourceValidatorFactory abstractComputeResourceValidatorFactory = new AbstractComputeResourceValidatorFactoryImpl();
     @Override
     public AbstractComputeResourceValidatorFactory getComputeResourceValidators()
@@ -258,11 +265,6 @@ implements DockerPlatform
 // Data   
     
     @Autowired
-    private DockerSimpleDataResourceEntityRepository dockerSimpleDataResourceEntityRepository;
-    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
-    private DockerSimpleDataResourceEntityFactory dockerSimpleDataResourceEntityFactory ;
-
-    @Autowired
     private DockerFileResourceEntityRepository dockerFileResourceEntityRepository;
     // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
     private DockerFileResourceEntityFactory dockerFileResourceEntityFactory ;
@@ -272,7 +274,6 @@ implements DockerPlatform
     // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
     private DockerHttpResourceEntityFactory dockerHttpResourceEntityFactory ;
 
-    // This is just the iteration part of the factory interface.
     private AbstractDataResourceValidatorFactory abstractDataResourceValidatorFactory = new AbstractDataResourceValidatorFactoryImpl();
     @Override
     public AbstractDataResourceValidatorFactory getDataResourceValidators()
@@ -293,15 +294,11 @@ implements DockerPlatform
         }
 
     // TODO 
-    private MockJupyterNotebookEntityFactory jupyterNotebookEntityFactory;
-    @Override
     public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory()
         {
-        return this.jupyterNotebookEntityFactory;
+        return null ;
         }
     
-    
-    // This is just the iteration part of the factory interface.
     private AbstractExecutableValidatorFactory executableValidatorFactory = new AbstractExecutableValidatorFactoryImpl() ;
     @Override
     public AbstractExecutableValidatorFactory getExecutableValidators()
@@ -312,20 +309,22 @@ implements DockerPlatform
 // Storage
 
     @Autowired
-    private DockerSimpleStorageResourceEntityFactory simpleStorageResourceEntityFactory;
+    private DockerBindMountStorageEntityRepository bindMountStorageResourceEntityRepository;
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
+    private DockerBindMountStorageEntityFactory bindMountStorageResourceEntityFactory;
 
     @Autowired
-    private DockerVolumeMountStorageEntityFactory storageResourceEntityFactory;
-
-    @Autowired
-    private AbstractStorageResourceValidatorFactory storageResourceValidatorFactory;
+    private DockerVolumeMountStorageEntityRepository volumeMountStorageResourceEntityRepository;
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
+    private DockerVolumeMountStorageEntityFactory volumeMountStorageResourceEntityFactory;
+    
+    private AbstractStorageResourceValidatorFactory storageResourceValidatorFactory = new AbstractStorageResourceValidatorFactoryImpl() ;
     @Override
     public AbstractStorageResourceValidatorFactory getStorageResourceValidators()
         {
         return this.storageResourceValidatorFactory;
         }
 
-    @Autowired
     private DockerDataStorageLinker dataStorageLinker;
     @Override
     public AbstractDataStorageLinker getDataStorageLinker()
@@ -334,12 +333,13 @@ implements DockerPlatform
         }
     
 // Volume
-    
+
     @Autowired
-    private DockerSimpleVolumeMountEntityFactory volumeMountEntityFactory ;
+    private DockerSimpleVolumeMountEntityRepository volumeMountEntityRepository;
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
+    private DockerSimpleVolumeMountEntityFactory volumeMountEntityFactory;
     
-    @Autowired
-    private AbstractVolumeMountValidatorFactory volumeMountValidatorFactory;
+    private AbstractVolumeMountValidatorFactory volumeMountValidatorFactory = new AbstractVolumeMountValidatorFactoryImpl();
     @Override
     public AbstractVolumeMountValidatorFactory getVolumeMountValidators()
         {

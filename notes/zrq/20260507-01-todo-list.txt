@@ -36,6 +36,8 @@
 
     Create a Spring free interface for JpaRepositories.
 
+    Resolve the inheritance tree for JpaRepositories.
+
     Authentication.
     OIDC auth in webapp
     IdentityEntity
@@ -43,13 +45,17 @@
 
     Check what is being stored in the DB.
 
+    Create storage pool.
+    Create Docker impelemtation of SimpleStorage.
+
+# -----------------------------------------------------
+# medium
+
     Create a re-usable component to record preparation time.
     Use recorded time to predict preparation time.
 
     Create a re-usable component for resource booking.
     Implement resource booking for a storage pool.
-
-    Refactor mock classes to use a simple duration rather than loop count.
 
     Mock tests trigger internal failure on Docker platform
     Docker tests trigger internal failure on Mock platform
@@ -57,9 +63,8 @@
     Two stage delete for expired offers.
     Two stage delete for expired processing requests.
 
-
-# -----------------------------------------------------
-# medium
+    Refactor mock classes to use a simple duration rather than loop count.
+    Remove MockMonitorableComponent
 
     Find somewhere to store stdout and stderr.
 
@@ -83,6 +88,11 @@
 
         net.ivoa.calycopis.broker.engine.entities.data.docker.http;
         net.ivoa.calycopis.broker.engine.entities.data.simple.docker.http;
+
+    Move
+        net.ivoa.calycopis.broker.engine.entities.storage.docker;
+        net.ivoa.calycopis.broker.engine.entities.storage.simple.docker;
+
 
     Pass more things down the chain using a reference to the Platform.
     References to JpaRepositories for example.

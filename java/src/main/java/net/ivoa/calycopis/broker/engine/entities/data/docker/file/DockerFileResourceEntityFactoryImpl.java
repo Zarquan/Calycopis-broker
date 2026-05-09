@@ -38,6 +38,10 @@ extends DockerSimpleDataResourceEntityFactoryImpl
 implements DockerFileResourceEntityFactory
     {
 
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public DockerFileResourceEntityFactoryImpl(
         final DockerFileResourceEntityRepository repository
         ){

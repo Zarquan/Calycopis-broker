@@ -66,8 +66,9 @@ public abstract class AbstractVolumeMountEntityImpl
 extends ComponentEntityImpl
 implements AbstractVolumeMount
     {
+    
     /**
-     * Protected constructor.
+     * Protected constructor for JPA entities.
      *
      */
     protected AbstractVolumeMountEntityImpl()

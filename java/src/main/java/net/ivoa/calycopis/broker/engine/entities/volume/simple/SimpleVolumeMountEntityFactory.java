@@ -35,27 +35,18 @@
 
 package net.ivoa.calycopis.broker.engine.entities.volume.simple;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBase;
+import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityFactory;
 
 /**
  * A SimpleVolumeMount Factory.
  *
  */
 public interface SimpleVolumeMountEntityFactory
-    extends FactoryBase
+extends AbstractVolumeMountEntityFactory
     {
-
-    /**
-     * Select a SimpleVolumeMount based UUID.
-     *
-     */
-    public Optional<SimpleVolumeMountEntityImpl> select(final UUID uuid);
 
     /**
      * Create a new SimpleVolumeMountEntity linking a ComputeResource and DataResource.
@@ -63,7 +54,7 @@ public interface SimpleVolumeMountEntityFactory
      */
     public SimpleVolumeMountEntityImpl create(
         final AbstractComputeResourceEntityImpl computeResource,
-        final AbstractDataResourceEntity    dataResource,
+        final AbstractDataResourceEntity        dataResource,
         final SimpleVolumeMountValidator.Result result
         );
 

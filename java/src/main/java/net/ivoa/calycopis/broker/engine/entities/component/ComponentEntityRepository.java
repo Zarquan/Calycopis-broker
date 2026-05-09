@@ -18,40 +18,20 @@
  *   </meta:licence>
  * </meta:header>
  *
- * AIMetrics: [
- *     {
- *     "timestamp": "2026-04-11T06:00:00",
- *     "name": "Cursor CLI",
- *     "version": "2026.02.13-41ac335",
- *     "model": "Claude 4.6 Opus (Thinking)",
- *     "contribution": {
- *       "value": 100,
- *       "units": "%"
- *       }
- *     }
- *   ]
- *
+ * AIMetrics: []
+ * 
  */
+package net.ivoa.calycopis.broker.engine.entities.component;
 
-package net.ivoa.calycopis.broker.engine.entities.storage.docker;
+import java.util.UUID;
 
-import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityFactoryImpl;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
+ * JpaRepository for ComponentEntities.
  *
  */
-public abstract class DockerSimpleStorageResourceEntityFactoryImpl
-extends SimpleStorageResourceEntityFactoryImpl
-implements DockerSimpleStorageResourceEntityFactory
+public interface ComponentEntityRepository<EntityType extends ComponentEntityImpl>
+extends JpaRepository<EntityType, UUID>
     {
-
-    /**
-     * Protected constructor.
-     * 
-     */
-    protected DockerSimpleStorageResourceEntityFactoryImpl(
-        final DockerSimpleStorageResourceEntityRepository repository
-        ){
-        super(repository);
-        }
     }

@@ -44,8 +44,6 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.executable.jupyter;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidator;

@@ -37,7 +37,6 @@ package net.ivoa.calycopis.broker.engine.entities.compute.simple.docker;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountValidatorFactory;
@@ -56,11 +55,11 @@ implements DockerSimpleComputeResourceValidator
     {
 
     /**
-     * Public constructor.
+     * Public constructor used by our Platform.
      * 
      */
     public DockerSimpleComputeResourceValidatorImpl(
-        final AbstractComputeResourceEntityFactory entityFactory,
+        final DockerSimpleComputeResourceEntityFactory entityFactory,
         final AbstractVolumeMountValidatorFactory volumeMountValidatorFactory
         ){
         super(

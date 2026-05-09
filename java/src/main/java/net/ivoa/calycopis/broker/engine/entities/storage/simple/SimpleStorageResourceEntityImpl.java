@@ -64,7 +64,7 @@ implements SimpleStorageResource
         }
 
     /**
-     * Protected constructor
+     * Protected constructor for JPA entities.
      *
      */
     protected SimpleStorageResourceEntityImpl()
@@ -73,7 +73,7 @@ implements SimpleStorageResource
         }
     
     /**
-     * Protected constructor with parent and validator result.
+     * Protected constructor used by our Factories.
      *
      */
     protected SimpleStorageResourceEntityImpl(

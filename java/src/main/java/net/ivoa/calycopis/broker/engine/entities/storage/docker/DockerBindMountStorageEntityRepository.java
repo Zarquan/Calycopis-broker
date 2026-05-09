@@ -23,12 +23,10 @@
 
 package net.ivoa.calycopis.broker.engine.entities.storage.docker;
 
-import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityRepository;
-
 /**
  * 
  */
 public interface DockerBindMountStorageEntityRepository
-extends LifecycleComponentEntityRepository<DockerBindMountStorageEntityImpl>
+extends DockerSimpleStorageResourceEntityRepository
     {
     }

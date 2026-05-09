@@ -54,7 +54,6 @@ import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserC
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountValidatorImpl;
 import net.ivoa.calycopis.broker.engine.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractVolumeMount;
@@ -62,7 +61,6 @@ import net.ivoa.calycopis.schema.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleVolumeMount;
 
 /**
- * A Validator implementation to handle simple storage resources.
  *
  */
 @Slf4j
@@ -232,7 +230,7 @@ implements SimpleVolumeMountValidator
                 }
             
             context.addVolumeValidatorResult(
-                new AbstractVolumeMountValidator.ResultBean(
+                new SimpleVolumeMountValidator.ResultBean(
                     Validator.ResultEnum.ACCEPTED,
                     validated
                     ){
@@ -273,7 +271,7 @@ implements SimpleVolumeMountValidator
                 validated.getMeta().getUuid()
                 );
             context.addVolumeValidatorResult(
-                new AbstractVolumeMountValidator.ResultBean(
+                new SimpleVolumeMountValidator.ResultBean(
                     Validator.ResultEnum.ACCEPTED,
                     validated
                     ){

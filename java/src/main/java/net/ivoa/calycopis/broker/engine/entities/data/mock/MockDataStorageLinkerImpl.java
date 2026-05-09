@@ -26,8 +26,6 @@ package net.ivoa.calycopis.broker.engine.entities.data.mock;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidator;
@@ -45,7 +43,6 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleStorageResource;
  * 
  */
 @Slf4j
-@Component
 public class MockDataStorageLinkerImpl
 extends FactoryBaseImpl
 implements MockDataStorageLinker
@@ -57,6 +54,7 @@ implements MockDataStorageLinker
     private final AbstractStorageResourceValidatorFactory abstractStorageValidatorFactory;
 
     /**
+     * Public constructor, used by our Platform
      * 
      */
     public MockDataStorageLinkerImpl(

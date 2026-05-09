@@ -51,16 +51,6 @@ implements AbstractDataResourceEntityFactory
 
     private AbstractDataResourceEntityRepository repository;
 
-    // TODO This is wrong, this should only be implemented in the derived classes.
-    /*
-    @Override
-    public URI getKind()
-        {
-        return SimpleDataResource.TYPE_DISCRIMINATOR;
-        }
-     *  
-     */
-
     public AbstractDataResourceEntityFactoryImpl(final AbstractDataResourceEntityRepository repository)
         {
         super();

@@ -23,17 +23,9 @@
 
 package net.ivoa.calycopis.broker.engine.entities.storage.docker;
 
-import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityFactory;
 
 public interface DockerVolumeMountStorageEntityFactory
 extends SimpleStorageResourceEntityFactory
     {
-
-    public DockerVolumeMountStorageEntity create(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractStorageResourceValidator.Result result
-        );
-
     }

@@ -40,7 +40,7 @@ import java.net.URI;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityFactoryImpl;
 
 /**
  * A SimpleVolumeMount Factory implementation.
@@ -49,18 +49,24 @@ import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 @Slf4j
 @Component
 public abstract class SimpleVolumeMountEntityFactoryImpl
-    extends FactoryBaseImpl
-    implements SimpleVolumeMountEntityFactory
+extends AbstractVolumeMountEntityFactoryImpl
+implements SimpleVolumeMountEntityFactory
     {
-
-    public SimpleVolumeMountEntityFactoryImpl(){
-        super();
+    
+    /**
+     * Protected constructor.
+     *
+     */
+    protected SimpleVolumeMountEntityFactoryImpl(
+        final SimpleVolumeMountEntityRepository repository
+        ){
+        super(repository);
         }
-
+    
+    @Override
     public URI getKind()
         {
         return SimpleVolumeMount.TYPE_DISCRIMINATOR;
         }
-
     }
 

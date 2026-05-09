@@ -23,22 +23,14 @@
 
 package net.ivoa.calycopis.broker.engine.entities.storage;
 
-import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractStorageResource;
 
 /**
  * 
  */
-@Slf4j
 public abstract class AbstractStorageResourceValidatorImpl
 extends AbstractValidatorImpl<IvoaAbstractStorageResource, AbstractStorageResourceEntityImpl>
 implements AbstractStorageResourceValidator
     {
-
-    public AbstractStorageResourceValidatorImpl()
-        {
-        super();
-        }
-
     }

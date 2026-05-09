@@ -67,17 +67,19 @@ public class MockSimpleStorageResourceEntityImpl
     {
 
     /**
+     * Protected constructor for JPA entities.
      * 
      */
-    public MockSimpleStorageResourceEntityImpl()
+    protected MockSimpleStorageResourceEntityImpl()
         {
         super();
         }
 
     /**
+     * Protected constructor used by our Factories.
      *
      */
-    public MockSimpleStorageResourceEntityImpl(
+    protected MockSimpleStorageResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceValidator.Result result
         ){

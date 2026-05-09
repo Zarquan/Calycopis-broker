@@ -30,7 +30,6 @@ import net.ivoa.calycopis.broker.engine.functional.validator.ValidatorFactoryImp
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractVolumeMount;
 
 /**
- * A factory for volume mount validators.
  *
  */
 @Slf4j

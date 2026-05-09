@@ -38,7 +38,6 @@ package net.ivoa.calycopis.broker.engine.entities.volume.simple.mock;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountEntityFactory;
 
 /**
- * A MockSimpleVolumeMount Factory.
  *
  */
 public interface MockSimpleVolumeMountEntityFactory

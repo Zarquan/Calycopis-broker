@@ -35,17 +35,12 @@
 
 package net.ivoa.calycopis.broker.engine.entities.storage.docker;
 
-import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityFactory;
 
 /**
- * A factory that can select any SimpleStorageResourceEntity subtype
- * by UUID, using the parent JPA repository to handle all subtypes
- * (DockerBindMountStorageEntity, DockerVolumeMountStorageEntity, etc.)
- * via JPA JOINED inheritance.
  *
  */
 public interface DockerSimpleStorageResourceEntityFactory
-extends LifecycleComponentEntityFactory<SimpleStorageResourceEntityImpl>
+extends SimpleStorageResourceEntityFactory
     {
     }

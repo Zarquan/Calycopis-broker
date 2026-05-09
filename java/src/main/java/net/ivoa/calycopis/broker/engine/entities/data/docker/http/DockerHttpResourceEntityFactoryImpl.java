@@ -41,6 +41,10 @@ extends DockerSimpleDataResourceEntityFactoryImpl
 implements DockerHttpResourceEntityFactory
     {
 
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public DockerHttpResourceEntityFactoryImpl(
         final DockerHttpResourceEntityRepository repository
         ){

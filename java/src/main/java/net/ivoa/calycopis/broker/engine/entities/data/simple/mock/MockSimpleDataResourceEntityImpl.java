@@ -65,7 +65,7 @@ implements MockSimpleDataResource
      * Protected constructor for JPA entities.
      * 
      */
-    public MockSimpleDataResourceEntityImpl()
+    protected MockSimpleDataResourceEntityImpl()
         {
         super();
         }
@@ -74,7 +74,7 @@ implements MockSimpleDataResource
      * Protected constructor used by our Factories.
      *
      */
-    public MockSimpleDataResourceEntityImpl(
+    protected  MockSimpleDataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result

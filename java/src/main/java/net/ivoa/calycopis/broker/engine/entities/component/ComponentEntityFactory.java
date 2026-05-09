@@ -20,12 +20,11 @@
  *
  * AIMetrics: [
  *     {
- *     "timestamp": "2026-04-11T06:00:00",
  *     "name": "Cursor CLI",
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
- *       "value": 100,
+ *       "value": 5,
  *       "units": "%"
  *       }
  *     }
@@ -33,25 +32,31 @@
  *
  */
 
-package net.ivoa.calycopis.broker.engine.entities.storage.docker;
+package net.ivoa.calycopis.broker.engine.entities.component;
 
-import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityFactoryImpl;
+import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
+
+import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBase;
 
 /**
- *
+ * 
  */
-public abstract class DockerSimpleStorageResourceEntityFactoryImpl
-extends SimpleStorageResourceEntityFactoryImpl
-implements DockerSimpleStorageResourceEntityFactory
+public interface ComponentEntityFactory<EntityType extends ComponentEntityImpl>
+extends FactoryBase
     {
 
     /**
-     * Protected constructor.
+     * The kind identifier for the type that this factory can handle.
      * 
      */
-    protected DockerSimpleStorageResourceEntityFactoryImpl(
-        final DockerSimpleStorageResourceEntityRepository repository
-        ){
-        super(repository);
-        }
+    public URI getKind();
+    
+    /**
+     * The select an entity by identifier.
+     * 
+     */
+    public Optional<EntityType> select(final UUID uuid);
+    
     }

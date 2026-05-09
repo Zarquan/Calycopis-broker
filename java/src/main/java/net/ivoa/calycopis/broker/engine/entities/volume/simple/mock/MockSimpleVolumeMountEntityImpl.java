@@ -57,7 +57,7 @@ public class MockSimpleVolumeMountEntityImpl
     {
 
     /**
-     * Protected constructor
+     * Protected constructor for JPA entities.
      *
      */
     protected MockSimpleVolumeMountEntityImpl()
@@ -66,10 +66,10 @@ public class MockSimpleVolumeMountEntityImpl
         }
 
     /**
-     * Protected constructor with parent compute, data resource and validator result.
+     * Protected constructor for a DataResource.
      *
      */
-    public MockSimpleVolumeMountEntityImpl(
+    protected MockSimpleVolumeMountEntityImpl(
         final AbstractComputeResourceEntityImpl computeResource,
         final AbstractDataResourceEntity    dataResource,
         final SimpleVolumeMountValidator.Result result
@@ -82,7 +82,7 @@ public class MockSimpleVolumeMountEntityImpl
         }
 
     /**
-     * Protected constructor with parent compute, storage resource and validator result.
+     * Protected constructor for a StorageResource.
      *
      */
     public MockSimpleVolumeMountEntityImpl(

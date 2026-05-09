@@ -29,6 +29,7 @@ import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponent;
  * Public interface for a monitorable component.
  * 
  */
+@Deprecated
 public interface MockMonitorableComponent
 extends LifecycleComponent
     {

@@ -89,26 +89,28 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntityImpl>
     extends Validator.ResultBean<IvoaAbstractVolumeMount, AbstractVolumeMountEntityImpl>
     implements Result
         {
+
         /**
-         * Public constructor.
+         * Protected constructor.
          *
          */
-        public ResultBean(final ResultEnum result)
+        protected ResultBean(final ResultEnum result)
             {
             super(result);
             }
 
         /**
-         * Public constructor.
+         * Protected constructor.
          *
          */
-        public ResultBean(
+        protected ResultBean(
             final ResultEnum result,
             final IvoaAbstractVolumeMount object
             ){
             super(
                 result,
-                object
+                object,
+                object.getMeta()
                 );
             }
         }

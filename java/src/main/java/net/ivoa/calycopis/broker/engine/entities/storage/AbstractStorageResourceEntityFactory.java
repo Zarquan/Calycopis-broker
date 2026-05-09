@@ -34,7 +34,7 @@ extends LifecycleComponentEntityFactory<AbstractStorageResourceEntityImpl>
     {
 
     /**
-     * Create a new AbstractStorageResourceEntity based on a validation result.
+     * Create a new StorageResourceEntity based on a Validator Result.
      *
      */
     public AbstractStorageResourceEntityImpl create(

@@ -15,13 +15,13 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.storage.simple.mock;
 
-import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityRepository;
+import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityRepository;
 
 /**
  * JpaRepository for MockSimpleStorageResourceEntity.
  *
  */
 public interface MockSimpleStorageResourceEntityRepository
-extends LifecycleComponentEntityRepository<MockSimpleStorageResourceEntityImpl>
+extends SimpleStorageResourceEntityRepository
     {
     }

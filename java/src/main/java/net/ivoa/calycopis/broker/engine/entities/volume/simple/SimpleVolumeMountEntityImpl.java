@@ -68,7 +68,7 @@ public class SimpleVolumeMountEntityImpl
         }
 
     /**
-     * Protected constructor
+     * Protected constructor for JPA entities.
      *
      */
     protected SimpleVolumeMountEntityImpl()
@@ -77,12 +77,12 @@ public class SimpleVolumeMountEntityImpl
         }
 
     /**
-     * Protected constructor with data resource and validator result.
+     * Protected constructor for a DataResource.
      *
      */
     public SimpleVolumeMountEntityImpl(
         final AbstractComputeResourceEntityImpl computeResource,
-        final AbstractDataResourceEntity    dataResource,
+        final AbstractDataResourceEntity        dataResource,
         final SimpleVolumeMountValidator.Result result
         ){
         super(
@@ -96,7 +96,7 @@ public class SimpleVolumeMountEntityImpl
         }
 
     /**
-     * Protected constructor with storage resource and validator result.
+     * Protected constructor for a StorageResource.
      *
      */
     public SimpleVolumeMountEntityImpl(

@@ -46,7 +46,7 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
  *
  */
 public interface AbstractVolumeMount
-    extends Component
+extends Component
     {
     /**
      * The webapp path for volume mounts.

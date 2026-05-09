@@ -73,7 +73,7 @@ extends LifecycleComponentEntityImpl
 implements AbstractStorageResource
     {
     /**
-     * Protected constructor.
+     * Protected constructor for JPA entities.
      * 
      */
     protected AbstractStorageResourceEntityImpl()
@@ -82,8 +82,7 @@ implements AbstractStorageResource
         }
 
     /**
-     * Protected constructor.
-     * Automatically adds this resource to the parent SessionEntity.
+     * Protected constructor used by derived classes.
      * 
      */
     protected AbstractStorageResourceEntityImpl(
@@ -91,7 +90,7 @@ implements AbstractStorageResource
         final AbstractStorageResourceValidator.Result result
         ){
         super(
-            (result != null) ? result.getMeta() : null
+            result.getMeta()
             );
 
         this.session = session;

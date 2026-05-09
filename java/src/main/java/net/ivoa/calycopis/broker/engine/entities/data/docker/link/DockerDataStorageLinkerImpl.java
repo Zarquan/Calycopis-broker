@@ -26,8 +26,6 @@ package net.ivoa.calycopis.broker.engine.entities.data.docker.link;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
@@ -50,7 +48,6 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleDataResource;
  * 
  */
 @Slf4j
-@Component
 public class DockerDataStorageLinkerImpl
 extends FactoryBaseImpl
 implements DockerDataStorageLinker
@@ -59,6 +56,10 @@ implements DockerDataStorageLinker
     private final DockerBindMountStorageEntityFactory   bindMountFactory;
     private final DockerVolumeMountStorageEntityFactory volumeMountFactory;
     
+    /**
+     * Public constructor, used by our Platform.
+     * 
+     */
     public DockerDataStorageLinkerImpl(
         final DockerBindMountStorageEntityFactory   bindMountFactory,
         final DockerVolumeMountStorageEntityFactory volumeMountFactory

@@ -35,44 +35,36 @@
 
 package net.ivoa.calycopis.broker.engine.entities.volume.simple.docker;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountEntityFactoryImpl;
-import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountValidator;
 
 /**
- * A MockSimpleVolumeMount Factory implementation.
  *
  */
 @Slf4j
-@Component
 public class DockerSimpleVolumeMountEntityFactoryImpl
 extends SimpleVolumeMountEntityFactoryImpl
 implements DockerSimpleVolumeMountEntityFactory
     {
 
-    private final DockerSimpleVolumeMountEntityRepository repository;
-
-    @Autowired
+    /**
+     * Public constructor, used by our Platform.
+     *  
+     */
     public DockerSimpleVolumeMountEntityFactoryImpl(
         final DockerSimpleVolumeMountEntityRepository repository
         ){
-        super();
-        this.repository = repository;
+        super(repository);
         }
 
+    @Override
     public DockerSimpleVolumeMountEntityImpl create(
         final AbstractComputeResourceEntityImpl computeResource,
-        final AbstractDataResourceEntity    dataResource,
+        final AbstractDataResourceEntity        dataResource,
         final SimpleVolumeMountValidator.Result result
         ){
         return this.repository.save(
@@ -84,6 +76,7 @@ implements DockerSimpleVolumeMountEntityFactory
             );
         }
 
+    @Override
     public DockerSimpleVolumeMountEntityImpl create(
         final AbstractComputeResourceEntityImpl computeResource,
         final AbstractStorageResourceEntityImpl storageResource,
@@ -95,14 +88,6 @@ implements DockerSimpleVolumeMountEntityFactory
                 storageResource,
                 result
                 )
-            );
-        }
-
-    @Override
-    public Optional<SimpleVolumeMountEntityImpl> select(UUID uuid)
-        {
-        return Optional.of(
-            this.repository.findById(uuid).get()
             );
         }
     }

@@ -55,8 +55,8 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleDataResource;
     name = "simpledataresources"
     )
 public abstract class SimpleDataResourceEntityImpl
-    extends AbstractDataResourceEntity
-    implements SimpleDataResource
+extends AbstractDataResourceEntity
+implements SimpleDataResource
     {
     @Override
     public URI getKind()

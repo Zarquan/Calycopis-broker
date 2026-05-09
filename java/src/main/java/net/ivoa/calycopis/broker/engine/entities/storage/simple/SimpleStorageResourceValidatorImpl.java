@@ -55,7 +55,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleStorageResource;
 
 /**
- * A Validator implementation to handle simple storage resources.
+ * A Validator implementation to handle SimpleStorageResources.
  * 
  */
 @Slf4j
@@ -63,6 +63,7 @@ public abstract class SimpleStorageResourceValidatorImpl
 extends AbstractStorageResourceValidatorImpl
 implements SimpleStorageResourceValidator
     {
+
     /**
      * Factory for creating Entities.
      *
@@ -70,10 +71,10 @@ implements SimpleStorageResourceValidator
     final AbstractStorageResourceEntityFactory entityFactory;
 
     /**
-     * Public constructor.
+     * Protected constructor.
      * 
      */
-    public SimpleStorageResourceValidatorImpl(
+    protected SimpleStorageResourceValidatorImpl(
         final AbstractStorageResourceEntityFactory entityFactory
         ){
         super();
@@ -194,9 +195,8 @@ implements SimpleStorageResourceValidator
      * 
      */
     protected abstract boolean validateSize(
-            final IvoaSimpleStorageResource requested,
-            final IvoaSimpleStorageResource validated,
-            final OfferSetRequestParserContext context
-            );
-    
+        final IvoaSimpleStorageResource requested,
+        final IvoaSimpleStorageResource validated,
+        final OfferSetRequestParserContext context
+        );
     }

@@ -34,37 +34,28 @@
 
 package net.ivoa.calycopis.broker.engine.entities.storage;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResource;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 
 /**
  *
  */
 @Slf4j
-@Component
 public abstract class AbstractStorageResourceEntityFactoryImpl
 extends FactoryBaseImpl
 implements AbstractStorageResourceEntityFactory
     {
 
-    private AbstractStorageResourceEntityRepository repository;
+    protected AbstractStorageResourceEntityRepository repository;
 
-    @Override
-    public URI getKind()
-        {
-        return SimpleStorageResource.TYPE_DISCRIMINATOR;
-        }
-
-    @Autowired
-    public AbstractStorageResourceEntityFactoryImpl(final AbstractStorageResourceEntityRepository repository)
+    /**
+     * Protected constructor.
+     *
+     */
+    protected AbstractStorageResourceEntityFactoryImpl(final AbstractStorageResourceEntityRepository repository)
         {
         super();
         this.repository = repository;
@@ -75,5 +66,4 @@ implements AbstractStorageResourceEntityFactory
         {
         return repository.findById(uuid);
         }
-
     }

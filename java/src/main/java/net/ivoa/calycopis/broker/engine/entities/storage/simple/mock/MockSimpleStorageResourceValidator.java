@@ -42,5 +42,4 @@ import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageRes
 public interface MockSimpleStorageResourceValidator
 extends SimpleStorageResourceValidator
     {
-
     }

@@ -23,17 +23,21 @@
 
 package net.ivoa.calycopis.broker.engine.entities.storage.docker;
 
-import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidator;
+import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityFactory;
 
 /**
  * 
  */
 public interface DockerBindMountStorageEntityFactory
-extends LifecycleComponentEntityFactory<DockerBindMountStorageEntityImpl>
+extends SimpleStorageResourceEntityFactory
     {
 
+    /**
+     * Create a DockerBindMountStorageEntity using the specified path.
+     * 
+     */
     public DockerBindMountStorageEntityImpl create(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceValidator.Result result,

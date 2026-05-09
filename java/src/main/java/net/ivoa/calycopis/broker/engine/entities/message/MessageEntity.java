@@ -29,5 +29,4 @@ package net.ivoa.calycopis.broker.engine.entities.message;
 public interface MessageEntity
 extends Message
     {
-
     }

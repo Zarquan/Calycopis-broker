@@ -44,12 +44,14 @@ extends LifecycleComponent
     
     /**
      * Get a list of the data resources stored in this storage resource.
+     * TODO make this more abstract.
      *
      */
     public List<AbstractDataResourceEntity> getDataResources();
 
     /**
      * Get the list of volume mounts this resource is attached to.
+     * TODO make this more abstract.
      *
      */
     public List<AbstractVolumeMountEntityImpl> getVolumeMounts();

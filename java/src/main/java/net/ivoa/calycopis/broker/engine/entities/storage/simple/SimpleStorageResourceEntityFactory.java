@@ -23,36 +23,13 @@
 
 package net.ivoa.calycopis.broker.engine.entities.storage.simple;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityFactory;
-import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidator;
 
 /**
- * A SimpleStorageResource Factory.
  *
  */
 public interface SimpleStorageResourceEntityFactory
 extends AbstractStorageResourceEntityFactory
     {
-
-    /**
-     * Select a SimpleStorageResource based UUID.
-     *
-     */
-    public Optional<AbstractStorageResourceEntityImpl> select(final UUID uuid);
-
-    /**
-     * Create a new SimpleStorageResourceEntity based on a template.
-     *
-     */
-    public SimpleStorageResourceEntityImpl create(
-        final SimpleExecutionSessionEntityImpl session,
-        final AbstractStorageResourceValidator.Result result
-        );
-
     }
 

@@ -18,40 +18,17 @@
  *   </meta:licence>
  * </meta:header>
  *
- * AIMetrics: [
- *     {
- *     "timestamp": "2026-04-11T06:00:00",
- *     "name": "Cursor CLI",
- *     "version": "2026.02.13-41ac335",
- *     "model": "Claude 4.6 Opus (Thinking)",
- *     "contribution": {
- *       "value": 100,
- *       "units": "%"
- *       }
- *     }
- *   ]
  *
  */
 
 package net.ivoa.calycopis.broker.engine.entities.storage.docker;
 
-import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityRepository;
 
 /**
- *
+ * 
  */
-public abstract class DockerSimpleStorageResourceEntityFactoryImpl
-extends SimpleStorageResourceEntityFactoryImpl
-implements DockerSimpleStorageResourceEntityFactory
+public interface DockerSimpleStorageResourceEntityRepository
+extends SimpleStorageResourceEntityRepository
     {
-
-    /**
-     * Protected constructor.
-     * 
-     */
-    protected DockerSimpleStorageResourceEntityFactoryImpl(
-        final DockerSimpleStorageResourceEntityRepository repository
-        ){
-        super(repository);
-        }
     }

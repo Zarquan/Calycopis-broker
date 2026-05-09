@@ -22,15 +22,13 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.storage.simple;
 
-import java.util.UUID;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityRepository;
 
 /**
- * A SimpleStorageResource JpaRepository.
+ * JpaRepository for SimpleStorageResourceEntity.
  *
  */
 public interface SimpleStorageResourceEntityRepository
-extends JpaRepository<SimpleStorageResourceEntityImpl, UUID>
+extends AbstractStorageResourceEntityRepository
     {
     }

@@ -31,7 +31,6 @@ import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMount
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleVolumeMount;
 
 /**
- * A Validator implementation for mock volume mounts.
  *
  */
 @Slf4j
@@ -39,9 +38,11 @@ public class MockSimpleVolumeMountValidatorImpl
 extends SimpleVolumeMountValidatorImpl
 implements MockSimpleVolumeMountValidator
     {
+    
     /**
-     *
-     */
+      * Public constructor, used by our Platform.
+      *
+      */
     public MockSimpleVolumeMountValidatorImpl(
         final SimpleVolumeMountEntityFactory volumeMountFactory,
         final AbstractDataResourceEntityFactory dataResourceFactory,

@@ -22,15 +22,12 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.volume.simple.docker;
 
-import java.util.UUID;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountEntityRepository;
 
 /**
- * A SimpleVolumeMount JpaRepository.
  *
  */
 public interface DockerSimpleVolumeMountEntityRepository
-extends JpaRepository<DockerSimpleVolumeMountEntityImpl, UUID>
+extends SimpleVolumeMountEntityRepository
     {
     }

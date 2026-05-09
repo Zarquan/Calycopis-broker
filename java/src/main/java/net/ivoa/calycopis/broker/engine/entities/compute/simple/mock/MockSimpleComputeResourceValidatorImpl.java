@@ -37,7 +37,6 @@ package net.ivoa.calycopis.broker.engine.entities.compute.simple.mock;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountValidatorFactory;
@@ -46,7 +45,6 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeResource;
 
 /**
- * A validator implementation to handle SimpleComputeResources.
  * 
  */
 @Slf4j
@@ -56,11 +54,11 @@ implements MockSimpleComputeResourceValidator
     {
 
     /**
-     * Public constructor.
+     * Public constructor used by our Platform.
      * 
      */
     public MockSimpleComputeResourceValidatorImpl(
-        final AbstractComputeResourceEntityFactory entityFactory,
+        final MockSimpleComputeResourceEntityFactory entityFactory,
         final AbstractVolumeMountValidatorFactory volumeMountValidatorFactory
         ){
         super(

@@ -56,8 +56,9 @@ implements JupyterNotebookEntityFactory
      * Protected constructor, used by derived classes.
      * 
      */
-    protected JupyterNotebookEntityFactoryImpl(final AbstractExecutableEntityRepository repository)
-        {
+    protected JupyterNotebookEntityFactoryImpl(
+        final AbstractExecutableEntityRepository repository
+        ){
         super(repository);
         }
     }

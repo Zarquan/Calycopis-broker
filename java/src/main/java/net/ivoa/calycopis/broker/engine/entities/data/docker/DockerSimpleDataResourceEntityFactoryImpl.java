@@ -35,12 +35,10 @@
 
 package net.ivoa.calycopis.broker.engine.entities.data.docker;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResource;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityFactoryImpl;
 
 /**
@@ -55,20 +53,14 @@ implements DockerSimpleDataResourceEntityFactory
     protected final DockerSimpleDataResourceEntityRepository repository;
 
     /**
-     * Public constructor used by our Platform.
+     * Protected constructor.
      *
      */
-    public DockerSimpleDataResourceEntityFactoryImpl(
+    protected DockerSimpleDataResourceEntityFactoryImpl(
         final DockerSimpleDataResourceEntityRepository repository
         ){
         super();
         this.repository = repository;
-        }
-
-    @Override
-    public URI getKind()
-        {
-        return SimpleDataResource.TYPE_DISCRIMINATOR;
         }
 
     @Override

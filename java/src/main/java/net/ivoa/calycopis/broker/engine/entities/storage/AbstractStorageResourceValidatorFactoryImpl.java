@@ -33,22 +33,23 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.storage;
 
-import org.springframework.stereotype.Component;
-
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.broker.engine.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractStorageResource;
 
 /**
- * A factory for storage resource validators.
+ * An AbstractStorageResourceValidatorFactory implementation.
  * 
  */
-@Component
 public class AbstractStorageResourceValidatorFactoryImpl
 extends ValidatorFactoryImpl<IvoaAbstractStorageResource, AbstractStorageResourceEntityImpl>
 implements AbstractStorageResourceValidatorFactory
     {
 
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public AbstractStorageResourceValidatorFactoryImpl()
         {
         super();

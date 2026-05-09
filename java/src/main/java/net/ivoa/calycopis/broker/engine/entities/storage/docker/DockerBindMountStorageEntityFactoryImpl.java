@@ -23,49 +23,30 @@
 
 package net.ivoa.calycopis.broker.engine.entities.storage.docker;
 
-import java.net.URI;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
+import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidator.Result;
 
 /**
  * 
  */
-@Component
 public class DockerBindMountStorageEntityFactoryImpl
-extends FactoryBaseImpl
+extends DockerSimpleStorageResourceEntityFactoryImpl
 implements DockerBindMountStorageEntityFactory
     {
-    @Override
-    public URI getKind()
-        {
-        return null;
-        }
 
-    private final DockerBindMountStorageEntityRepository repository;
-
-    @Autowired
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public DockerBindMountStorageEntityFactoryImpl(
         final DockerBindMountStorageEntityRepository repository
         ){
-        super();
-        this.repository = repository;
+        super(repository);
         }
 
     @Override
-    public Optional<DockerBindMountStorageEntityImpl> select(UUID uuid)
-        {
-        return Optional.of(
-            this.repository.findById(uuid).get()
-            );
-        }
-
     public DockerBindMountStorageEntityImpl create(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceValidator.Result result,
@@ -81,4 +62,13 @@ implements DockerBindMountStorageEntityFactory
         return entity ;
         }
 
+    @Override
+    public AbstractStorageResourceEntityImpl create(
+        final SimpleExecutionSessionEntityImpl session,
+        final Result result
+        ){
+        throw new UnsupportedOperationException(
+            "Creating DockerBindMountStorageEntity with no path is not supported"
+            );
+        }
     }

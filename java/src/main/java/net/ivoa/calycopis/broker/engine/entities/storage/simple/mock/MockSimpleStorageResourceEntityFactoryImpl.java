@@ -15,15 +15,10 @@
  */
 package net.ivoa.calycopis.broker.engine.entities.storage.simple.mock;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityFactoryImpl;
 
@@ -37,22 +32,14 @@ extends SimpleStorageResourceEntityFactoryImpl
 implements MockSimpleStorageResourceEntityFactory
     {
 
-    private final MockSimpleStorageResourceEntityRepository repository;
-
-    @Autowired
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public MockSimpleStorageResourceEntityFactoryImpl(
         final MockSimpleStorageResourceEntityRepository repository
         ){
-        super();
-        this.repository = repository;
-        }
-
-    @Override
-    public Optional<AbstractStorageResourceEntityImpl> select(final UUID uuid)
-        {
-        return Optional.of(
-            this.repository.findById(uuid).get()
-            );
+        super(repository);
         }
 
     @Override

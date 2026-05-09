@@ -23,50 +23,27 @@
 
 package net.ivoa.calycopis.broker.engine.entities.storage.docker;
 
-import java.net.URI;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.broker.engine.entities.storage.simple.SimpleStorageResourceEntityFactoryImpl;
 
 /**
  * 
  */
 @Slf4j
-@Component
 public class DockerVolumeMountStorageEntityFactoryImpl
-extends SimpleStorageResourceEntityFactoryImpl
+extends DockerSimpleStorageResourceEntityFactoryImpl
 implements DockerVolumeMountStorageEntityFactory
     {
-    @Override
-    public URI getKind()
-        {
-        return null;
-        }
 
-    private final DockerVolumeMountStorageEntityRepository repository;
-
-    @Autowired
+    /**
+     * Public constructor used by our Platform.
+     *
+     */
     public DockerVolumeMountStorageEntityFactoryImpl(
         final DockerVolumeMountStorageEntityRepository repository
         ){
-        super();
-        this.repository = repository;
-        }
-
-    @Override
-    public Optional<AbstractStorageResourceEntityImpl> select(final UUID uuid)
-        {
-        return Optional.of(
-            this.repository.findById(uuid).get()
-            );
+        super(repository);
         }
 
     public DockerVolumeMountStorageEntity create(

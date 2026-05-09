@@ -32,7 +32,7 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
  *
  */
 public interface SimpleStorageResource
-    extends AbstractStorageResource
+extends AbstractStorageResource
     {
     /**
      * The OpenAPI type identifier.

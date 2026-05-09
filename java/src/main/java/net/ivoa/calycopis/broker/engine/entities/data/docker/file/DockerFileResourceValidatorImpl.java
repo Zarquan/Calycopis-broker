@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.broker.engine.entities.data.docker.file;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
@@ -38,12 +37,13 @@ public class DockerFileResourceValidatorImpl
 extends SimpleDataResourceValidatorImpl
 implements DockerFileResourceValidator
     {
+    
     /**
      * Public constructor used by our Platform.
      * 
      */
     public DockerFileResourceValidatorImpl(
-        final AbstractDataResourceEntityFactory entityFactory,
+        final DockerFileResourceEntityFactory entityFactory,
         final AbstractDataStorageLinker storageLinker)
         {
         super(

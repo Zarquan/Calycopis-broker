@@ -46,12 +46,22 @@ import net.ivoa.calycopis.broker.engine.functional.validator.Validator;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractStorageResource;
 
 /**
- * Public interface for StorageResource validators and results.
+ * Public interface for AbstractStorageResource Validators.
  * 
  */
 public interface AbstractStorageResourceValidator
 extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntityImpl>
     {
+
+    /**
+     * Validate a component.
+     * 
+     */
+    public ResultEnum validate(
+        final IvoaAbstractStorageResource requested,
+        final OfferSetRequestParserContext context
+        );
+    
     /**
      * Public interface for a validator result.
      * 
@@ -81,17 +91,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntityImpl
         }
 
     /**
-     * Validate a component.
-     * TODO Return a Result object instead of just a ResultEnum.
-     * 
-     */
-    public ResultEnum validate(
-        final IvoaAbstractStorageResource requested,
-        final OfferSetRequestParserContext context
-        );
-    
-    /**
-     * Bean implementation of a StorageResourceValidator result.
+     * Bean implementation of a validator result.
      * 
      */
     @Slf4j
@@ -100,7 +100,8 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntityImpl
     implements Result
         {
         /**
-         * Public constructor.
+         * Protected constructor with just a ResultEnum.
+         * Used to respond to a failed validation, where we don't have an object to return.
          * 
          */
         public ResultBean(final ResultEnum result)
@@ -109,17 +110,17 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntityImpl
             }
 
         /**
-         * Public constructor.
+         * Protected constructor with a ResultEnum and IvoaAbstractDataResource.
          * 
          */
-        public ResultBean(
+        protected ResultBean(
             final ResultEnum result,
             final IvoaAbstractStorageResource object
             ){
             super(
                 result,
                 object,
-                (object != null) ? object.getMeta() : null
+                object.getMeta()
                 );
             }
         
@@ -154,24 +155,17 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntityImpl
                 }
             return this.getPrepareDuration() + maxDataPrepareTime;
             }
-        
-        @Override
-        // Here because we need to create Results with just a status and no entity.
-        public AbstractStorageResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session)
-            {
-            return null ;
-            }
 
         @Override
         public Long getPrepareDuration()
             {
-            return 0L;
+            return null;
             }
 
         @Override
         public Long getReleaseDuration()
             {
-            return 0L;
+            return null;
             }
         }   
     }

@@ -143,15 +143,6 @@ public interface Validator<ObjectType, EntityType extends ComponentEntityImpl>
             }
 
         /**
-         * Protected constructor with a ResultEnum and validated object.
-         * 
-         */
-        protected ResultBean(final ResultEnum result, final ObjectType object)
-            {
-            this(result, object, null);
-            }
-        
-        /**
          * Protected constructor with a ResultEnum, validated object and object metadata.
          * 
          */
