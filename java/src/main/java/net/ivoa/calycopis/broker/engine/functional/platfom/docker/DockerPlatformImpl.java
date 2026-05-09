@@ -207,7 +207,7 @@ implements DockerPlatform
             );
 
         this.registerFactory(this.dockerContainerEntityFactory);
-        this.registerFactory(this.jupyterNotebookEntityFactory);
+      //this.registerFactory(this.jupyterNotebookEntityFactory);
         this.registerFactory(this.dockerSimpleComputeResourceEntityFactory);
         this.registerFactory(this.dockerSimpleDataResourceEntityFactory);
         this.registerFactory(this.simpleStorageResourceEntityFactory);
@@ -292,7 +292,7 @@ implements DockerPlatform
         return this.dockerContainerEntityFactory;
         }
 
-    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
+    // TODO 
     private MockJupyterNotebookEntityFactory jupyterNotebookEntityFactory;
     @Override
     public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory()

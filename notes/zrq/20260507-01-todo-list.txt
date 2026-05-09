@@ -34,7 +34,7 @@
 # -----------------------------------------------------
 # major
 
-    Create a String free interface for JpaRepositories.
+    Create a Spring free interface for JpaRepositories.
 
     Authentication.
     OIDC auth in webapp
@@ -67,6 +67,9 @@
 
     Resolve the PURL issues.
 
+    Add support for JupyterNotebooks
+    Add support for VirtualDesktops
+
 # -----------------------------------------------------
 # minor
 
@@ -91,7 +94,7 @@
     Get rid of Optional, just return null.
     Or make use of the NoSuchElementException that Optional throws.
 
-    Remove the XyzEntity interfaces and replace woth XyzEntityImpl.
+    Remove the XyzEntity interfaces and replace with XyzEntityImpl.
     Evaluate - do we need XyzEntityFactory interfaces
 
 
