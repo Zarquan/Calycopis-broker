@@ -29,7 +29,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaExecutionRequest;
  *
  */
 public interface OfferSetRequestParser
-    extends FactoryBase
+extends FactoryBase
     {
     
     /**

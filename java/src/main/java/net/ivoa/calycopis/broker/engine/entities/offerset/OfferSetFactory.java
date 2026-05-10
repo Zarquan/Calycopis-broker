@@ -33,12 +33,12 @@ import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBase;
 import net.ivoa.calycopis.schema.spring.model.IvoaExecutionRequest;
 
 /**
- * Service for responding to OfferSet requests.
  *
  */
 public interface OfferSetFactory
     extends FactoryBase
     {
+    
     /**
      * The default expiry time for offers.
      *
@@ -58,14 +58,7 @@ public interface OfferSetFactory
     public OfferSetEntityImpl create(final IvoaExecutionRequest request);
 
     /**
-     * Create a new OfferSet based on a ParserContext.
-     *
-     */
-    public OfferSetEntityImpl create(final OfferSetRequestParserContext offersetContext, int offerCount);
-
-    /**
      * Create a new ExecutionSessionEntity based on a direct ExecutionRequest.
-     * This is here rather than in SimpleExecutionSessionEntityFactory because of complications with circular references.
      *
      */
     public SimpleExecutionSessionEntityImpl direct(final IvoaExecutionRequest request);

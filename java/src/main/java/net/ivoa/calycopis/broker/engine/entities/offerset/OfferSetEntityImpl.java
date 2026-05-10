@@ -71,11 +71,19 @@ implements OfferSetEntity
         return OfferSet.TYPE_DISCRIMINATOR ;
         }
 
+    /**
+     * Protected constructor for JPA entities.
+     *  
+     */
     protected OfferSetEntityImpl()
         {
         super();
         }
 
+    /**
+     * Protected constructor used by our Factories.
+     *  
+     */
     protected OfferSetEntityImpl(final String name, final String description, final Instant created, final Instant expires)
         {
         super(

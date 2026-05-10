@@ -111,7 +111,6 @@ import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3Da
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceEntityRepository;
 import net.ivoa.calycopis.broker.engine.entities.data.amazon.mock.MockAmazonS3DataResourceValidatorImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.docker.link.DockerDataStorageLinkerImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.mock.MockIvoaDataResourceEntityRepository;
@@ -131,8 +130,17 @@ import net.ivoa.calycopis.broker.engine.entities.executable.docker.mock.MockDock
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.mock.MockDockerContainerValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.jupyter.mock.MockJupyterNotebookEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.executable.jupyter.mock.MockJupyterNotebookValidatorImpl;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetFactory;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRepository;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParser;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityRepository;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityUpdateHandler;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityUpdateHandlerImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.storage.simple.mock.MockSimpleStorageResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.storage.simple.mock.MockSimpleStorageResourceValidatorImpl;
@@ -195,6 +203,22 @@ implements MockPlatform
 
         this.dataStorageLinker = new MockDataStorageLinkerImpl(
             this.storageResourceValidatorFactory
+            );
+
+        this.sessionEntityFactory = new SimpleExecutionSessionEntityFactoryImpl(
+            this.sessionEntityRepository
+            );
+
+        this.sessionUpdateHandler = new SimpleExecutionSessionEntityUpdateHandlerImpl(
+            this.sessionEntityFactory,
+            this.processingRequestFactory
+            );
+
+        this.offerSetFactory = new OfferSetFactoryImpl(
+            this,
+            this.offerSetRepository,
+            this.offerSetRequestParser,
+            this.processingRequestFactory
             );
         
         //
@@ -380,15 +404,31 @@ implements MockPlatform
 // Session
     
     @Autowired
-    private SimpleExecutionSessionEntityFactory executionSessionEntityFactory;
+    private SimpleExecutionSessionEntityRepository sessionEntityRepository;
+
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
+    private SimpleExecutionSessionEntityFactory sessionEntityFactory;
     @Override
-    public AbstractExecutionSessionEntityFactory<?> getExecutionSessionFactory()
+    public SimpleExecutionSessionEntityFactory getSessionEntityFactory()
         {
-        return this.executionSessionEntityFactory;
+        return sessionEntityFactory;
+        }
+    @Override
+    public AbstractExecutionSessionEntityFactory<?> getAbstractSessionFactory()
+        {
+        return this.sessionEntityFactory;
         }
 
-// Processing
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
+    private SimpleExecutionSessionEntityUpdateHandler sessionUpdateHandler;
+    @Override
+    public SimpleExecutionSessionEntityUpdateHandler getSessionUpdateHandler()
+        {
+        return sessionUpdateHandler;
+        }
     
+// Processing
+
     @Autowired
     private ProcessingRequestFactory processingRequestFactory;
     @Override
@@ -397,19 +437,22 @@ implements MockPlatform
         return this.processingRequestFactory;
         }
 
-// LifecycleComponent
-
-    /*
-     * 
+// OfferSets
+    
     @Autowired
-    private AbstractLifecycleComponentEntityFactory lifecycleComponentEntityFactory;
+    private OfferSetRepository offerSetRepository;
+    
+    private OfferSetRequestParser offerSetRequestParser = new OfferSetRequestParserImpl();
+   
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
+    private OfferSetFactory offerSetFactory;
     @Override
-    public AbstractLifecycleComponentEntityFactory getLifecycleComponentEntityFactory()
+    public OfferSetFactory getOfferSetFactory()
         {
-        return this.lifecycleComponentEntityFactory;
+        return this.offerSetFactory;
         }
-     * 
-     */
+    
+// LifecycleComponent
     
     Map<URI, LifecycleComponentEntityFactory<?>> registry = new HashMap<URI, LifecycleComponentEntityFactory<?>>();
     
@@ -434,4 +477,5 @@ implements MockPlatform
             return null;
             }
         }
+
     }

@@ -46,10 +46,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetFactory;
-import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityUpdateHandler;
+import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 import net.ivoa.calycopis.schema.spring.api.SessionsApiDelegate;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractExecutionSession;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractUpdate;
@@ -62,28 +60,23 @@ public class SessionsApiDelegateImpl
     implements SessionsApiDelegate
     {
 
-    private final OfferSetFactory offersetFactory ;
-    private final SimpleExecutionSessionEntityFactory sessionFactory ;
-    private final SimpleExecutionSessionEntityUpdateHandler updateHandler ;
+    private Platform platform ;
 
     @Autowired
     public SessionsApiDelegateImpl(
         final NativeWebRequest request,
-        final OfferSetFactory offersetFactory,
-        final SimpleExecutionSessionEntityFactory sessionFactory,
-        final SimpleExecutionSessionEntityUpdateHandler updateHandler
+        final Platform platform
         ){
         super(request);
-        this.offersetFactory = offersetFactory ;
-        this.sessionFactory = sessionFactory ;
-        this.updateHandler = updateHandler ;
+        this.platform = platform ;
+        this.platform.initialize();
         }
 
     @Override
     public ResponseEntity<IvoaAbstractExecutionSession> executionSessionGet(
         final UUID uuid
         ){
-        final Optional<SimpleExecutionSessionEntityImpl> found = sessionFactory.select(
+        final Optional<SimpleExecutionSessionEntityImpl> found = platform.getSessionEntityFactory().select(
             uuid
             );
         if (found.isPresent())
@@ -107,7 +100,7 @@ public class SessionsApiDelegateImpl
         final UUID uuid,
         final IvoaAbstractUpdate request
         ){
-       final Optional<SimpleExecutionSessionEntityImpl> found = updateHandler.update(
+       final Optional<SimpleExecutionSessionEntityImpl> found = platform.getSessionUpdateHandler().update(
             uuid,
             request
             );
@@ -134,7 +127,7 @@ public class SessionsApiDelegateImpl
         log.debug("directExecutionPost(IvoaExecutionRequest)");
         //
         // Process the request to create a new execution session.
-        SimpleExecutionSessionEntityImpl entity = offersetFactory.direct(request);
+        SimpleExecutionSessionEntityImpl entity = platform.getOfferSetFactory().direct(request);
         log.debug("Session entity [{}][{}][{}]", entity.getUuid(), entity.getPhase(), entity.getClass().getSimpleName());
 
         IvoaAbstractExecutionSession bean = entity.makeBean(

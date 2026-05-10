@@ -36,7 +36,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetFactory;
+import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 import net.ivoa.calycopis.schema.spring.api.OffersetsApiDelegate;
 import net.ivoa.calycopis.schema.spring.model.IvoaExecutionRequest;
 import net.ivoa.calycopis.schema.spring.model.IvoaOfferSetResponse;
@@ -47,22 +47,23 @@ public class OffersetsApiDelegateImpl
     extends BaseDelegateImpl
     implements OffersetsApiDelegate {
 
-    private final OfferSetFactory offersetFactory ;
-
+    private Platform platform ;
+    
     @Autowired
     public OffersetsApiDelegateImpl(
-        NativeWebRequest request,
-        OfferSetFactory factory
+        final NativeWebRequest request,
+        final Platform platform
         )
         {
         super(request);
-        this.offersetFactory = factory ;
+        this.platform = platform;
+        this.platform.initialize();
         }
 
     @Override
     public ResponseEntity<IvoaOfferSetResponse> offerSetGet(final UUID uuid)
         {
-        final Optional<OfferSetEntityImpl> found = offersetFactory.select(
+        final Optional<OfferSetEntityImpl> found = this.platform.getOfferSetFactory().select(
             uuid
             );
         if (found.isPresent())
@@ -85,7 +86,7 @@ public class OffersetsApiDelegateImpl
     public ResponseEntity<IvoaOfferSetResponse> offerSetPost(
         @RequestBody IvoaExecutionRequest request
         ){
-        OfferSetEntityImpl entity = offersetFactory.create(
+        OfferSetEntityImpl entity = this.platform.getOfferSetFactory().create(
             request
             );
         IvoaOfferSetResponse response = entity.makeBean(

@@ -116,4 +116,7 @@
         AbstractExecutable is the interface
         AbstractExecutableEntityImpl is the entity class
 
+    Message and MessageEntityImpl should have kind rather than type.
+
+
 

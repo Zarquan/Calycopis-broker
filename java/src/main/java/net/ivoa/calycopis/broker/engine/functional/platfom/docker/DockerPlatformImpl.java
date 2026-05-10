@@ -86,8 +86,17 @@ import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.Docker
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.DockerDockerContainerEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.docker.DockerDockerContainerValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.jupyter.JupyterNotebookEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetFactory;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRepository;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParser;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityFactoryImpl;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityRepository;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityUpdateHandler;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityUpdateHandlerImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidatorFactoryImpl;
@@ -123,10 +132,21 @@ implements DockerPlatform
         super();
         }
 
+    private boolean initialized = false;
+    
     public void initialize()
         {
         log.debug("initialize()");
-        
+
+        if (this.initialized)
+            {
+            log.warn("Platform has already been initialized, skipping.");
+            return;
+            }
+        else {
+            this.initialized = true;
+            }
+
         //
         // We need create these here because the Autowired Repositories are not available at construction time.
         this.dockerSimpleComputeResourceEntityFactory = new DockerSimpleComputeResourceEntityFactoryImpl(
@@ -160,6 +180,22 @@ implements DockerPlatform
         this.dataStorageLinker = new DockerDataStorageLinkerImpl(
             this.bindMountStorageResourceEntityFactory,
             this.volumeMountStorageResourceEntityFactory
+            );
+
+        this.sessionEntityFactory = new SimpleExecutionSessionEntityFactoryImpl(
+            this.sessionEntityRepository
+            );
+
+        this.sessionUpdateHandler = new SimpleExecutionSessionEntityUpdateHandlerImpl(
+            this.sessionEntityFactory,
+            this.processingRequestFactory
+            );
+
+        this.offerSetFactory = new OfferSetFactoryImpl(
+            this,
+            this.offerSetRepository,
+            this.offerSetRequestParser,
+            this.processingRequestFactory
             );
         
         //
@@ -349,21 +385,52 @@ implements DockerPlatform
 // Session
     
     @Autowired
-    private SimpleExecutionSessionEntityFactory executionSessionEntityFactory;
+    private SimpleExecutionSessionEntityRepository sessionEntityRepository;
+
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
+    private SimpleExecutionSessionEntityFactory sessionEntityFactory;
     @Override
-    public AbstractExecutionSessionEntityFactory<?> getExecutionSessionFactory()
+    public SimpleExecutionSessionEntityFactory getSessionEntityFactory()
         {
-        return this.executionSessionEntityFactory;
+        return sessionEntityFactory;
+        }
+    @Override
+    public AbstractExecutionSessionEntityFactory<?> getAbstractSessionFactory()
+        {
+        return this.sessionEntityFactory;
         }
 
-// Processing
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
+    private SimpleExecutionSessionEntityUpdateHandler sessionUpdateHandler;
+    @Override
+    public SimpleExecutionSessionEntityUpdateHandler getSessionUpdateHandler()
+        {
+        return sessionUpdateHandler;
+        }
     
+// Processing
+
     @Autowired
     private ProcessingRequestFactory processingRequestFactory;
     @Override
     public ProcessingRequestFactory getProcessingRequestFactory()
         {
         return this.processingRequestFactory;
+        }
+
+// OfferSets
+    
+    @Autowired
+    private OfferSetRepository offerSetRepository;
+    
+    private OfferSetRequestParser offerSetRequestParser = new OfferSetRequestParserImpl();
+   
+    // This  has to be initialized in the initialize() method because the Autowired repository is not available at construction time.
+    private OfferSetFactory offerSetFactory;
+    @Override
+    public OfferSetFactory getOfferSetFactory()
+        {
+        return this.offerSetFactory;
         }
 
 // LifecycleComponent

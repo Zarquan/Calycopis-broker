@@ -26,13 +26,9 @@ package net.ivoa.calycopis.broker.engine.entities.session.simple;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.schema.spring.model.IvoaEnumValueUpdate;
@@ -42,27 +38,26 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleExecutionSessionPhase;
  * 
  */
 @Slf4j
-@Component
 public class SimpleExecutionSessionEntityUpdateHandlerImpl
 extends FactoryBaseImpl
 implements SimpleExecutionSessionEntityUpdateHandler
     {
 
-    private final Platform platform;
     private final ProcessingRequestFactory processing; 
     
-    private final SimpleExecutionSessionEntityRepository sessionRepository;
+    private final SimpleExecutionSessionEntityFactory sessionFactory;
     
-    @Autowired
+    /**
+     * Public constructor, used by our Platform.
+     * 
+     */
     public SimpleExecutionSessionEntityUpdateHandlerImpl(
-        final SimpleExecutionSessionEntityRepository repository,
-        final ProcessingRequestFactory processing,
-        final Platform platform
+        final SimpleExecutionSessionEntityFactory sessionFactory,
+        final ProcessingRequestFactory processing
         ){
         super();
-        this.sessionRepository = repository;
+        this.sessionFactory = sessionFactory;
         this.processing = processing;
-        this.platform = platform;
         }
 
     @Override
@@ -72,24 +67,28 @@ implements SimpleExecutionSessionEntityUpdateHandler
         log.debug("UUID   [{}]", uuid);
         log.debug("Update [{}]", update.getClass());
 
-        Optional<SimpleExecutionSessionEntityImpl> result = this.sessionRepository.findById(
+        Optional<SimpleExecutionSessionEntityImpl> found = this.sessionFactory.select(
             uuid
             );
-        if (result.isEmpty())
+        if (found.isEmpty())
             {
             log.warn("Session not found [{}]", uuid);
-            return result ;
+            return found ;
             }
         else {
-            SimpleExecutionSessionEntityImpl entity = update(
-                result.get(),
+            SimpleExecutionSessionEntityImpl entity = this.update(
+                found.get(),
                 update
                 );  
+/*
+ * 
             // Do we need this ?
             // The Sessions set to REJECTED are saved in the database too.
             entity = this.sessionRepository.save(
                 entity
                 );
+ * 
+ */
             return Optional.of(
                 entity
                 );

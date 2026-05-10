@@ -40,8 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
@@ -71,21 +69,18 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleComputeResource;
  *
  */
 @Slf4j
-@Component
 public class OfferSetRequestParserImpl
-    extends FactoryBaseImpl
-    implements OfferSetRequestParser
+extends FactoryBaseImpl
+implements OfferSetRequestParser
     {
 
-    //private final Platform platform ;
-
-    @Autowired
-    public OfferSetRequestParserImpl(
-        //final Platform platform
-        ){
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
+    public OfferSetRequestParserImpl()
+        {
         super();
-        //this.platform = platform;
-        //this.platform.initialize();
         }
 
     @Override
@@ -380,7 +375,7 @@ public class OfferSetRequestParserImpl
                 // Needed because the platform returns an AbstractExecutionSessionEntityFactory, which creates an AbstractExecutionSessionEntity.
                 // To make this work we need to go down the rabbit hole and change all the things that use SimpleExecutionSessionEntity to use AbstractExecutionSessionEntity.
                 // TODO Later ...
-                SimpleExecutionSessionEntityImpl executionSessionEntity = (SimpleExecutionSessionEntityImpl) platform.getExecutionSessionFactory().create(
+                SimpleExecutionSessionEntityImpl executionSessionEntity = (SimpleExecutionSessionEntityImpl) platform.getAbstractSessionFactory().create(
                     offersetEntity,
                     offersetContext,
                     computeOffer

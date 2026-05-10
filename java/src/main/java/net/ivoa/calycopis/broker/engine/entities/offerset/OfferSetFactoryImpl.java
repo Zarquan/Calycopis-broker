@@ -30,9 +30,6 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
@@ -48,7 +45,6 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleExecutionSessionPhase;
  *
  */
 @Slf4j
-@Component
 public class OfferSetFactoryImpl
     extends FactoryBaseImpl
     implements OfferSetFactory
@@ -60,8 +56,11 @@ public class OfferSetFactoryImpl
     private final OfferSetRepository offersetRepository;
 
     private final ProcessingRequestFactory processingRequestFactory;
-    
-    @Autowired
+
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public OfferSetFactoryImpl(
         final Platform platform,
         final OfferSetRepository offersetRepository,
@@ -70,21 +69,14 @@ public class OfferSetFactoryImpl
         ){
         super();
         this.platform = platform;
-        this.platform.initialize();
         this.offersetRepository = offersetRepository;
         this.offersetRequestParser = offersetParser;
         this.processingRequestFactory = processingRequestFactory;
         }
 
-    /**
-     * Select an OfferSet based on its identifier.
-     *
-     */
     @Override
     public Optional<OfferSetEntityImpl> select(final UUID uuid)
 		{
-        log.debug("select(UUID)");
-        log.debug("UUID [{}]", uuid);
 		return this.offersetRepository.findById(
             uuid
             ); 
@@ -104,42 +96,6 @@ public class OfferSetFactoryImpl
         return this.create(
             offersetContext,
             0
-            );
-    	}
-
-    @Override
-    public OfferSetEntityImpl create(final OfferSetRequestParserContext offersetContext, int offerCount)
-    	{
-        //
-        // Create a new OfferSetEntity.
-    	OfferSetEntityImpl offersetEntity = new OfferSetEntityImpl(
-    	    // tempfix    
-	        // offersetRequest.getName(),
-            // offersetRequest.getDescription(),
-    	    null,
-    	    null,
-    	    Instant.now(),
-    	    Instant.now().plusSeconds(
-                DEFAULT_EXPIRY_TIME_SECONDS
-                )
-	        );
-    	//
-    	// Save the OfferSet before we add any offers.
-        this.offersetRepository.save(
-            offersetEntity
-            );
-        //
-        // Add the offers to the OfferSetEntity.
-        offersetRequestParser.stageTwo(
-            platform,
-            offersetEntity,
-            offersetContext,
-            offerCount
-            );
-        //
-        // Save the OfferSet and the offers.
-        return this.offersetRepository.save(
-            offersetEntity
             );
     	}
 
@@ -194,6 +150,41 @@ public class OfferSetFactoryImpl
             offersetContext.getMessages()
             );
         return failed;
+        }
+
+    protected OfferSetEntityImpl create(final OfferSetRequestParserContext offersetContext, int offerCount)
+        {
+        //
+        // Create a new OfferSetEntity.
+        OfferSetEntityImpl offersetEntity = new OfferSetEntityImpl(
+            // tempfix    
+            // offersetRequest.getName(),
+            // offersetRequest.getDescription(),
+            null,
+            null,
+            Instant.now(),
+            Instant.now().plusSeconds(
+                DEFAULT_EXPIRY_TIME_SECONDS
+                )
+            );
+        //
+        // Save the OfferSet before we add any offers.
+        this.offersetRepository.save(
+            offersetEntity
+            );
+        //
+        // Add the offers to the OfferSetEntity.
+        offersetRequestParser.stageTwo(
+            platform,
+            offersetEntity,
+            offersetContext,
+            offerCount
+            );
+        //
+        // Save the OfferSet and the offers.
+        return this.offersetRepository.save(
+            offersetEntity
+            );
         }
     }
 

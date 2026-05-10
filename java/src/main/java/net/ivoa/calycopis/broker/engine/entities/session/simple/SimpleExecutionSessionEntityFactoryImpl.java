@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
@@ -42,19 +39,19 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleExecutionSessionPhase;
  *
  */
 @Slf4j
-@Component
 public class SimpleExecutionSessionEntityFactoryImpl
     extends FactoryBaseImpl
     implements SimpleExecutionSessionEntityFactory
     {
+
     private final SimpleExecutionSessionEntityRepository sessionEntityRepository;
 
-    @Autowired
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public SimpleExecutionSessionEntityFactoryImpl(
-        //final ProcessingRequestFactory processingRequestFactory,            
         final SimpleExecutionSessionEntityRepository sessionEntityRepository
-        //final OfferSetRequestParser offersetRequestParser,
-        //final OfferSetFactory offerSetFactory
         ){
         super();
         this.sessionEntityRepository = sessionEntityRepository;

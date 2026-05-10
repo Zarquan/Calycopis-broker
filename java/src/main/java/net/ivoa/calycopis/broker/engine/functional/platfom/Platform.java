@@ -31,7 +31,10 @@ import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResource
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableValidatorFactory;
+import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetFactory;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityFactory;
+import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityUpdateHandler;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOfferFactory;
@@ -64,7 +67,7 @@ extends FactoryBase
      * TODO Do we need the <?> generic wildcard here?
      *
      */
-    public AbstractExecutionSessionEntityFactory<?> getExecutionSessionFactory();
+    public AbstractExecutionSessionEntityFactory<?> getAbstractSessionFactory();
 
     /**
      * Get the ProcessingRequestFactory for this platform.
@@ -113,5 +116,24 @@ extends FactoryBase
      * 
      */
     public AbstractDataStorageLinker getDataStorageLinker();
+
+    /**
+     * Get the OfferSetFactory for this platform.
+     * 
+     */
+    public OfferSetFactory getOfferSetFactory();
+
+    /**
+     * Get the ExecutionSessionEntityFactory for this platform.
+     * 
+     */
+    public SimpleExecutionSessionEntityFactory getSessionEntityFactory();
+
+    /**
+     * Get the ExecutionSessionEntityUpdateHandler for this platform.
+     * 
+     */
+    public SimpleExecutionSessionEntityUpdateHandler getSessionUpdateHandler();
+    
     
     }

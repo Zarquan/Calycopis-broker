@@ -28,15 +28,13 @@ package net.ivoa.calycopis.broker.engine.entities.offerset;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 /**
  * A JpaRepository for OfferSetEntitys.
  *
  */
-@Repository
 public interface OfferSetRepository
-    extends JpaRepository<OfferSetEntityImpl, UUID>
+extends JpaRepository<OfferSetEntityImpl, UUID>
     {
     }
 
