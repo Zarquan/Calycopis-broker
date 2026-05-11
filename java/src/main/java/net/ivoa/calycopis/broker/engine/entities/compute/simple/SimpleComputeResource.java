@@ -44,7 +44,7 @@ import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResource
  *
  */
 public interface SimpleComputeResource
-    extends AbstractComputeResource
+extends AbstractComputeResource
     {
 
     /**

@@ -47,7 +47,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaMessageItem.LevelEnum;
     name = "messages"
     )
 public class MessageEntityImpl
-    implements MessageEntity
+implements MessageEntity
     {
 
     @Id

@@ -59,7 +59,7 @@ implements AbstractDataResourceEntityFactory
 
     // TODO This is needed because of the Optional<>.
     @Override
-    public Optional<AbstractDataResourceEntity> select(UUID uuid)
+    public Optional<AbstractDataResourceEntityImpl> select(UUID uuid)
         {
         return repository.findById(uuid);
         }

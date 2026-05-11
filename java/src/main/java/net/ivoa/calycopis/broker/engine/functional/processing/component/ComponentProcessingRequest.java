@@ -25,9 +25,7 @@ package net.ivoa.calycopis.broker.engine.functional.processing.component;
 
 import java.net.URI;
 
-import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequest;
-import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
 
 /**
  * 

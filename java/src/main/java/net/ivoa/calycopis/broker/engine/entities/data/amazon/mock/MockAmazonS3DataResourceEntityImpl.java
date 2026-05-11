@@ -57,9 +57,10 @@ import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockReleaseAc
     name = "mockamazons3dataresources"
     )
 public class MockAmazonS3DataResourceEntityImpl
-    extends AmazonS3DataResourceEntityImpl
-    implements MockAmazonS3DataResource
+extends AmazonS3DataResourceEntityImpl
+implements MockAmazonS3DataResource
     {
+
     /**
      * Protected constructor for JPA entities.
      * 

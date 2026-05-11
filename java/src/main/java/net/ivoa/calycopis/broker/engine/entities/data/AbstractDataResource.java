@@ -34,6 +34,7 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
 public interface AbstractDataResource
 extends LifecycleComponent
     {
+
     /**
      * The webapp path for data resources.
      * 

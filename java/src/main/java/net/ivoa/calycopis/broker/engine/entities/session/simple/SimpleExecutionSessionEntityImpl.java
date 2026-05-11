@@ -57,7 +57,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.message.Message;
 import net.ivoa.calycopis.broker.engine.entities.message.MessageEntityImpl;
@@ -89,8 +89,8 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleSessionConnector;
     value = "uri:simple-execution-session"
     )
 public class SimpleExecutionSessionEntityImpl
-    extends AbstractExecutionSessionEntityImpl
-    implements SimpleExecutionSession
+extends AbstractExecutionSessionEntityImpl
+implements SimpleExecutionSession
     {
     
     @Override
@@ -199,15 +199,15 @@ public class SimpleExecutionSessionEntityImpl
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<AbstractDataResourceEntity> dataresources = new ArrayList<AbstractDataResourceEntity>();
+    List<AbstractDataResourceEntityImpl> dataresources = new ArrayList<AbstractDataResourceEntityImpl>();
 
     @Override
-    public List<AbstractDataResourceEntity> getDataResources()
+    public List<AbstractDataResourceEntityImpl> getDataResources()
         {
         return dataresources;
         }
 
-    public void addDataResource(final AbstractDataResourceEntity resource)
+    public void addDataResource(final AbstractDataResourceEntityImpl resource)
         {
         dataresources.add(
             resource
@@ -610,7 +610,7 @@ public class SimpleExecutionSessionEntityImpl
                 )
             );
 
-        for (AbstractDataResourceEntity resource : this.getDataResources())
+        for (AbstractDataResourceEntityImpl resource : this.getDataResources())
             {
             bean.addDataItem(
                 resource.makeBean(

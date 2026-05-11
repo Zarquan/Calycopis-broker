@@ -35,7 +35,6 @@ import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEnt
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestEntityImpl;
-import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.schema.spring.model.IvoaLifecyclePhase;
 
 /**

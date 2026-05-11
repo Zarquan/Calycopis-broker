@@ -32,5 +32,4 @@ import net.ivoa.calycopis.broker.engine.entities.storage.simple.docker.volume.Do
 public interface DockerBindMountStorage
 extends SimpleStorageResource, DockerVolumeMount
     {
-
     }

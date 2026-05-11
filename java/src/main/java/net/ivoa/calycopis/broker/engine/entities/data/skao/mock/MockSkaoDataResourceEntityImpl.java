@@ -57,9 +57,10 @@ import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockReleaseAc
     name = "mockskaodataresources"
     )
 public class MockSkaoDataResourceEntityImpl
-    extends SkaoDataResourceEntityImpl
-    implements MockSkaoDataResource
+extends SkaoDataResourceEntityImpl
+implements MockSkaoDataResource
     {
+
     /**
      * Protected constructor for JPA entities.
      * 

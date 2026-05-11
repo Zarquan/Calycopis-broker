@@ -57,9 +57,10 @@ import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockReleaseAc
     name = "mockivoadataresources"
     )
 public class MockIvoaDataResourceEntityImpl
-    extends IvoaDataResourceEntityImpl
-    implements MockIvoaDataResource
+extends IvoaDataResourceEntityImpl
+implements MockIvoaDataResource
     {
+    
     /**
      * Protected constructor for JPA entities.
      * 

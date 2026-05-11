@@ -68,9 +68,10 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSkaoReplicaItem;
     name = "skaodataresources"
     )
 public abstract class SkaoDataResourceEntityImpl
-    extends IvoaDataResourceEntityImpl
-    implements SkaoDataResource
+extends IvoaDataResourceEntityImpl
+implements SkaoDataResource
     {
+
     @Override
     public URI getKind()
         {

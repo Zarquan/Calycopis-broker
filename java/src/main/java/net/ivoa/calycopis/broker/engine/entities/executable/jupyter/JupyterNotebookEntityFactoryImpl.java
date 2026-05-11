@@ -46,6 +46,7 @@ public abstract class JupyterNotebookEntityFactoryImpl
 extends AbstractExecutableEntityFactoryImpl
 implements JupyterNotebookEntityFactory
     {
+    
     @Override
     public URI getKind()
         {

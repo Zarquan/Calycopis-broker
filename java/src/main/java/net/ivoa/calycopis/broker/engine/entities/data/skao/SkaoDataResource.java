@@ -36,6 +36,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSkaoDataResourceBlock.Objectty
 public interface SkaoDataResource
 extends IvoaDataResource
     {
+    
     /**
      * The OpenAPI type identifier.
      *

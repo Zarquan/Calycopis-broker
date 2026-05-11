@@ -38,7 +38,7 @@ import java.net.URI;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
@@ -55,9 +55,10 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleDataResource;
     name = "simpledataresources"
     )
 public abstract class SimpleDataResourceEntityImpl
-extends AbstractDataResourceEntity
+extends AbstractDataResourceEntityImpl
 implements SimpleDataResource
     {
+
     @Override
     public URI getKind()
         {

@@ -15,6 +15,7 @@ import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutable;
 public interface DockerContainer
 extends AbstractExecutable
     {
+    
     /**
      * The OpenAPI type identifier.
      *

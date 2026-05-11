@@ -41,7 +41,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityImpl;
 import net.ivoa.calycopis.broker.engine.util.URIBuilder;
@@ -58,9 +58,10 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleVolumeMount.ModeEnum;
     name = "simplevolumemounts"
     )
 public class SimpleVolumeMountEntityImpl
-    extends AbstractVolumeMountEntityImpl
-    implements SimpleVolumeMount
+extends AbstractVolumeMountEntityImpl
+implements SimpleVolumeMount
     {
+    
     @Override
     public URI getKind()
         {
@@ -82,7 +83,7 @@ public class SimpleVolumeMountEntityImpl
      */
     protected SimpleVolumeMountEntityImpl(
         final AbstractComputeResourceEntityImpl computeResource,
-        final AbstractDataResourceEntity        dataResource,
+        final AbstractDataResourceEntityImpl        dataResource,
         final SimpleVolumeMountValidator.Result result
         ){
         super(

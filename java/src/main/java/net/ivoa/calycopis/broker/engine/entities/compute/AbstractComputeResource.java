@@ -34,6 +34,7 @@ import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMount;
 public interface AbstractComputeResource
     extends LifecycleComponent
     {
+
     /**
      * The webapp path for compute resources.
      * 

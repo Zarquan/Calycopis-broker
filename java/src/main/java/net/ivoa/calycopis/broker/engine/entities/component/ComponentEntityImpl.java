@@ -62,7 +62,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaMessageItem.LevelEnum;
     strategy = InheritanceType.JOINED
     )
 public abstract class ComponentEntityImpl
-    implements Component
+implements Component
     {
 
     /**

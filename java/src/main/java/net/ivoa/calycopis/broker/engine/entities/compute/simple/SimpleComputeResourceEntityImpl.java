@@ -70,6 +70,7 @@ public abstract class SimpleComputeResourceEntityImpl
     extends AbstractComputeResourceEntityImpl
     implements SimpleComputeResource
     {
+
     @Override
     public URI getKind()
         {

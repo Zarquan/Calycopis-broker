@@ -37,7 +37,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.IvoaDataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.ivoa.IvoaDataResourceEntityImpl;
@@ -67,7 +67,7 @@ implements MockIvoaDataResourceEntityFactory
         }
 
     @Override
-    public Optional<AbstractDataResourceEntity> select(final UUID uuid)
+    public Optional<AbstractDataResourceEntityImpl> select(final UUID uuid)
         {
         return Optional.of(
             this.dataResourceEntityRepository.findById(uuid).get()

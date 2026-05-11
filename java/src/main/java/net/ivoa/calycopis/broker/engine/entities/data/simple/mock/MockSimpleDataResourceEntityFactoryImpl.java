@@ -39,7 +39,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.simple.SimpleDataResourceEntityImpl;
@@ -70,7 +70,7 @@ implements MockSimpleDataResourceEntityFactory
         }
 
     @Override
-    public Optional<AbstractDataResourceEntity> select(final UUID uuid)
+    public Optional<AbstractDataResourceEntityImpl> select(final UUID uuid)
         {
         return Optional.of(
             this.simpleDataResourceEntityRepository.findById(uuid).get()

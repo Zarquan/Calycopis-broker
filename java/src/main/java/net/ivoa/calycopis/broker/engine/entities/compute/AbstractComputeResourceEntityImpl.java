@@ -59,6 +59,7 @@ public abstract class AbstractComputeResourceEntityImpl
 extends LifecycleComponentEntityImpl
 implements AbstractComputeResource
     {
+
     /**
      * Protected constructor for JPA entities.
      * 

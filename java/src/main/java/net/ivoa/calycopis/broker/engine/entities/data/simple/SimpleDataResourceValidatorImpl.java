@@ -55,7 +55,7 @@
 package net.ivoa.calycopis.broker.engine.entities.data.simple;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
@@ -160,7 +160,7 @@ implements SimpleDataResourceValidator
                 validated
                 ){
                 @Override
-                public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session)
+                public AbstractDataResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session)
                     {
                     this.entity = SimpleDataResourceValidatorImpl.this.entityFactory.create(
                         session,

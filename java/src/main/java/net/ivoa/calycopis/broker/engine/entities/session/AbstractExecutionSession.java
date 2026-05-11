@@ -35,6 +35,7 @@ import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSet;
 public interface AbstractExecutionSession
 extends Component
     {
+    
     /**
      * The webapp path for sessions.
      * 

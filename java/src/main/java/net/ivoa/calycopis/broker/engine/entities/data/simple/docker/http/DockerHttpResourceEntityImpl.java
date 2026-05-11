@@ -75,6 +75,7 @@ public class DockerHttpResourceEntityImpl
 extends SimpleDataResourceEntityImpl
 implements DockerHttpResource
     {
+    
     /**
      * Protected constructor for JPA entities.
      * 

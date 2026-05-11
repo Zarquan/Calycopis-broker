@@ -31,6 +31,7 @@ import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessio
 public interface OfferSetEntity
 extends OfferSet
     {
+    
     /**
      * Get a list of the Execution offers.
      * 

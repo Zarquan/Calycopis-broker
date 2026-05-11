@@ -63,7 +63,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
@@ -191,7 +191,7 @@ implements SkaoDataResourceValidator
                 validated
                 ){
                 @Override
-                public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session)
+                public AbstractDataResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session)
                     {
                     this.entity = SkaoDataResourceValidatorImpl.this.skaoDataResourceEntityFactory.create(
                         session,

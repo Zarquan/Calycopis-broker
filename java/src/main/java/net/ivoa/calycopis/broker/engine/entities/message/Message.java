@@ -34,6 +34,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaMessageItem.LevelEnum;
  */
 public interface Message
     {
+    
     /**
      * The message type identifier.
      * Typically a URL pointing to a human readable description of the message. 

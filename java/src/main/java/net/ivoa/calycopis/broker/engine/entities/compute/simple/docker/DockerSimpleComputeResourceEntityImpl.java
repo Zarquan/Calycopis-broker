@@ -59,7 +59,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponent;
 import net.ivoa.calycopis.broker.engine.entities.compute.simple.SimpleComputeResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainer;
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainerEntityImpl;
@@ -244,7 +244,7 @@ implements DockerSimpleComputeResource
             if (volumeMount instanceof SimpleVolumeMountEntityImpl)
                 {
                 SimpleVolumeMountEntityImpl simpleMount = (SimpleVolumeMountEntityImpl) volumeMount;
-                AbstractDataResourceEntity dataResource = simpleMount.getDataResource();
+                AbstractDataResourceEntityImpl dataResource = simpleMount.getDataResource();
                 log.debug(
                     "SimpleVolumeMount [{}] dataResource [{}]",
                     simpleMount.getUuid(),

@@ -50,7 +50,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityImpl;
 import net.ivoa.calycopis.broker.engine.util.ListWrapper;
@@ -72,6 +72,7 @@ public abstract class AbstractStorageResourceEntityImpl
 extends LifecycleComponentEntityImpl
 implements AbstractStorageResource
     {
+    
     /**
      * Protected constructor for JPA entities.
      * 
@@ -133,15 +134,15 @@ implements AbstractStorageResource
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<AbstractDataResourceEntity> dataresources = new ArrayList<AbstractDataResourceEntity>();
+    List<AbstractDataResourceEntityImpl> dataresources = new ArrayList<AbstractDataResourceEntityImpl>();
 
     @Override
-    public List<AbstractDataResourceEntity> getDataResources()
+    public List<AbstractDataResourceEntityImpl> getDataResources()
         {
         return dataresources;
         }
 
-    public void addDataResource(final AbstractDataResourceEntity dataResource)
+    public void addDataResource(final AbstractDataResourceEntityImpl dataResource)
         {
         dataResource.setStorage(
             this
@@ -189,10 +190,10 @@ implements AbstractStorageResource
             this.makeScheduleBean()
             );
         bean.setData(
-            new ListWrapper<String, AbstractDataResourceEntity>(
+            new ListWrapper<String, AbstractDataResourceEntityImpl>(
                 dataresources
                 ){
-                public String wrap(final AbstractDataResourceEntity inner)
+                public String wrap(final AbstractDataResourceEntityImpl inner)
                     {
                     return inner.getUuid().toString();
                     }

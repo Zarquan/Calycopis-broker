@@ -41,7 +41,7 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
@@ -63,9 +63,10 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSkaoDataResource;
     name = "ivoadataresources"
     )
 public abstract class IvoaDataResourceEntityImpl
-    extends AbstractDataResourceEntity
-    implements IvoaDataResource
+extends AbstractDataResourceEntityImpl
+implements IvoaDataResource
     {
+
     @Override
     public URI getKind()
         {

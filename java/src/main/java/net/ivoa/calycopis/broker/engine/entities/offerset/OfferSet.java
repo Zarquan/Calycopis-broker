@@ -36,6 +36,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaOfferSetResponse.ResultEnum;
 public interface OfferSet
 extends Component
     {
+    
     /**
      * The webapp path for executables.
      * TODO Move this to AbstractOfferset.

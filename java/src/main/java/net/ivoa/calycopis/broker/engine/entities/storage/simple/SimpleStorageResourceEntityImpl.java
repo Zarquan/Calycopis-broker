@@ -57,6 +57,7 @@ public abstract class SimpleStorageResourceEntityImpl
 extends AbstractStorageResourceEntityImpl
 implements SimpleStorageResource
     {
+    
     @Override
     public URI getKind()
         {

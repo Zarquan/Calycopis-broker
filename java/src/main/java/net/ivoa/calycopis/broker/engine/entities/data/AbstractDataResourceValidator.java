@@ -45,7 +45,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
  * 
  */
 public interface AbstractDataResourceValidator
-extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
+extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntityImpl>
     {
     /**
      * Validate a component.
@@ -61,13 +61,13 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
      * 
      */
     public interface Result
-    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
+    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntityImpl> 
         {
         /**
          * Build a DataResourceEntity based on the validation result. 
          *
          */
-        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session);
+        public AbstractDataResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session);
         }
 
     /**
@@ -75,7 +75,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
      * 
      */
     public static abstract class ResultBean
-    extends Validator.ResultBean<IvoaAbstractDataResource, AbstractDataResourceEntity>
+    extends Validator.ResultBean<IvoaAbstractDataResource, AbstractDataResourceEntityImpl>
     implements AbstractDataResourceValidator.Result
         {
         /**

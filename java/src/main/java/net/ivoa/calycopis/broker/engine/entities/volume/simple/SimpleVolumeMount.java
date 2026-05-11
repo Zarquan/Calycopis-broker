@@ -34,6 +34,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleVolumeMount.ModeEnum;
 public interface SimpleVolumeMount
 extends AbstractVolumeMount
     {
+    
     /**
      * The OpenAPI type identifier.
      * 

@@ -57,7 +57,7 @@ package net.ivoa.calycopis.broker.engine.entities.data.ivoa;
 import java.net.URI;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
@@ -170,7 +170,7 @@ implements IvoaDataResourceValidator
                 validated
                 ){
                 @Override
-                public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session)
+                public AbstractDataResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session)
                     {
                     this.entity = IvoaDataResourceValidatorImpl.this.entityFactory.create(
                         session,

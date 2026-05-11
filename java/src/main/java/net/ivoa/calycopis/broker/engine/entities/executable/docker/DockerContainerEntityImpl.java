@@ -73,6 +73,7 @@ public abstract class DockerContainerEntityImpl
 extends AbstractExecutableEntityImpl
 implements DockerContainer
     {
+    
     @Override
     public URI getKind()
         {

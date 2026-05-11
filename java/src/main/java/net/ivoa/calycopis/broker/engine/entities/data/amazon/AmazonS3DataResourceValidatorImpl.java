@@ -55,7 +55,7 @@
 package net.ivoa.calycopis.broker.engine.entities.data.amazon;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.broker.engine.entities.offerset.OfferSetRequestParserContext;
@@ -163,7 +163,7 @@ implements AmazonS3DataResourceValidator
                 validated
                 ){
                 @Override
-                public AbstractDataResourceEntity build(final SimpleExecutionSessionEntityImpl session)
+                public AbstractDataResourceEntityImpl build(final SimpleExecutionSessionEntityImpl session)
                     {
                     this.entity = AmazonS3DataResourceValidatorImpl.this.entityFactory.create(
                         session,

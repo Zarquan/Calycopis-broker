@@ -32,8 +32,9 @@ import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResource;
  *
  */
 public interface AmazonS3DataResource
-    extends AbstractDataResource
+extends AbstractDataResource
     {
+
     /**
      * The OpenAPI type identifier.
      * 

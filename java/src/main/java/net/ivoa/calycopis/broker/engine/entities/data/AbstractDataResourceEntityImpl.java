@@ -68,15 +68,16 @@ import net.ivoa.calycopis.schema.spring.model.IvoaAbstractDataResource;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public abstract class AbstractDataResourceEntity
+public abstract class AbstractDataResourceEntityImpl
 extends LifecycleComponentEntityImpl
 implements AbstractDataResource
     {
+
     /**
      * Protected constructor for JPA entities.
      * 
      */
-    protected AbstractDataResourceEntity()
+    protected AbstractDataResourceEntityImpl()
         {
         super();
         }
@@ -85,7 +86,7 @@ implements AbstractDataResource
      * Protected constructor used by derived classes.
      * 
      */
-    protected AbstractDataResourceEntity(
+    protected AbstractDataResourceEntityImpl(
         final SimpleExecutionSessionEntityImpl session,
         final AbstractStorageResourceEntityImpl storage,
         final AbstractDataResourceValidator.Result result

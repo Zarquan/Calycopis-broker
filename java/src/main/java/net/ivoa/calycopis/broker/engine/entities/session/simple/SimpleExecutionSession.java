@@ -43,7 +43,7 @@ import java.util.List;
 import org.threeten.extra.Interval;
 
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.executable.AbstractExecutableEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSession;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
@@ -54,7 +54,7 @@ import net.ivoa.calycopis.schema.spring.model.IvoaSimpleExecutionSessionPhase;
  *
  */
 public interface SimpleExecutionSession
-    extends AbstractExecutionSession
+extends AbstractExecutionSession
     {
     
     /**
@@ -97,7 +97,7 @@ public interface SimpleExecutionSession
      * Get a list of the DataResources.
      *
      */
-    public List<AbstractDataResourceEntity> getDataResources();
+    public List<AbstractDataResourceEntityImpl> getDataResources();
 
     /**
      * Get a list of the StorageResources.

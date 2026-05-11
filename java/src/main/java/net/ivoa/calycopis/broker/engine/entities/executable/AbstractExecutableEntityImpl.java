@@ -33,6 +33,7 @@ public abstract class AbstractExecutableEntityImpl
 extends LifecycleComponentEntityImpl
 implements AbstractExecutable
     {
+    
     /**
      * Protected constructor for JPA entities.
      * 

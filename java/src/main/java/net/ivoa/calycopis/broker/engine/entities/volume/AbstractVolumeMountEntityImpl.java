@@ -46,7 +46,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.broker.engine.entities.component.ComponentEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.util.URIBuilder;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractVolumeMount;
@@ -82,7 +82,7 @@ implements AbstractVolumeMount
      */
     protected AbstractVolumeMountEntityImpl(
         final AbstractComputeResourceEntityImpl computeResource,
-        final AbstractDataResourceEntity dataResource,
+        final AbstractDataResourceEntityImpl dataResource,
         final IvoaComponentMetadata meta
         ){
         super(meta);
@@ -132,14 +132,14 @@ implements AbstractVolumeMount
 
     @JoinColumn(name = "dataresource", referencedColumnName = "uuid", nullable = true)
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    private AbstractDataResourceEntity dataResource;
+    private AbstractDataResourceEntityImpl dataResource;
 
     @Override
-    public AbstractDataResourceEntity getDataResource()
+    public AbstractDataResourceEntityImpl getDataResource()
         {
         return this.dataResource;
         }
-    public void setDataResource(final AbstractDataResourceEntity dataResource)
+    public void setDataResource(final AbstractDataResourceEntityImpl dataResource)
         {
         this.dataResource = dataResource;
         }

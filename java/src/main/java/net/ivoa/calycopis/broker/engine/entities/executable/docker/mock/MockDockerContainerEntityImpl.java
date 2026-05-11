@@ -63,8 +63,8 @@ import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockReleaseAc
     strategy = InheritanceType.JOINED
     )
 public class MockDockerContainerEntityImpl
-    extends DockerContainerEntityImpl
-    implements MockDockerContainer
+extends DockerContainerEntityImpl
+implements MockDockerContainer
     {
 
     /**

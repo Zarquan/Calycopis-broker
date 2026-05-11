@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountEntityFactoryImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountValidator;
@@ -65,7 +65,7 @@ implements MockSimpleVolumeMountEntityFactory
     @Override
     public MockSimpleVolumeMountEntityImpl create(
         final AbstractComputeResourceEntityImpl computeResource,
-        final AbstractDataResourceEntity        dataResource,
+        final AbstractDataResourceEntityImpl        dataResource,
         final SimpleVolumeMountValidator.Result result
         ){
         return this.repository.save(

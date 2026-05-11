@@ -38,7 +38,7 @@ package net.ivoa.calycopis.broker.engine.entities.volume.simple.docker;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.broker.engine.entities.compute.AbstractComputeResourceEntityImpl;
-import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.broker.engine.entities.data.AbstractDataResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountValidator;
@@ -52,8 +52,8 @@ import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMount
     name = "dockersimplevolumemounts"
     )
 public class DockerSimpleVolumeMountEntityImpl
-    extends SimpleVolumeMountEntityImpl
-    implements DockerSimpleVolumeMount
+extends SimpleVolumeMountEntityImpl
+implements DockerSimpleVolumeMount
     {
 
     /**
@@ -71,7 +71,7 @@ public class DockerSimpleVolumeMountEntityImpl
      */
     protected DockerSimpleVolumeMountEntityImpl(
         final AbstractComputeResourceEntityImpl computeResource,
-        final AbstractDataResourceEntity        dataResource,
+        final AbstractDataResourceEntityImpl        dataResource,
         final SimpleVolumeMountValidator.Result result
         ){
         super(
