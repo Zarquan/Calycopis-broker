@@ -32,11 +32,22 @@
         Work in progress ...
 
 # -----------------------------------------------------
-# major
+# Spring transition
 
     Create a Spring free interface for JpaRepositories.
+        ProcessingRequestRepository
 
     Resolve the inheritance tree for JpaRepositories.
+
+    ProcessingServiceImpl is complicated
+
+    Deprecate
+        CancelComponentRequestEntity
+
+
+
+# -----------------------------------------------------
+# major
 
     Authentication.
     OIDC auth in webapp
