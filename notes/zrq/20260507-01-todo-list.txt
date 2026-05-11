@@ -89,26 +89,6 @@
 # -----------------------------------------------------
 # minor
 
-
-    Move
-        net.ivoa.calycopis.broker.engine.entities.data.docker;
-        net.ivoa.calycopis.broker.engine.entities.data.simple.docker;
-
-        net.ivoa.calycopis.broker.engine.entities.data.docker.file;
-        net.ivoa.calycopis.broker.engine.entities.data.simple.docker.file;
-
-        net.ivoa.calycopis.broker.engine.entities.data.docker.http;
-        net.ivoa.calycopis.broker.engine.entities.data.simple.docker.http;
-
-    Move
-        net.ivoa.calycopis.broker.engine.entities.storage.docker;
-        net.ivoa.calycopis.broker.engine.entities.storage.simple.docker;
-
-
-    Pass more things down the chain using a reference to the Platform.
-    References to JpaRepositories for example.
-
-
     How many of the JpaRepositories are actually used ?
     I think it might just be the base class AbstractXyz ones.
 
@@ -118,7 +98,6 @@
     Remove the XyzEntity interfaces and replace with XyzEntityImpl.
     Evaluate - do we need XyzEntityFactory interfaces
 
-
     Decide on one pattern for entities and their interfaces:
 
         AbstractDataResource is the interface
@@ -126,6 +105,7 @@
 
         AbstractExecutable is the interface
         AbstractExecutableEntityImpl is the entity class
+
 
     Message and MessageEntityImpl should have kind rather than type.
 
