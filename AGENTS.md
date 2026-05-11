@@ -141,8 +141,8 @@ This project implements the IVOA Execution Broker service.
  * There is a local copy of the Calycopis-schema project available at `/calycopis/Calycopis-schema/github-zrq/`
  * The Execution Broker API is defined in `/calycopis/Calycopis-schema/github-zrq/schema/v1.0/execution-broker.yaml`
 
- * The Calycopis-broker project depends on the `net.ivoa.calycopis:calycopis-spring:1.0.3-SNAPSHOT` package, which contains Spring Boot classes generated from the schema.
- * The Maven project for the `calycopis-spring` package is available at `/calycopis/Calycopis-schema/github-zrq/codegen/java/spring`
+ * The Calycopis-broker project depends on the `net.ivoa.calycopis:calycopis-schema-spring:1.0.3-SNAPSHOT` package, which contains Spring Boot classes generated from the schema.
+ * The Maven project for the `calycopis-schema-spring` package is available at `/calycopis/Calycopis-schema/github-zrq/codegen/java/spring`
  * The source code for the generated Spring Boot classes are available at `/calycopis/Calycopis-schema/github-zrq/codegen/java/spring/target/generated-sources/openapi`.
 
  * The Calycopis-broker project uses Python client classes generated from the schema for testing.
