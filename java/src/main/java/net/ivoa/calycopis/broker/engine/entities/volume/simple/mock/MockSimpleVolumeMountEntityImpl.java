@@ -44,7 +44,6 @@ import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMount
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountValidator;
 
 /**
- * A MockSimpleVolumeMount Entity.
  *
  */
 @Entity

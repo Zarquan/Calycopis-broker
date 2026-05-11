@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.broker.engine.functional.processing;
 
 import java.net.URI;
-import java.util.List;
 
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBase;
 
@@ -35,6 +34,6 @@ public interface ProcessingService
 extends FactoryBase
     {
     
-    public List<URI> getKinds();
+    public Iterable<URI> getKinds();
 
     }

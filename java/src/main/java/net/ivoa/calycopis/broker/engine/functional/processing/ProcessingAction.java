@@ -24,20 +24,21 @@
 package net.ivoa.calycopis.broker.engine.functional.processing;
 
 /**
- * An external action to be performed outside of any transaction context.
+ * An external action that is performed outside of any database transactions.
+ * This means that the action may take a non-trivial amount of time without locking up the database and preventing other transactions from proceeding.
  * 
  */
 public interface ProcessingAction
     {
     
     /**
-     * Perform the action outside any transaction context.
+     * Perform the action.
      * 
      */
     public void process();
 
     /**
-     * Perform no action.
+     * Placeholder action that does nothing.
      * 
      */
     public static final ProcessingAction NO_ACTION = new ProcessingAction()

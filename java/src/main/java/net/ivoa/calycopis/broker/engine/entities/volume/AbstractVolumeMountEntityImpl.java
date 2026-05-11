@@ -77,7 +77,7 @@ implements AbstractVolumeMount
         }
 
     /**
-     * Protected constructor.
+     * Protected constructor used by derived classes.
      *
      */
     protected AbstractVolumeMountEntityImpl(

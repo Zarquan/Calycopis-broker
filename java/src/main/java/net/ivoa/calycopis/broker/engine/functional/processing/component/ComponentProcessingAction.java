@@ -34,13 +34,13 @@ extends ProcessingAction
     {
 
     /**
-     * Prepare the Component, performed in a Transaction before processing.
+     * Pre-process a component, performed in a Transaction before applying this processing action.
      * 
      */
     public void preProcess(final LifecycleComponent component);
 
     /**
-     * Post-process the Component, performed in a Transaction after processing.
+     * Post-process a component, performed in a Transaction after applying this processing action.
      *
      */
     public void postProcess(final LifecycleComponent component);

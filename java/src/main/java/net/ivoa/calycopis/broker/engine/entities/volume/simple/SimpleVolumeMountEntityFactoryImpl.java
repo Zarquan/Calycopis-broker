@@ -43,7 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityFactoryImpl;
 
 /**
- * A SimpleVolumeMount Factory implementation.
  *
  */
 @Slf4j

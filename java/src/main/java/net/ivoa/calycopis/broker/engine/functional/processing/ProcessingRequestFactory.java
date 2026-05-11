@@ -34,16 +34,22 @@ public interface ProcessingRequestFactory
 extends FactoryBase
     {
 
+    /**
+     * Delete a request.
+     * 
+     */
     public void delete(final ProcessingRequest request);
 
     /**
-     * Get the SessionProcessingRequestFactory for this platform.
+     * Get the SessionProcessingRequestFactory for this Platform.
+     * TODO Move this to Platform.
      *
      */
     public SessionProcessingRequestFactory getSessionProcessingRequestFactory();
     
     /**
-     * Get the ComponentProcessingRequestFactory for this platform.
+     * Get the ComponentProcessingRequestFactory for this Platform.
+     * TODO Move this to Platform.
      *
      */
     public ComponentProcessingRequestFactory getComponentProcessingRequestFactory();

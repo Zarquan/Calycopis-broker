@@ -62,8 +62,8 @@ import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockReleaseAc
     value="uri:mock-simple-storage-resource"
     )
 public class MockSimpleStorageResourceEntityImpl
-    extends SimpleStorageResourceEntityImpl
-    implements MockSimpleStorageResource
+extends SimpleStorageResourceEntityImpl
+implements MockSimpleStorageResource
     {
 
     /**

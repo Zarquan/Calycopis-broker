@@ -35,20 +35,57 @@ import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 public interface ProcessingRequest
     {
 
+    /**
+     * URI identifier for the type of request.
+     * 
+     */
     public URI  getKind();
     
+    /**
+     * The unique identifier for this request.
+     *
+     */
     public UUID getUuid();
-    
+
+    /**
+     * The unique identifier for the service handling this request.
+     * This is used by a service to claim ownership of a request while it is processing it.
+     * Preventing another service from processing the same request at the same time.
+     *
+     */
     public UUID getService();
     
+    /**
+     * The date/time when the request was created.
+     *
+     */
     public Instant getCreated();
     
+    /**
+     * The date/time when the request was modified.
+     *
+     */
     public Instant getModified();
 
+    /**
+     * The date/time when the request should be processed.
+     *
+     */
     public Instant getActivationTime();
-    
-    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform);
 
-    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action);
+    /**
+     * Perform the pre-processing steps needed to create an action.
+     * This pre-processing step is performed inside a database transaction, with giving it access to the database state.
+     * @return A ProcessingAction that will be performed after the database transaction has been closed.
+     * 
+     */
+    public ProcessingAction preProcess(final Platform platform);
+
+    /**
+     * Perform the post-processing steps needed to save the results of an action.
+     * This post-processing step is performed inside a database transaction, with giving it access to the database state.
+     *
+     */
+    public void postProcess(final Platform platform, final ProcessingAction action);
     
     }

@@ -77,10 +77,10 @@ public class SimpleVolumeMountEntityImpl
         }
 
     /**
-     * Protected constructor for a DataResource.
+     * Protected constructor used by our factory.
      *
      */
-    public SimpleVolumeMountEntityImpl(
+    protected SimpleVolumeMountEntityImpl(
         final AbstractComputeResourceEntityImpl computeResource,
         final AbstractDataResourceEntity        dataResource,
         final SimpleVolumeMountValidator.Result result
@@ -96,7 +96,7 @@ public class SimpleVolumeMountEntityImpl
         }
 
     /**
-     * Protected constructor for a StorageResource.
+     * Protected constructor used by our factory.
      *
      */
     public SimpleVolumeMountEntityImpl(

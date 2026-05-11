@@ -52,15 +52,25 @@ public abstract class ProcessingRequestEntityImpl
 implements ProcessingRequest
     {
 
+    /**
+     * Protected constructor for JPA entities.
+     *  
+     */
     protected ProcessingRequestEntityImpl()
         {
         super();
         }
-    
+
+    /**
+     * Protected constructor used by derived classes.
+     * 
+     */
     protected ProcessingRequestEntityImpl(final URI kind)
         {
         super();
         this.kind = kind;
+        this.created = Instant.now();
+        this.modified = Instant.now();
         this.activation = Instant.now();
         }
 

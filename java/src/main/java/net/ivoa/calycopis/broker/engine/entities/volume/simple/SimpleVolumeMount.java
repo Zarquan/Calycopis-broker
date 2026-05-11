@@ -29,11 +29,10 @@ import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMount;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleVolumeMount.ModeEnum;
 
 /**
- * Public interface for a SimpleVolumeMount.
  *
  */
 public interface SimpleVolumeMount
-    extends AbstractVolumeMount
+extends AbstractVolumeMount
     {
     /**
      * The OpenAPI type identifier.

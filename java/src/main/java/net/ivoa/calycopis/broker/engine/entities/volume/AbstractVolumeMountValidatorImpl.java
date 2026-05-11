@@ -36,7 +36,11 @@ extends AbstractValidatorImpl<IvoaAbstractVolumeMount, AbstractVolumeMountEntity
 implements AbstractVolumeMountValidator
     {
 
-    public AbstractVolumeMountValidatorImpl()
+    /**
+     * Protected constructor.
+     *
+     */
+    protected AbstractVolumeMountValidatorImpl()
         {
         super();
         }

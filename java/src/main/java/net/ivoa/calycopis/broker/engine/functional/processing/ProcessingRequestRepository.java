@@ -63,7 +63,7 @@ extends JpaRepository<ProcessingRequestEntityImpl, UUID>
         LIMIT 1
         """
             )
-    public UUID selectNextRequest(@Param("service") final UUID service, @Param("kinds") final List<URI> kinds) ;
+    public UUID selectNextRequest(@Param("service") final UUID service, @Param("kinds") final Iterable<URI> iterable) ;
 
     @Modifying
     @Transactional
@@ -92,6 +92,6 @@ extends JpaRepository<ProcessingRequestEntityImpl, UUID>
                 )
         """
         )
-    public int updateNextRequest(@Param("service") final UUID service, @Param("kinds") final List<URI> kinds);
+    public int updateNextRequest(@Param("service") final UUID service, @Param("kinds") final Iterable<URI> iterable);
     
     }

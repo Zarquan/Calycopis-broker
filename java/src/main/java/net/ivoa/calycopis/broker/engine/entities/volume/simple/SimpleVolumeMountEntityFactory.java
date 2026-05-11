@@ -41,7 +41,6 @@ import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityFactory;
 
 /**
- * A SimpleVolumeMount Factory.
  *
  */
 public interface SimpleVolumeMountEntityFactory
@@ -67,6 +66,5 @@ extends AbstractVolumeMountEntityFactory
         final AbstractStorageResourceEntityImpl storageResource,
         final SimpleVolumeMountValidator.Result result
         );
-    
     }
 

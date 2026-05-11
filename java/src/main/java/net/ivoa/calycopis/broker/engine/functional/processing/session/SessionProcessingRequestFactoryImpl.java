@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.broker.engine.functional.processing.session;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +40,11 @@ implements SessionProcessingRequestFactory
     {
 
     private final SessionProcessingRequestRepository repository;
-    
-    @Autowired
+
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public SessionProcessingRequestFactoryImpl(final SessionProcessingRequestRepository repository)
         {
         super();
@@ -103,5 +105,4 @@ implements SessionProcessingRequestFactory
                 )
             );
         }
-
     }
