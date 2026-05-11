@@ -59,8 +59,25 @@
     Create storage pool.
     Create Docker impelemtation of SimpleStorage.
 
+    Add metrics to schema
+        metrics:
+          - kind: min-max-metric
+            min: float
+            max: float
+    Add costs to schema
+        costs:
+          - kind: min-max-cost
+            min: float
+            max: float
+    Add 'payment-required' redirect.
+        location
+        ivoa-payment-gateway-kind
+
 # -----------------------------------------------------
 # medium
+
+    Fix warnings in client
+    Wrap client classes, adding default kind.
 
     Create a re-usable component to record preparation time.
     Use recorded time to predict preparation time.
