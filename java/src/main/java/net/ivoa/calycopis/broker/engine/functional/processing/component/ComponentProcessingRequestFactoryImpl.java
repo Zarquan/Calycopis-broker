@@ -23,15 +23,12 @@
 
 package net.ivoa.calycopis.broker.engine.functional.processing.component;
 
-import org.springframework.stereotype.Component;
-
 import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponentEntityImpl;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 
 /**
  * 
  */
-@Component
 public class ComponentProcessingRequestFactoryImpl
 extends FactoryBaseImpl
 implements ComponentProcessingRequestFactory
@@ -39,6 +36,10 @@ implements ComponentProcessingRequestFactory
 
     private final ComponentProcessingRequestRepository repository;
     
+    /**
+     * Public constructor used by our Platform.
+     * 
+     */
     public ComponentProcessingRequestFactoryImpl(final ComponentProcessingRequestRepository repository)
         {
         this.repository = repository;
