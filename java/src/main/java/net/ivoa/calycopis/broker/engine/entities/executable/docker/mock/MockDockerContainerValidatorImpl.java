@@ -106,7 +106,7 @@ implements MockDockerContainerValidator
      * Default prepare duration, 30 seconds.
      * 
      */
-    public static final Long DEFAULT_PREPARE_ESTIMATE = 5L;
+    public static final Long DEFAULT_PREPARE_ESTIMATE = 1L;
 
     /**
      * Get the prepare duration for a resource.

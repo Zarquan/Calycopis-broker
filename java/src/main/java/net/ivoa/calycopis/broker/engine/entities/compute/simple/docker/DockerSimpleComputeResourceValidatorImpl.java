@@ -209,7 +209,7 @@ implements DockerSimpleComputeResourceValidator
         return success;
         }
 
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
+    public static final Long DEFAULT_PREPARE_TIME = 1L;
 
     @Override
     protected Long getPrepareDuration(final IvoaSimpleComputeResource validated)

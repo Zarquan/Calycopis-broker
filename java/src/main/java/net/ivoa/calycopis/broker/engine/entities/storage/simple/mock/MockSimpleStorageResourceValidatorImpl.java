@@ -133,10 +133,10 @@ implements MockSimpleStorageResourceValidator
         }
 
     /**
-     * Default prepare duration, 5 seconds.
+     * Default prepare duration, 1 second.
      * 
      */
-    public static final Long DEFAULT_PREPARE_ESTIMATE = 5L;
+    public static final Long DEFAULT_PREPARE_ESTIMATE = 1L;
 
     /**
      * Get the prepare duration for a resource.
@@ -158,10 +158,10 @@ implements MockSimpleStorageResourceValidator
         }
 
     /**
-     * Default release duration, 10 seconds.
+     * Default release duration, 1 second.
      * 
      */
-    public static final Long DEFAULT_RELEASE_ESTIMATE = 10L;
+    public static final Long DEFAULT_RELEASE_ESTIMATE = 1L;
 
     /**
      * Get the release duration for a resource.
@@ -171,5 +171,4 @@ implements MockSimpleStorageResourceValidator
         {
         return DEFAULT_RELEASE_ESTIMATE ;
         }
-    
     }

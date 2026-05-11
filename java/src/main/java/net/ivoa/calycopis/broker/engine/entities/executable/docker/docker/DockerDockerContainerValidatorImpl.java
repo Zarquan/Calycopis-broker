@@ -66,7 +66,7 @@ implements DockerDockerContainerValidator
 
     public static final Long CACHED_IMAGE_PREPARE_TIME = 1L;
 
-    public static final Long IMAGE_DOWNLOAD_PREPARE_TIME = 120L;
+    public static final Long IMAGE_DOWNLOAD_PREPARE_TIME = 60L;
 
     public static final Long DEFAULT_RELEASE_TIME = 1L;
 
