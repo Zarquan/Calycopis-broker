@@ -65,7 +65,7 @@ import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContain
 import net.ivoa.calycopis.broker.engine.entities.executable.docker.DockerContainerEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionSessionEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResource;
-import net.ivoa.calycopis.broker.engine.entities.storage.docker.DockerStorageLinkerBean;
+import net.ivoa.calycopis.broker.engine.entities.storage.simple.docker.DockerStorageLinkerBean;
 import net.ivoa.calycopis.broker.engine.entities.volume.AbstractVolumeMountEntityImpl;
 import net.ivoa.calycopis.broker.engine.entities.volume.simple.SimpleVolumeMountEntityImpl;
 import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOffer;
