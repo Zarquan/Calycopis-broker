@@ -150,7 +150,15 @@ import net.ivoa.calycopis.broker.engine.entities.volume.simple.mock.MockSimpleVo
 import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
+import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactoryImpl;
+import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestRepository;
+import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequestFactory;
+import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequestFactoryImpl;
+import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequestRepository;
 import net.ivoa.calycopis.broker.engine.functional.processing.mock.MockEntitySettings;
+import net.ivoa.calycopis.broker.engine.functional.processing.session.SessionProcessingRequestFactory;
+import net.ivoa.calycopis.broker.engine.functional.processing.session.SessionProcessingRequestFactoryImpl;
+import net.ivoa.calycopis.broker.engine.functional.processing.session.SessionProcessingRequestRepository;
 
 /**
  * 
@@ -209,17 +217,33 @@ implements MockPlatform
             this.sessionEntityRepository
             );
 
-        this.sessionUpdateHandler = new SimpleExecutionSessionEntityUpdateHandlerImpl(
-            this.sessionEntityFactory,
-            this.processingRequestFactory
-            );
+        this.sessionEntityFactory = new SimpleExecutionSessionEntityFactoryImpl(
+                this.sessionEntityRepository
+                );
 
-        this.offerSetFactory = new OfferSetFactoryImpl(
-            this,
-            this.offerSetRepository,
-            this.offerSetRequestParser,
-            this.processingRequestFactory
-            );
+            this.sessionUpdateHandler = new SimpleExecutionSessionEntityUpdateHandlerImpl(
+                this
+                );
+
+            this.offerSetFactory = new OfferSetFactoryImpl(
+                this,
+                this.offerSetRepository,
+                this.offerSetRequestParser
+                );
+
+            this.componentProcessingRequestFactory = new ComponentProcessingRequestFactoryImpl(
+                componentProcessingRequestRepository
+                );
+
+            this.sessionProcessingRequestFactory = new SessionProcessingRequestFactoryImpl(
+                sessionProcessingRequestRepository
+                );
+
+            this.processingRequestFactory = new ProcessingRequestFactoryImpl(
+                this.processingRequestRepository,
+                this.sessionProcessingRequestFactory,
+                this.componentProcessingRequestFactory
+                );
         
         //
         // Register validators with the most specific types first.
@@ -427,10 +451,20 @@ implements MockPlatform
         return sessionUpdateHandler;
         }
     
-// Processing
+ // Processing
 
     @Autowired
+    private ProcessingRequestRepository processingRequestRepository;
+    @Autowired
+    private ComponentProcessingRequestRepository componentProcessingRequestRepository;
+    @Autowired
+    private SessionProcessingRequestRepository sessionProcessingRequestRepository;
+
+    // These have to be initialized in the initialize() method because the Autowired repositories are not available at construction time.
     private ProcessingRequestFactory processingRequestFactory;
+    private ComponentProcessingRequestFactory componentProcessingRequestFactory;
+    private SessionProcessingRequestFactory sessionProcessingRequestFactory;
+    
     @Override
     public ProcessingRequestFactory getProcessingRequestFactory()
         {

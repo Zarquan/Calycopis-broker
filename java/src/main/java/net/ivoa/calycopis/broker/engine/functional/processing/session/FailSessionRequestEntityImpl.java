@@ -33,7 +33,6 @@ import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionS
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -67,7 +66,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
+    public ProcessingAction preProcess(final Platform platform)
         {
         log.debug(
             "Pre-processing [FAIL] for session [{}][{}][{}]",
@@ -128,19 +127,16 @@ implements SessionProcessingRequest
         //
         // Cancel all of the components.
         scheduleCancelIfActive(
-            processing,
             platform,
             this.session.getExecutable()
             );
         scheduleCancelIfActive(
-            processing,
             platform,
             this.session.getComputeResource()
             );
         for (AbstractDataResourceEntity dataResource : this.session.getDataResources())
             {
             scheduleCancelIfActive(
-                processing,
                 platform,
                 dataResource
                 );
@@ -148,7 +144,6 @@ implements SessionProcessingRequest
         for (AbstractStorageResourceEntityImpl storageResource : this.session.getStorageResources())
             {
             scheduleCancelIfActive(
-                processing,
                 platform,
                 storageResource
                 );
@@ -158,7 +153,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ProcessingAction action)
         {
         log.debug(
             "Post-processing [FAIL] for session [{}][{}]",

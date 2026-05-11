@@ -55,8 +55,6 @@ public class OfferSetFactoryImpl
     
     private final OfferSetRepository offersetRepository;
 
-    private final ProcessingRequestFactory processingRequestFactory;
-
     /**
      * Public constructor used by our Platform.
      * 
@@ -64,14 +62,12 @@ public class OfferSetFactoryImpl
     public OfferSetFactoryImpl(
         final Platform platform,
         final OfferSetRepository offersetRepository,
-        final OfferSetRequestParser offersetParser,
-        final ProcessingRequestFactory processingRequestFactory
+        final OfferSetRequestParser offersetParser
         ){
         super();
         this.platform = platform;
         this.offersetRepository = offersetRepository;
         this.offersetRequestParser = offersetParser;
-        this.processingRequestFactory = processingRequestFactory;
         }
 
     @Override
@@ -133,7 +129,7 @@ public class OfferSetFactoryImpl
                     offer.setPhase(
                         IvoaSimpleExecutionSessionPhase.ACCEPTED
                         );
-                    processingRequestFactory.getSessionProcessingRequestFactory().createPrepareSessionRequest(
+                    platform.getProcessingRequestFactory().getSessionProcessingRequestFactory().createPrepareSessionRequest(
                         offer
                         );
                     return offer;

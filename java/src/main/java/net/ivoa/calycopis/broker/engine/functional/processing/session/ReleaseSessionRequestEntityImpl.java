@@ -67,7 +67,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
+    public ProcessingAction preProcess(final Platform platform)
         {
         log.debug(
             "Pre-processing [RELEASE] for session [{}][{}][{}]",
@@ -129,19 +129,16 @@ implements SessionProcessingRequest
             }
         
         scheduleReleaseIfActive(
-            processing,
             platform,
             this.session.getExecutable()
             );
         scheduleReleaseIfActive(
-            processing,
             platform,
             this.session.getComputeResource()
             );
         for (AbstractDataResourceEntity dataResource : this.session.getDataResources())
             {
             scheduleReleaseIfActive(
-                processing,
                 platform,
                 dataResource
                 );
@@ -149,7 +146,6 @@ implements SessionProcessingRequest
         for (AbstractStorageResourceEntityImpl storageResource : this.session.getStorageResources())
             {
             scheduleReleaseIfActive(
-                processing,
                 platform,
                 storageResource
                 );
@@ -159,7 +155,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ProcessingAction action)
         {
         log.debug(
             "Post-processing release for session [{}][{}][{}]",

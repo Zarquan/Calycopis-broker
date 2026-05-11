@@ -25,7 +25,6 @@ package net.ivoa.calycopis.broker.engine.functional.processing.component;
 
 import java.net.URI;
 
-import net.ivoa.calycopis.broker.engine.entities.component.LifecycleComponent;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequest;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
@@ -36,10 +35,11 @@ import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestF
 public interface ComponentProcessingRequest
 extends ProcessingRequest
     {
-    public static final URI KIND = URI.create("urn:ivoa.calycopis.processing.component-processing-request");
-    
-    public LifecycleComponent getComponent(final Platform platform);
 
-    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ComponentProcessingAction action);
+    /**
+     * The type identifier for this type of processing request.
+     * 
+     */
+    public static final URI KIND = URI.create("urn:ivoa.calycopis.processing.component-processing-request");
 
     }

@@ -53,7 +53,7 @@ extends ComponentProcessingRequestEntityImpl
 implements ComponentProcessingRequest
     {
 
-    public static final Duration DEFAULT_RELEASE_LOOP_INTERVAL = Duration.ofSeconds(10);
+    public static final Duration DEFAULT_RELEASE_LOOP_INTERVAL = Duration.ofSeconds(5);
 
     protected ReleaseComponentRequestEntity()
         {
@@ -66,7 +66,7 @@ implements ComponentProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
+    public ProcessingAction preProcess(final Platform platform)
         {
         LifecycleComponentEntityImpl component = this.getComponent(
             platform
@@ -120,7 +120,6 @@ implements ComponentProcessingRequest
                     component.getClass().getSimpleName()
                     );
                 this.fail(
-                    processing,
                     platform,
                     component
                     );
@@ -128,8 +127,7 @@ implements ComponentProcessingRequest
                 }
             }
 
-    @Override
-    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ComponentProcessingAction action)
+    protected void postProcess(final Platform platform, final ComponentProcessingAction action)
         {
         LifecycleComponentEntityImpl component = this.getComponent(
             platform
@@ -151,7 +149,7 @@ implements ComponentProcessingRequest
 
         if (prevPhase != nextPhase)
             {
-            processing.getSessionProcessingRequestFactory().createUpdateSessionRequest(
+            platform.getProcessingRequestFactory().getSessionProcessingRequestFactory().createUpdateSessionRequest(
                 component.getSession()
                 );
             }
@@ -183,7 +181,6 @@ implements ComponentProcessingRequest
                     component.getClass().getSimpleName()
                     );
                 this.fail(
-                    processing,
                     platform,
                     component
                     );

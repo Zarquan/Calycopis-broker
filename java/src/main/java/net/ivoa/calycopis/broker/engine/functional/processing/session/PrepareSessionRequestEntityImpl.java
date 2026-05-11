@@ -36,7 +36,6 @@ import net.ivoa.calycopis.broker.engine.entities.session.simple.SimpleExecutionS
 import net.ivoa.calycopis.broker.engine.entities.storage.AbstractStorageResourceEntityImpl;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.schema.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -55,6 +54,8 @@ extends SessionProcessingRequestEntityImpl
 implements SessionProcessingRequest
     {
 
+    public static final Duration DEFAULT_POLL_INTERVAL = Duration.ofSeconds(5);
+
     protected PrepareSessionRequestEntityImpl()
         {
         super();
@@ -69,7 +70,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
+    public ProcessingAction preProcess(final Platform platform)
         {
         log.debug(
             "Pre-processing [PREPARE] for session [{}][{}]",
@@ -89,16 +90,14 @@ implements SessionProcessingRequest
                     this.session.getPhase(),
                     session.getPhase()
                     );
-                return failSession(
-                    processing,
+                return this.failSession(
                     platform
                     );
             //
             // Start to prepare the session
             case IvoaSimpleExecutionSessionPhase.ACCEPTED:
             case IvoaSimpleExecutionSessionPhase.WAITING:
-                return beginPreparing(
-                    processing,
+                return this.beginPreparing(
                     platform
                     );
             //
@@ -127,7 +126,7 @@ implements SessionProcessingRequest
             }
         }
 
-    protected ProcessingAction beginPreparing(final ProcessingRequestFactory processing, final Platform platform)
+    protected ProcessingAction beginPreparing(final Platform platform)
         {
         log.debug(
             "Begin preparing session [{}][{}]",
@@ -171,7 +170,7 @@ implements SessionProcessingRequest
             this.session.getExecutable().getUuid(),
             this.session.getExecutable().getClass().getSimpleName()
             );
-        processing.getComponentProcessingRequestFactory().createPrepareComponentRequest(
+        platform.getProcessingRequestFactory().getComponentProcessingRequestFactory().createPrepareComponentRequest(
             this.session.getExecutable()
             );
 
@@ -180,7 +179,7 @@ implements SessionProcessingRequest
             this.session.getComputeResource().getUuid(),
             this.session.getComputeResource().getClass().getSimpleName()
             );
-        processing.getComponentProcessingRequestFactory().createPrepareComponentRequest(
+        platform.getProcessingRequestFactory().getComponentProcessingRequestFactory().createPrepareComponentRequest(
             this.session.getComputeResource()
             );
 
@@ -191,7 +190,7 @@ implements SessionProcessingRequest
                 storageResource.getUuid(),
                 storageResource.getClass().getSimpleName()
                 );
-            processing.getComponentProcessingRequestFactory().createPrepareComponentRequest(
+            platform.getProcessingRequestFactory().getComponentProcessingRequestFactory().createPrepareComponentRequest(
                 storageResource
                 );
             }
@@ -203,7 +202,7 @@ implements SessionProcessingRequest
                 dataResource.getUuid(),
                 dataResource.getClass().getSimpleName()
                 );
-            processing.getComponentProcessingRequestFactory().createPrepareComponentRequest(
+            platform.getProcessingRequestFactory().getComponentProcessingRequestFactory().createPrepareComponentRequest(
                 dataResource
                 );
             }
@@ -212,10 +211,8 @@ implements SessionProcessingRequest
         return ProcessingAction.NO_ACTION;
         }
 
-    public static final Duration DEFAULT_WAITING_DELAY = Duration.ofSeconds(30);
-    
     @Override
-    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ProcessingAction action)
         {
         log.debug(
             "Post-processing [PREPARE] for session [{}][{}]",
@@ -242,7 +239,7 @@ implements SessionProcessingRequest
             //
             // Phase is WAITING, reschedule this request for half the time difference.
             case IvoaSimpleExecutionSessionPhase.WAITING:
-                Duration delay = DEFAULT_WAITING_DELAY;
+                Duration delay = DEFAULT_POLL_INTERVAL;
                 if ((this.session.getPrepareStartInstant() != null) && (this.session.getPrepareStartInstant().isAfter(Instant.now())))
                     {
                     delay = Duration.between(

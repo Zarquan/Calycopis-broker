@@ -82,7 +82,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
+    public ProcessingAction preProcess(final Platform platform)
         {
         log.debug(
             "Pre-processing update request for session [{}][{}][{}]",
@@ -195,7 +195,6 @@ implements SessionProcessingRequest
                         IvoaSimpleExecutionSessionPhase.FAILED
                         );
                     this.scheduleReleaseAll(
-                        processing,
                         platform
                         );
                     break;
@@ -233,7 +232,6 @@ implements SessionProcessingRequest
                         IvoaSimpleExecutionSessionPhase.CANCELLED
                         );
                     this.scheduleReleaseAll(
-                        processing,
                         platform
                         );
                     break;
@@ -310,7 +308,6 @@ implements SessionProcessingRequest
                         IvoaSimpleExecutionSessionPhase.RELEASING
                         );
                     this.scheduleReleaseAll(
-                        processing,
                         platform
                         );
                     break;
@@ -401,7 +398,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ProcessingAction action)
         {
         log.debug(
             "Post-processing monitor for session [{}][{}] with phase [{}]",

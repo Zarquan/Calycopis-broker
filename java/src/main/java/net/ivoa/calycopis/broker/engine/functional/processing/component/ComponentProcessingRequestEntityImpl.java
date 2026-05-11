@@ -104,8 +104,7 @@ implements ComponentProcessingRequest
     protected IvoaLifecyclePhase prevPhase ;
     protected IvoaLifecyclePhase nextPhase ;
     
-    @Override
-    public LifecycleComponentEntityImpl getComponent(final Platform platform)
+    protected LifecycleComponentEntityImpl getComponent(final Platform platform)
         {
         LifecycleComponentEntityImpl component = platform.select(
             this.componentKind,
@@ -124,30 +123,29 @@ implements ComponentProcessingRequest
         }
 
     @Override
-    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ProcessingAction action)
         {
         if (action instanceof ComponentProcessingAction)
             {
             this.postProcess(
-                processing,
                 platform,
                 (ComponentProcessingAction) action
                 );
             }
         else {
             this.postProcess(
-                processing,
                 platform,
                 (ComponentProcessingAction) null
                 );
             }
         }
-    
+
+    protected abstract void postProcess(final Platform platform, final ComponentProcessingAction action);
+
     @Deprecated
-    protected void fail(final ProcessingRequestFactory processing, final Platform platform)
+    protected void fail(final Platform platform)
         {
         this.fail(
-            processing,
             platform,
             this.getComponent(
                 platform
@@ -155,7 +153,7 @@ implements ComponentProcessingRequest
             );
         }
 
-    protected void fail(final ProcessingRequestFactory processing, final Platform platform, final LifecycleComponentEntityImpl component)
+    protected void fail(final Platform platform, final LifecycleComponentEntityImpl component)
         {
         log.debug(
             "ProcessingRequest [{}][{}] failed",
@@ -167,17 +165,17 @@ implements ComponentProcessingRequest
             component.setPhase(
                 IvoaLifecyclePhase.FAILED
                 );
-            updateSession(
-                processing,
+            this.updateSession(
+                platform,
                 component
                 );
             }
         this.done(platform);
         }
     
-    protected void updateSession(final ProcessingRequestFactory processing, final LifecycleComponentEntityImpl component)
+    protected void updateSession(final Platform platform, final LifecycleComponentEntityImpl component)
         {
-        processing.getSessionProcessingRequestFactory().createUpdateSessionRequest(
+        platform.getProcessingRequestFactory().getSessionProcessingRequestFactory().createUpdateSessionRequest(
             component.getSession()
             );
         }

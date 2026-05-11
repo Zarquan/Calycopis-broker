@@ -115,6 +115,14 @@ import net.ivoa.calycopis.broker.engine.entities.volume.simple.docker.DockerSimp
 import net.ivoa.calycopis.broker.engine.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
+import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactoryImpl;
+import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestRepository;
+import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequestFactory;
+import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequestFactoryImpl;
+import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequestRepository;
+import net.ivoa.calycopis.broker.engine.functional.processing.session.SessionProcessingRequestFactory;
+import net.ivoa.calycopis.broker.engine.functional.processing.session.SessionProcessingRequestFactoryImpl;
+import net.ivoa.calycopis.broker.engine.functional.processing.session.SessionProcessingRequestRepository;
 
 /**
  * 
@@ -187,15 +195,27 @@ implements DockerPlatform
             );
 
         this.sessionUpdateHandler = new SimpleExecutionSessionEntityUpdateHandlerImpl(
-            this.sessionEntityFactory,
-            this.processingRequestFactory
+            this
             );
 
         this.offerSetFactory = new OfferSetFactoryImpl(
             this,
             this.offerSetRepository,
-            this.offerSetRequestParser,
-            this.processingRequestFactory
+            this.offerSetRequestParser
+            );
+
+        this.componentProcessingRequestFactory = new ComponentProcessingRequestFactoryImpl(
+            componentProcessingRequestRepository
+            );
+
+        this.sessionProcessingRequestFactory = new SessionProcessingRequestFactoryImpl(
+            sessionProcessingRequestRepository
+            );
+
+        this.processingRequestFactory = new ProcessingRequestFactoryImpl(
+            this.processingRequestRepository,
+            this.sessionProcessingRequestFactory,
+            this.componentProcessingRequestFactory
             );
         
         //
@@ -411,7 +431,17 @@ implements DockerPlatform
 // Processing
 
     @Autowired
+    private ProcessingRequestRepository processingRequestRepository;
+    @Autowired
+    private ComponentProcessingRequestRepository componentProcessingRequestRepository;
+    @Autowired
+    private SessionProcessingRequestRepository sessionProcessingRequestRepository;
+
+    // These have to be initialized in the initialize() method because the Autowired repositories are not available at construction time.
     private ProcessingRequestFactory processingRequestFactory;
+    private ComponentProcessingRequestFactory componentProcessingRequestFactory;
+    private SessionProcessingRequestFactory sessionProcessingRequestFactory;
+    
     @Override
     public ProcessingRequestFactory getProcessingRequestFactory()
         {

@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
-import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingService;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingServiceImpl;
 import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequest;
@@ -48,11 +47,14 @@ extends ProcessingServiceImpl
 implements ProcessingService
     {
 
+    /**
+     * Public constructor used by our Platform.
+     *
+     */
     @Autowired
-    public TestProcessingSerivceImpl(final ProcessingRequestFactory processing, final Platform platform)
+    public TestProcessingSerivceImpl(final Platform platform)
         {
         super(
-            processing,
             platform
             );
         }

@@ -44,30 +44,38 @@ import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestF
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
+@Deprecated
 public class CancelComponentRequestEntity
 extends ComponentProcessingRequestEntityImpl
 implements ComponentProcessingRequest
     {
 
+    /**
+     * Protected constructor for JPA entities.
+     *  
+     */
     protected CancelComponentRequestEntity()
         {
         super();
         }
 
+    /**
+     * Protected constructor used by our factory.
+     * 
+     */
     protected CancelComponentRequestEntity(final LifecycleComponentEntityImpl component)
         {
         super(component);
         }
 
     @Override
-    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
+    public ProcessingAction preProcess(final Platform platform)
         {
         return ProcessingAction.NO_ACTION;
         }
 
     @Override
-    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ComponentProcessingAction action)
+    public void postProcess(final Platform platform, final ComponentProcessingAction action)
         {
-        // TODO Auto-generated method stub
         }
     }

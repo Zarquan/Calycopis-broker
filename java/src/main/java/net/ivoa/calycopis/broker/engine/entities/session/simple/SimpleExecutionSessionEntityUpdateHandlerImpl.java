@@ -29,6 +29,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.entities.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.broker.engine.functional.platfom.Platform;
 import net.ivoa.calycopis.broker.engine.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.schema.spring.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.schema.spring.model.IvoaEnumValueUpdate;
@@ -43,21 +44,17 @@ extends FactoryBaseImpl
 implements SimpleExecutionSessionEntityUpdateHandler
     {
 
-    private final ProcessingRequestFactory processing; 
-    
-    private final SimpleExecutionSessionEntityFactory sessionFactory;
+    private final Platform platform;
     
     /**
      * Public constructor, used by our Platform.
      * 
      */
     public SimpleExecutionSessionEntityUpdateHandlerImpl(
-        final SimpleExecutionSessionEntityFactory sessionFactory,
-        final ProcessingRequestFactory processing
+        final Platform platform
         ){
         super();
-        this.sessionFactory = sessionFactory;
-        this.processing = processing;
+        this.platform = platform;
         }
 
     @Override
@@ -67,7 +64,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         log.debug("UUID   [{}]", uuid);
         log.debug("Update [{}]", update.getClass());
 
-        Optional<SimpleExecutionSessionEntityImpl> found = this.sessionFactory.select(
+        Optional<SimpleExecutionSessionEntityImpl> found = this.platform.getSessionEntityFactory().select(
             uuid
             );
         if (found.isEmpty())
@@ -150,7 +147,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SimpleExecutionSessionEntityImpl update(SimpleExecutionSessionEntityImpl entity , final IvoaSimpleExecutionSessionPhase newphase)
+    protected SimpleExecutionSessionEntityImpl update(SimpleExecutionSessionEntityImpl entity, final IvoaSimpleExecutionSessionPhase newphase)
         {
         log.debug("update(Entity, Phase) [{}][{}][{}]", entity.getUuid(), entity.getPhase(), newphase);
         switch(newphase)
@@ -184,7 +181,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SimpleExecutionSessionEntityImpl accept(SimpleExecutionSessionEntityImpl entity)
+    protected SimpleExecutionSessionEntityImpl accept(final SimpleExecutionSessionEntityImpl entity)
         {
         log.debug("accept(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -209,7 +206,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
                     }
 
                 log.debug("Creating prepare request for session [{}]", entity.getUuid());
-                processing.getSessionProcessingRequestFactory().createPrepareSessionRequest(
+                this.platform.getProcessingRequestFactory().getSessionProcessingRequestFactory().createPrepareSessionRequest(
                     entity
                     );
 
@@ -223,7 +220,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SimpleExecutionSessionEntityImpl reject(SimpleExecutionSessionEntityImpl entity)
+    protected SimpleExecutionSessionEntityImpl reject(final SimpleExecutionSessionEntityImpl entity)
         {
         log.debug("reject(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -242,7 +239,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SimpleExecutionSessionEntityImpl cancel(SimpleExecutionSessionEntityImpl entity)
+    protected SimpleExecutionSessionEntityImpl cancel(final SimpleExecutionSessionEntityImpl entity)
         {
         log.debug("cancel(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -268,7 +265,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
         }
 
     // TODO This should require a reason.
-    protected SimpleExecutionSessionEntityImpl fail(SimpleExecutionSessionEntityImpl entity)
+    protected SimpleExecutionSessionEntityImpl fail(final SimpleExecutionSessionEntityImpl entity)
         {
         log.debug("fail(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())

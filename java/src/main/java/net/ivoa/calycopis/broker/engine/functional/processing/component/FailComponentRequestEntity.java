@@ -60,21 +60,16 @@ implements ComponentProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
+    public ProcessingAction preProcess(final Platform platform)
         {
         // TODO Auto-generated method stub
         return null;
         }
 
     @Override
-    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
+    protected void postProcess(Platform platform, ComponentProcessingAction action)
         {
         // TODO Auto-generated method stub
-        }
-
-    @Override
-    public void postProcess(final ProcessingRequestFactory processing, Platform platform, ComponentProcessingAction action)
-        {
-        // TODO Auto-generated method stub
+        
         }
     }

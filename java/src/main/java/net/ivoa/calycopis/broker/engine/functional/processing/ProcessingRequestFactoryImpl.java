@@ -23,9 +23,6 @@
 
 package net.ivoa.calycopis.broker.engine.functional.processing;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.broker.engine.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.broker.engine.functional.processing.component.ComponentProcessingRequestFactory;
@@ -35,28 +32,36 @@ import net.ivoa.calycopis.broker.engine.functional.processing.session.SessionPro
  * 
  */
 @Slf4j
-@Component
 public class ProcessingRequestFactoryImpl
 extends FactoryBaseImpl
 implements ProcessingRequestFactory
     {
 
-    private final ProcessingRequestRepository repository;
-    
-    @Autowired
-    public ProcessingRequestFactoryImpl(final ProcessingRequestRepository repository)
-        {
+    private final ProcessingRequestRepository processingRequestRepository;
+
+    /**
+     * Public constructor, used by our Platform.
+     * 
+     */
+    public ProcessingRequestFactoryImpl(
+        final ProcessingRequestRepository processingRequestRepository,
+        final SessionProcessingRequestFactory sessionProcessingRequestFactory,
+        final ComponentProcessingRequestFactory componentProcessingRequestFactory
+        ){
         super();
-        this.repository = repository;
+        this.processingRequestRepository = processingRequestRepository;
+        this.sessionProcessingRequestFactory = sessionProcessingRequestFactory;
+        this.componentProcessingRequestFactory = componentProcessingRequestFactory;
         }
 
+    // TODO Implement a two step deletion process, where we first mark a request as deleted, and then delete it after a delay.
     @Override
     public void delete(final ProcessingRequest request)
         {
         log.debug("Deleting ProcessingRequest [{}]", request.getUuid());
         if (request instanceof ProcessingRequestEntityImpl)
             {
-            repository.delete(
+            processingRequestRepository.delete(
                 (ProcessingRequestEntityImpl)request
                 );  
             }
@@ -66,21 +71,18 @@ implements ProcessingRequestFactory
                 );
             }
         }
-    
-    @Autowired
-    private SessionProcessingRequestFactory sessionProcessingRequestFactory;
+
+    private final SessionProcessingRequestFactory sessionProcessingRequestFactory;
     @Override
     public SessionProcessingRequestFactory getSessionProcessingRequestFactory()
         {
         return this.sessionProcessingRequestFactory;
         }
     
-    @Autowired
-    private ComponentProcessingRequestFactory componentProcessingRequestFactory;
+    private final ComponentProcessingRequestFactory componentProcessingRequestFactory;
     @Override
     public ComponentProcessingRequestFactory getComponentProcessingRequestFactory()
         {
         return this.componentProcessingRequestFactory;
         }
-    
     }
